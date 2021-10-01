@@ -15,6 +15,8 @@ enum
     DIVISION_BY_ZERO = -3
 };
 
+////////////////////////////////  STACK  ////////////////////////////////
+
 typedef struct TStack 
 {
     char Values[2 * SIZE_NOTATION];
@@ -35,17 +37,23 @@ bool IsEmpty(TStack stack);
 
 void DestroyStack(TStack stack);
 
+////////////////////////////////  INPUT - OUTPUT  ////////////////////////////////
+
+bool IsDigit(char value);
+
 int InputNotation(char* infixNotation);
 
 void SyntaxError();
 
 void DivisionByZero();
 
-bool IsDigit(char value);
+////////////////////////////////  POSTFIX NOTATION  ////////////////////////////////
 
 int OperatorPriority(char value);
 
 void GetPostfixNotation(const char* infixNotation, char* postfixNotation);
+
+////////////////////////////////  CALCULATOR  ////////////////////////////////
 
 int Fabs(int value);
 
