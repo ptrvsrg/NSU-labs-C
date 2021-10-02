@@ -42,7 +42,7 @@ void GetPostfixNotation(const char* infixNotation, char* postfixNotation)
             }
             else if(infixNotation[index] == ')')
             {
-                while(GetTop(operatorStack) != '(')
+                while(GetTop(&operatorStack) != '(')
                 {
                     *postfixNotation = Pop(&operatorStack);
                     ++postfixNotation;
@@ -52,7 +52,7 @@ void GetPostfixNotation(const char* infixNotation, char* postfixNotation)
             }
             else
             {
-                while(!IsEmpty(operatorStack) && OperatorPriority(GetTop(operatorStack)) >= OperatorPriority(infixNotation[index]))
+                while(!IsEmpty(operatorStack) && OperatorPriority(GetTop(&operatorStack)) >= OperatorPriority(infixNotation[index]))
                 {
                     *postfixNotation = Pop(&operatorStack);
                     ++postfixNotation;
