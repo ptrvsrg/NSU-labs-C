@@ -5,6 +5,11 @@ bool IsDigit(char value)
     return value >= '0' && value <= '9';
 }
 
+bool IsOperator(char value)
+{
+    return value == '+' || value == '-' || value == '*' || value == '/';
+}
+
 int InputNotation(char* infixNotation)
 {
     size_t beginBrackets = 0;
@@ -41,19 +46,18 @@ int InputNotation(char* infixNotation)
                 }
                 ++backBrackets;
                 break;
-            case '+':
-            case '-':
-            case '*':
-            case '/':
-                if(i == indexOperatorCount + 1)
-                {
-                    return SYNTAX_ERROR;
-                }
-                indexOperatorCount = i;
-                break;
             default:
                 if(IsDigit(infixNotation[i]))
                 {
+                    break;
+                }
+                else if (IsOperator(infixNotation[i]))
+                {
+                    if(i == indexOperatorCount + 1)
+                    {
+                        return SYNTAX_ERROR;
+                    }
+                    indexOperatorCount = i;
                     break;
                 }
                 return SYNTAX_ERROR;
