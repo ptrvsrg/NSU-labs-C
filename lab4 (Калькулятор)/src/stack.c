@@ -11,16 +11,16 @@ void Remove(TStack* stack)
     --stack->position;
 }
 
-char GetTop(TStack stack)
+char GetTop(TStack* stack)
 {
-    assert(stack.position != 0);
-    return stack.Values[stack.position - 1];
+    assert(stack->position != 0);
+    return stack->Values[stack->position - 1];
 }
 
 char Pop(TStack* stack)
 {
     assert(stack->position != 0);
-    char top = GetTop(*stack);
+    char top = GetTop(stack);
     Remove(stack);
     return top;
 }
