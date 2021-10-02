@@ -24,7 +24,7 @@ int GetNumberToString(TStack* numberStack)
 
     do
     {
-        if (!IsEmpty(*numberStack) && GetTop(*numberStack) == '-')
+        if (!IsEmpty(*numberStack) && GetTop(numberStack) == '-')
         {
             number *= -1;
             break;
@@ -32,7 +32,7 @@ int GetNumberToString(TStack* numberStack)
 
         number += SymbolToNumber(Pop(numberStack)) * power;
         power *= 10;
-    } while (!IsEmpty(*numberStack) && GetTop(*numberStack) != '|');
+    } while (!IsEmpty(*numberStack) && GetTop(numberStack) != '|');
 
     return number;  
 }
