@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 enum
 {
@@ -30,7 +31,7 @@ void GetShiftTable(const char* Template, int ShiftTable[])
 		{
 			ShiftTable[(unsigned char)Template[LengthOfTemplate - 1 - i]] = i;
 		}
-	}
+	} 
 }
 
 void FindForTemplateInText(const char* Template, FILE* InputFile)
@@ -38,7 +39,7 @@ void FindForTemplateInText(const char* Template, FILE* InputFile)
 	const int LengthOfTemplate = strlen(Template);
 	int CurrentPosition = LengthOfTemplate;
 	int ComparisonPosition = LengthOfTemplate;
-	int ShiftTable[SIZE_CHAR];
+	int ShiftTable[SIZE_CHAR]; 
 	GetShiftTable(Template, ShiftTable);
 
 	char Text[SIZE_TEMPLATE + 1];
