@@ -11,20 +11,20 @@ enum
 	FAILURE = 1
 };
 
-struct PartOfNumber
+typedef struct TNumberPart
 {
 	int IntegerPart[100];
 	int FractionalPart[100];
 	int SizeIntegerPart;
 	int SizeFractionalPart;
-};
+} TNumberPart;
 
 void PrintBadInput()
 {
 	printf("bad input");
 }
 
-int CharToInt(long long System, char Symbol, int* Number)//Перевод символов в число
+int CharToInt(long long System, char Symbol, int* Number)//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
 {
 	for (int i = 0; i < System; i++)
 	{
@@ -37,7 +37,7 @@ int CharToInt(long long System, char Symbol, int* Number)//Перевод символов в чи
 	return FAILURE;
 }
 
-int GetSizeOfIntegerPart(char* Line)//Получение размера целой части числа
+int GetSizeOfIntegerPart(char* Line)//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 {
 	char* PointPosition = strchr(Line, '.');
 
@@ -51,7 +51,7 @@ int GetSizeOfIntegerPart(char* Line)//Получение размера целой части числа
 	}
 }
 
-int DivideIntoParts(long long System1, char* Line, struct PartOfNumber* Number)//Разделение числа на целую и дробную часть
+int DivideIntoParts(long long System1, char* Line, TNumberPart* Number)//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 {
 	Number->SizeIntegerPart = GetSizeOfIntegerPart(Line);
 
@@ -62,7 +62,7 @@ int DivideIntoParts(long long System1, char* Line, struct PartOfNumber* Number)/
 
 	for (int i = 0; i < Number->SizeIntegerPart; i++)
 	{
-		//Проверка числа на правильность (все ли символы принадлежат System1-ричной СС)
+		//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ System1-пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ)
 		if (CharToInt(System1, Line[i], &(Number->IntegerPart[i])) == FAILURE)
 		{
 			return FAILURE;
@@ -72,8 +72,8 @@ int DivideIntoParts(long long System1, char* Line, struct PartOfNumber* Number)/
 	int SizeNumber = strlen(Line);
 	Number->SizeFractionalPart = SizeNumber - Number->SizeIntegerPart - 1;
 
-	//Number->SizeFractionalPart == 0 при вводе вида "111."
-	//Number->SizeFractionalPart == -1 при вводе вида "111"
+	//Number->SizeFractionalPart == 0 пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ "111."
+	//Number->SizeFractionalPart == -1 пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ "111"
 	if (Number->SizeFractionalPart == -1)
 	{
 		Number->SizeFractionalPart = 0;
@@ -82,7 +82,7 @@ int DivideIntoParts(long long System1, char* Line, struct PartOfNumber* Number)/
 	{
 		for (int i = 0; i < Number->SizeFractionalPart; i++)
 		{
-			// Проверка числа на правильность(все ли символы принадлежат System1 - ричной СС)
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ(пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ System1 - пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ)
 			if (CharToInt(System1, Line[i + Number->SizeIntegerPart + 1], &(Number->FractionalPart[i])) == FAILURE)
 			{
 				return FAILURE;
@@ -97,7 +97,7 @@ int DivideIntoParts(long long System1, char* Line, struct PartOfNumber* Number)/
 	return SUCCESS;
 }
 
-double To10(long long System1, struct PartOfNumber Number)//Перевод в 10-ричную СС
+double To10(long long System1, TNumberPart Number)//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ 10-пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ
 {
 	double Sum = 0.0;
 
@@ -114,9 +114,9 @@ double To10(long long System1, struct PartOfNumber Number)//Перевод в 10-ричную 
 	return Sum;
 }
 
-struct PartOfNumber From10(long long System2, double Sum, struct PartOfNumber LastNumber)//Перевод из 10-ричной СС
+TNumberPart From10(long long System2, double Sum, TNumberPart LastNumber)//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 10-пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ
 {
-	struct PartOfNumber Number;
+	TNumberPart Number;
 	double Fractional = Sum - (long long)Sum;
 	Number.SizeFractionalPart = 0;
 
@@ -151,7 +151,7 @@ struct PartOfNumber From10(long long System2, double Sum, struct PartOfNumber La
 
 int main()
 {
-	struct PartOfNumber Number;
+	TNumberPart Number;
 	int System1, System2;
 	char Line[14];
 
