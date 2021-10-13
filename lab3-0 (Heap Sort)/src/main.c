@@ -1,4 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,36 +10,34 @@ enum
 	FAILURE = 1
 };
 
-int InputArray(int ArraySize, int* Array) //Ввод массива
+int InputArray(int ArraySize, int* Array)
 {
 	for (int i = 0; i < ArraySize; i++)
 	{
 		if (scanf("%d", &Array[i]) == EOF)
 		{
-			return FAILURE;
+			free(Array);
+            assert(false);
 		}
 	}
-
-	return SUCCESS;
 }
 
-void OutputArray(int ArraySize, int* Array) //Вывод массива
+void OutputArray(int ArraySize, const int* Array)
 {
 	for (int i = 0; i < ArraySize; i++)
 	{
 		printf("%d ", Array[i]);
 	}
-	printf("\n");
 }
 
-void Swap(int* Value1, int* Value2) //Обмен значениями
+void Swap(int* Value1, int* Value2)
 {
 	int Buffer = *Value1;
 	*Value1 = *Value2;
 	*Value2 = Buffer;
 }
 
-void GetAscendingBranch(int ArraySize, int Index, int* Array) //Получение возрастающей ветки
+void GetAscendingBranch(int ArraySize, int Index, int* Array)
 {
 	int Largest = Index;
 
@@ -58,7 +58,7 @@ void GetAscendingBranch(int ArraySize, int Index, int* Array) //Получение возрас
 	}
 }
 
-void HeapSort(int ArraySize, int* Array) //Сортировка алгоритмом Heap Sort
+void HeapSort(int ArraySize, int* Array)
 {
 	for (int i = ArraySize / 2 - 1; i >= 0; i--)
 	{
@@ -76,26 +76,17 @@ int main()
 {
 	int ArraySize = 0;
 
-	if (scanf("%d", &ArraySize) == EOF)
-	{
-		return SUCCESS;
-	}
+	assert(scanf("%d", &ArraySize) != EOF);
 
 	int* Array = malloc(sizeof(*Array) * ArraySize);
+    assert(Array != NULL);
 
-	if (Array == NULL)
-	{
-		return SUCCESS;
-	}
-
-	if (InputArray(ArraySize, Array) == FAILURE)
-	{
-		free(Array);
-		return SUCCESS;
-	}
+	InputArray(ArraySize, Array);
 
 	HeapSort(ArraySize, Array);
+
 	OutputArray(ArraySize, Array);
+    
 	free(Array);
 
 	return SUCCESS;

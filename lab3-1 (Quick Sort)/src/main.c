@@ -1,4 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,35 +10,34 @@ enum
 	FAILURE = 1
 };
 
-int InputArray(int ArraySize, int* Array) //Ввод массива
+int InputArray(int ArraySize, int* Array)
 {
-	for (int i = 0; i < ArraySize; i++)
+	for (int i = 0; i < ArraySize; ++i)
 	{
-		if (scanf("%d", &Array[i]) == EOF)
-		{
-			return FAILURE;
-		}
+		if(scanf("%d", &Array[i]) == EOF)
+        {
+            free(Array);
+            assert(false);
+        }
 	}
-
-	return SUCCESS;
 }
 
-void OutputArray(int ArraySize, int* Array) //Вывод массива
+void OutputArray(int ArraySize, const int* Array)
 {
-	for (int i = 0; i < ArraySize; i++)
+	for (int i = 0; i < ArraySize; ++i)
 	{
 		printf("%d ", Array[i]);
 	}
 }
 
-void Swap(int* Value1, int* Value2) //Обмен значениями
+void Swap(int* Value1, int* Value2)
 {
 	int Buffer = *Value1;
 	*Value1 = *Value2;
 	*Value2 = Buffer;
 }
 
-void QuickSort(int* Array, int StartPosition, int EndPosition) //Сортировка алгоритмом Quick Sort
+void QuickSort(int* Array, int StartPosition, int EndPosition)
 {
 	if (StartPosition < EndPosition)
 	{
@@ -48,19 +49,19 @@ void QuickSort(int* Array, int StartPosition, int EndPosition) //Сортировка алго
 		{
 			while (Array[Start] < ComprasionValue)
 			{
-				Start++;
+				++Start;
 			}
 			while (Array[End] > ComprasionValue)
 			{
-				End--;
+				--End;
 			}
 
 			if (Start <= End)
 			{
 				Swap(&Array[Start], &Array[End]);
 
-				Start++;
-				End--;
+				++Start;
+				--End;
 			}
 		}
 
@@ -73,23 +74,12 @@ int main()
 {
 	int ArraySize = 0;
 
-	if (scanf("%d", &ArraySize) == EOF)
-	{
-		return SUCCESS;
-	}
+	assert(scanf("%d", &ArraySize) != EOF);
 
 	int* Array = malloc(sizeof(*Array) * ArraySize);
+    assert(Array != NULL);
 
-	if (Array == NULL)
-	{
-		return SUCCESS;
-	}
-
-	if (InputArray(ArraySize, Array) == FAILURE)
-	{
-		free(Array);
-		return SUCCESS;
-	}
+	InputArray(ArraySize, Array);
 
 	QuickSort(Array, 0, ArraySize - 1);
 	OutputArray(ArraySize, Array);

@@ -65,9 +65,16 @@ void GetShiftTable(const char* Template, int ShiftTable[])
 
 char* StrCpy(char* strDest, const char* strSrc)
 {
-    assert(strDest!=NULL && strSrc!=NULL);
+    assert(strDest != NULL && strSrc != NULL);
     char *temp = strDest;
-    while(*strDest++ = *strSrc++);
+
+    while(*strDest)
+    {
+        *strDest = *strSrc;
+        ++strDest;
+        ++strSrc;
+    }
+    
     return temp;
 }
 
