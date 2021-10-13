@@ -1,9 +1,10 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-const char* Symbols1 = "0123456789abcdef", * Symbols2 = "0123456789ABCDEF";
+const char* Symbols = "0123456789abcdef";
 
 enum
 {
@@ -17,11 +18,11 @@ void PrintBadInput()
 	exit(SUCCESS);
 }
 
-int CharToInt(int System, char Symbol)//Перевод символов в число
+int CharToInt(int System, char Symbol)
 {
 	for (int i = 0; i < System; i++)
 	{
-		if (Symbol == Symbols1[i] || Symbol == Symbols2[i])
+		if (tolower(Symbol) == Symbols[i])
 		{
 			return i;
 		}
@@ -51,7 +52,7 @@ double Pow(unsigned int Number, int Power)
 	}
 }
 
-int GetSizeOfIntegerPart(const char* Line)//Получение размера целой части числа
+int GetIntegerPartSize(const char* Line)
 {
 	char* PointPosition = strchr(Line, '.');
 	int LineLength = strlen(Line);
@@ -73,9 +74,9 @@ int GetSizeOfIntegerPart(const char* Line)//Получение размера целой части числа
 	}
 }
 
-double To10(int System1, const char* Line)//Перевод в 10-ричную СС
+double To10(int System1, const char* Line)
 {
-	int IntegerPartSize = GetSizeOfIntegerPart(Line);
+	int IntegerPartSize = GetIntegerPartSize(Line);
 	double Sum = 0.0;
 
 	for (int i = 0; i < IntegerPartSize; i++)
@@ -93,7 +94,7 @@ double To10(int System1, const char* Line)//Перевод в 10-ричную СС
 	return Sum;
 }
 
-char* From10(int System2, double Sum)//Перевод из 10-ричной СС
+char* From10(int System2, double Sum)
 {
 	long long Integer = (long long)Sum;
 	int IntegerSize = 0;
@@ -114,7 +115,7 @@ char* From10(int System2, double Sum)//Перевод из 10-ричной СС
 
 	for (int i = IntegerSize - 1; i >= 0; i--)
 	{
-		Line[i] = Symbols1[Integer % System2];
+		Line[i] = Symbols[Integer % System2];
 		Integer /= System2;
 	}
 
@@ -126,7 +127,7 @@ char* From10(int System2, double Sum)//Перевод из 10-ричной СС
 		for (int i = 0; i < 12; i++)
 		{
 			Fractional *= System2;
-			Line[IntegerSize + 1 + i] = Symbols1[(int)Fractional];
+			Line[IntegerSize + 1 + i] = Symbols[(int)Fractional];
 			Fractional -= (int)Fractional;
 		}
 	}
@@ -140,17 +141,12 @@ int main()
 	int System1, System2;
 	char Line[14];
 
-	if (scanf("%d %d", &System1, &System2) == EOF)
+	if (scanf("%d %d", &System1, &System2) == EOF || System1 > 16 || System2 > 16 || System1 < 2 || System2 < 2)
 	{
 		PrintBadInput();
 	}
 
 	if (scanf("%13s", Line) == EOF)
-	{
-		PrintBadInput();
-	}
-
-	if (System1 > 16 || System2 > 16 || System1 < 2 || System2 < 2)
 	{
 		PrintBadInput();
 	}

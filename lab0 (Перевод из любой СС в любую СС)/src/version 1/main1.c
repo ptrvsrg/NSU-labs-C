@@ -1,9 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include <ctype.h>
 #include <stdio.h>
-#include <math.h>
 #include <string.h>
 
-const char* Symbols1 = "0123456789abcdef", * Symbols2 = "0123456789ABCDEF";
+const char* Symbols = "0123456789abcdef";
 
 enum
 {
@@ -19,16 +19,54 @@ typedef struct TNumberPart
 	int SizeFractionalPart;
 } TNumberPart;
 
+double Pow(unsigned int Number, int Power)
+{
+	if (Number == 0 || Number == 1)
+	{
+		return Number;
+	}
+
+	if (Power == 0)
+	{
+		return 1;
+	}
+	else if (Power < 0)
+	{
+		return (1.0 / Number) * Pow(Number, Power + 1);
+	}
+	else
+	{
+		return Number * Pow(Number, Power - 1);
+	}
+}
+
 void PrintBadInput()
 {
 	printf("bad input");
 }
 
-int CharToInt(long long System, char Symbol, int* Number)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+void PrintNumber(TNumberPart Number)
+{
+    for (int i = 0; i < Number.SizeIntegerPart; i++)
+	{
+		putc(Symbols[Number.IntegerPart[i]], stdout);
+	}
+
+	if (Number.SizeFractionalPart != 0)
+	{
+		putc('.', stdout);
+		for (int i = 0; i < Number.SizeFractionalPart; i++)
+		{
+			putc(Symbols[Number.FractionalPart[i]], stdout);
+		}
+	}
+}
+
+int CharToInt(long long System, char Symbol, int* Number)
 {
 	for (int i = 0; i < System; i++)
 	{
-		if (Symbol == Symbols1[i] || Symbol == Symbols2[i])
+		if (tolower(Symbol) == Symbols[i])
 		{
 			*Number = i;
 			return SUCCESS;
@@ -37,7 +75,7 @@ int CharToInt(long long System, char Symbol, int* Number)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	return FAILURE;
 }
 
-int GetSizeOfIntegerPart(char* Line)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+int GetIntegerPartSize(const char* Line)
 {
 	char* PointPosition = strchr(Line, '.');
 
@@ -51,9 +89,9 @@ int GetSizeOfIntegerPart(char* Line)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿
 	}
 }
 
-int DivideIntoParts(long long System1, char* Line, TNumberPart* Number)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+int DivideIntoParts(int System1, const char* Line, TNumberPart* Number)
 {
-	Number->SizeIntegerPart = GetSizeOfIntegerPart(Line);
+	Number->SizeIntegerPart = GetIntegerPartSize(Line);
 
 	if (Number->SizeIntegerPart == 0)
 	{
@@ -62,7 +100,6 @@ int DivideIntoParts(long long System1, char* Line, TNumberPart* Number)//ï¿½ï¿½ï
 
 	for (int i = 0; i < Number->SizeIntegerPart; i++)
 	{
-		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ System1-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½)
 		if (CharToInt(System1, Line[i], &(Number->IntegerPart[i])) == FAILURE)
 		{
 			return FAILURE;
@@ -72,8 +109,6 @@ int DivideIntoParts(long long System1, char* Line, TNumberPart* Number)//ï¿½ï¿½ï
 	int SizeNumber = strlen(Line);
 	Number->SizeFractionalPart = SizeNumber - Number->SizeIntegerPart - 1;
 
-	//Number->SizeFractionalPart == 0 ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ "111."
-	//Number->SizeFractionalPart == -1 ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ "111"
 	if (Number->SizeFractionalPart == -1)
 	{
 		Number->SizeFractionalPart = 0;
@@ -82,7 +117,6 @@ int DivideIntoParts(long long System1, char* Line, TNumberPart* Number)//ï¿½ï¿½ï
 	{
 		for (int i = 0; i < Number->SizeFractionalPart; i++)
 		{
-			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ System1 - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½)
 			if (CharToInt(System1, Line[i + Number->SizeIntegerPart + 1], &(Number->FractionalPart[i])) == FAILURE)
 			{
 				return FAILURE;
@@ -97,24 +131,24 @@ int DivideIntoParts(long long System1, char* Line, TNumberPart* Number)//ï¿½ï¿½ï
 	return SUCCESS;
 }
 
-double To10(long long System1, TNumberPart Number)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ 10-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+double To10(int System1, TNumberPart Number)
 {
 	double Sum = 0.0;
 
 	for (int i = 0; i < Number.SizeIntegerPart; i++)
 	{
-		Sum += Number.IntegerPart[i] * pow(System1, Number.SizeIntegerPart - 1 - i);
+		Sum += Number.IntegerPart[i] * Pow(System1, Number.SizeIntegerPart - 1 - i);
 	}
 
 	for (int i = 0; i < Number.SizeFractionalPart; i++)
 	{
-		Sum += Number.FractionalPart[i] * pow(System1, -i - 1);
+		Sum += Number.FractionalPart[i] * Pow(System1, -i - 1);
 	}
 
 	return Sum;
 }
 
-TNumberPart From10(long long System2, double Sum, TNumberPart LastNumber)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ 10-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+TNumberPart From10(int System2, double Sum, TNumberPart LastNumber)
 {
 	TNumberPart Number;
 	double Fractional = Sum - (long long)Sum;
@@ -138,7 +172,7 @@ TNumberPart From10(long long System2, double Sum, TNumberPart LastNumber)//ï¿½ï¿
 	do
 	{
 		++Number.SizeIntegerPart;
-	} while (Integer >= pow(System2, Number.SizeIntegerPart));
+	} while (Integer >= Pow(System2, Number.SizeIntegerPart));
 
 	for (int i = 0; i < Number.SizeIntegerPart; i++)
 	{
@@ -155,7 +189,7 @@ int main()
 	int System1, System2;
 	char Line[14];
 
-	if (scanf("%d %d", &System1, &System2) == EOF)
+	if (scanf("%d %d", &System1, &System2) == EOF || System1 > 16 || System2 > 16 || System1 < 2 || System2 < 2)
 	{
 		PrintBadInput();
 		return SUCCESS;
@@ -167,34 +201,13 @@ int main()
 		return SUCCESS;
 	}
 
-	if (System1 > 16 || System2 > 16 || System1 < 2 || System2 < 2)
-	{
-		PrintBadInput();
-		return SUCCESS;
-	}
-
 	if (DivideIntoParts(System1, Line, &Number) == FAILURE)
 	{
 		PrintBadInput();
 		return SUCCESS;
 	}
 
-	Number = From10(System2, To10(System1, Number), Number);
-
-	for (int i = 0; i < Number.SizeIntegerPart; i++)
-	{
-		printf("%c", Symbols1[Number.IntegerPart[i]]);
-	}
-
-	if (Number.SizeFractionalPart != 0)
-	{
-		printf(".");
-		for (int i = 0; i < Number.SizeFractionalPart; i++)
-		{
-			printf("%c", Symbols1[Number.FractionalPart[i]]);
-		}
-	}
-
+	PrintNumber(From10(System2, To10(System1, Number), Number));
 
 	return SUCCESS;
 }
