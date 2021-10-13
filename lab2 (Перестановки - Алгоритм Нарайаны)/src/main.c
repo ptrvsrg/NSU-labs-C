@@ -1,4 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -11,17 +13,17 @@ enum
 
 void PrintBadInput()
 {
-	printf("bad input");
+	assert(puts("bad input") != EOF);
 }
 
 void PrintSequence(const char* Sequence)
 {
-	printf("%s\n", Sequence);
+	assert(puts(Sequence) != EOF);
 }
 
-int ThisIsDigits(char Symbol)
+bool ThisIsDigits(char Symbol)
 {
-	return (Symbol >= '0' && Symbol <= '9') ? SUCCESS : FAILURE;
+	return Symbol >= '0' && Symbol <= '9';
 }
 
 int CheckInput(const char* Sequence)
@@ -29,13 +31,13 @@ int CheckInput(const char* Sequence)
 	const int Length = strlen(Sequence);
 	int CountEachDigit[10] = { 0 };
 
-	for (int i = 0; i < Length; i++)
+	for (int i = 0; i < Length; ++i)
 	{
-		if (ThisIsDigits(Sequence[i]) == SUCCESS)
+		if (ThisIsDigits(Sequence[i]))
 		{
 			if (CountEachDigit[Sequence[i] - '0'] == 0)
 			{
-				CountEachDigit[Sequence[i] - '0']++;
+				++CountEachDigit[Sequence[i] - '0'];
 			}
 			else
 			{
@@ -49,6 +51,35 @@ int CheckInput(const char* Sequence)
 	}
 
 	return SUCCESS;
+}
+
+int InputSequence(char* Sequence)
+{
+    for (int i = 0; i < SIZE_SEQUENCE + 1; i++)
+	{
+		if ((Sequence[i] = getchar()) == EOF)
+		{
+			return FAILURE;
+		}
+
+		if (Sequence[i] == '\n')
+		{
+			Sequence[i] = '\0';
+			break;
+		}
+
+		if (i == SIZE_SEQUENCE)
+		{
+			return FAILURE;
+		}
+	}
+
+	if (CheckInput(Sequence) == FAILURE)
+	{
+		return FAILURE;
+	}
+
+    return SUCCESS;
 }
 
 void Swap(char* Number1, char* Number2)
@@ -109,32 +140,11 @@ int main()
 {
 	char Sequence[SIZE_SEQUENCE + 1];
 
-	for (int i = 0; i < SIZE_SEQUENCE + 1; i++)
-	{
-		if ((Sequence[i] = getchar()) == EOF)
-		{
-			PrintBadInput();
-			return SUCCESS;
-		}
-
-		if (Sequence[i] == '\n')
-		{
-			Sequence[i] = '\0';
-			break;
-		}
-
-		if (i == SIZE_SEQUENCE)
-		{
-			PrintBadInput();
-			return SUCCESS;
-		}
-	}
-
-	if (CheckInput(Sequence) == FAILURE)
-	{
-		PrintBadInput();
-		return SUCCESS;
-	}
+	if(InputSequence(Sequence) == FAILURE)
+    {
+        PrintBadInput();
+        return SUCCESS;
+    }
 
 	int PermutationCount = 0;
 
