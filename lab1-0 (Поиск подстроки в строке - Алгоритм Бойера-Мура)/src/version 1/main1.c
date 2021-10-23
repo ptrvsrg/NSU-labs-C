@@ -6,26 +6,26 @@
 enum
 {
 	SUCCESS = 0,
-	FAILURE = 1,
+	FAILURE = -1,
 	SIZE_TEMPLATE = 16,
 	SIZE_CHAR = 256
 };
 
-void PrintNumber(int Number)
+void PrintNumber(size_t Number)
 {
-	printf("%d ", Number);
+	printf("%u ", Number);
 }
 
-void GetShiftTable(const char* Template, int ShiftTable[])
+void GetShiftTable(const char* Template, size_t ShiftTable[])
 {
-	const int LengthOfTemplate = strlen(Template);
+	const size_t LengthOfTemplate = strlen(Template);
 
-	for (int i = 0; i < SIZE_CHAR; i++)
+	for (size_t i = 0; i < SIZE_CHAR; ++i)
 	{
 		ShiftTable[i] = LengthOfTemplate;
 	}
 
-	for (int i = 1; i < LengthOfTemplate; i++)
+	for (size_t i = 1; i < LengthOfTemplate; ++i)
 	{
 		if (ShiftTable[(unsigned char)Template[LengthOfTemplate - 1 - i]] == LengthOfTemplate)
 		{
@@ -36,16 +36,16 @@ void GetShiftTable(const char* Template, int ShiftTable[])
 
 void FindForTemplateInText(const char* Template, FILE* InputFile)
 {
-	const int LengthOfTemplate = strlen(Template);
-	int CurrentPosition = LengthOfTemplate;
-	int ComparisonPosition = LengthOfTemplate;
-	int ShiftTable[SIZE_CHAR]; 
+	const size_t LengthOfTemplate = strlen(Template);
+	size_t CurrentPosition = LengthOfTemplate;
+	size_t ComparisonPosition = LengthOfTemplate;
+	size_t ShiftTable[SIZE_CHAR]; 
 	GetShiftTable(Template, ShiftTable);
 
 	char Text[SIZE_TEMPLATE + 1];
 	char Buffer[SIZE_TEMPLATE + 1];
-	int LengthOfText = 0;
-	int LastLengthOfText = 0;
+	size_t LengthOfText = 0;
+	size_t LastLengthOfText = 0;
 
 	while (1)
 	{
@@ -63,7 +63,7 @@ void FindForTemplateInText(const char* Template, FILE* InputFile)
 			LengthOfText += strlen(Text);
 		}
 
-		for (int i = 0; i < LengthOfTemplate; i++)
+		for (size_t i = 0; i < LengthOfTemplate; ++i)
 		{
 			PrintNumber(CurrentPosition);
 			char Symbol;
@@ -97,9 +97,9 @@ int main()
 	memset(Template, 0, SIZE_TEMPLATE + 1);
 	FILE* InputFile = fopen("in.txt", "r");
 
-	for (int i = 0; i < SIZE_TEMPLATE + 1; i++)
+	for (size_t i = 0; i < SIZE_TEMPLATE + 1; ++i)
 	{
-		if (fscanf(InputFile, "%c", &Template[i]) == EOF)
+		if (fscanf(InputFile, "%c", &Template[i]) != 1)
 		{
 			fclose(InputFile);
 			return SUCCESS;

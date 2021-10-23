@@ -12,16 +12,16 @@ enum
 	SIZE_CHAR = 256
 };
 
-void PrintNumber(int Number)
+void PrintNumber(size_t Number)
 {
-	printf("%d ", Number);
+	printf("%u ", Number);
 }
 
 void InputTemplate(char* Template, FILE* InputFile)
 {
     for (int i = 0; i < SIZE_TEMPLATE + 1; ++i)
 	{
-		if (fscanf(InputFile, "%c", &Template[i]) == EOF)
+		if (fscanf(InputFile, "%c", &Template[i]) != 1)
 		{
 			fclose(InputFile);
 			assert(false);
@@ -37,24 +37,27 @@ void InputTemplate(char* Template, FILE* InputFile)
 			else
 			{
 				Template[i] = '\0';
-				break;
+				return;
 			}
 		}
 	}
+
+    fclose(InputFile);
+	assert(false);
 }
 
-void GetShiftTable(const char* Template, int ShiftTable[])
+void GetShiftTable(const char* Template, size_t ShiftTable[])
 {
-	const int TemplateLength = strlen(Template);
+	const size_t TemplateLength = strlen(Template);
 
-	for (int i = 0; i < SIZE_CHAR; ++i)
+	for (size_t i = 0; i < SIZE_CHAR; ++i)
 	{
 		ShiftTable[i] = TemplateLength;
 	}
 
-	for (int i = 1; i < TemplateLength; ++i)
+	for (size_t i = 1; i < TemplateLength; ++i)
 	{
-        int Index = (unsigned char)Template[TemplateLength - 1 - i];
+        size_t Index = (unsigned char)Template[TemplateLength - 1 - i];
 
 		if (ShiftTable[Index] == TemplateLength)
 		{
@@ -86,15 +89,15 @@ void ShiftText(char* Text, FILE* InputFile)
 
 void BoyerMooreAlgorithm(const char* Template, FILE* InputFile)
 {
-	const int TemplateLength = strlen(Template);
-    int CurrentPosition = TemplateLength;
-    int ComparisonPosition = TemplateLength;
-    int LastLength = 0;
+	const size_t TemplateLength = strlen(Template);
+    size_t CurrentPosition = TemplateLength;
+    size_t ComparisonPosition = TemplateLength;
+    size_t LastLength = 0;
 
-    int ShiftTable[SIZE_CHAR];
+    size_t ShiftTable[SIZE_CHAR];
     GetShiftTable(Template, ShiftTable);
 
-    char Text[SIZE_TEXT + 1];
+    unsigned char Text[SIZE_TEXT + 1];
 	memset(Text, 0, SIZE_TEXT + 1);
     assert(fread(Text, 1, SIZE_TEXT, InputFile) != EOF);
 
@@ -111,13 +114,13 @@ void BoyerMooreAlgorithm(const char* Template, FILE* InputFile)
             }
         }
 
-		for (int i = 0; i < TemplateLength; ++i)
+		for (size_t i = 0; i < TemplateLength; ++i)
 		{
 			PrintNumber(CurrentPosition);
 
 			if (Text[ComparisonPosition - LastLength - 1 - i] != Template[TemplateLength - 1 - i] || i == TemplateLength - 1)
 			{				
-				ComparisonPosition += ShiftTable[(unsigned char)Text[ComparisonPosition - LastLength - 1]];
+				ComparisonPosition += ShiftTable[Text[ComparisonPosition - LastLength - 1]];
 				CurrentPosition = ComparisonPosition;
 				break;
 			}
@@ -134,7 +137,9 @@ int main()
 	FILE* InputFile = fopen("in.txt", "r");
 
 	InputTemplate(Template, InputFile);
+
 	BoyerMooreAlgorithm(Template, InputFile);
+
 	fclose(InputFile);
 
 	return SUCCESS;
