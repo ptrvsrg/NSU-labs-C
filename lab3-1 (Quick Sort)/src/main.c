@@ -10,80 +10,80 @@ enum
 	FAILURE = 1
 };
 
-int InputArray(int ArraySize, int* Array)
+int InputArray(int arraySize, int* array)
 {
-	for (int i = 0; i < ArraySize; ++i)
+	for (int i = 0; i < arraySize; ++i)
 	{
-		if(scanf("%d", &Array[i]) == EOF)
+		if(scanf("%d", &array[i]) != 1)
         {
-            free(Array);
+            free(array);
             assert(false);
         }
 	}
 }
 
-void OutputArray(int ArraySize, const int* Array)
+void OutputArray(int arraySize, const int* array)
 {
-	for (int i = 0; i < ArraySize; ++i)
+	for (int i = 0; i < arraySize; ++i)
 	{
-		printf("%d ", Array[i]);
+		printf("%d ", array[i]);
 	}
 }
 
-void Swap(int* Value1, int* Value2)
+void Swap(int* value1, int* value2)
 {
-	int Buffer = *Value1;
-	*Value1 = *Value2;
-	*Value2 = Buffer;
+	int buffer = *value1;
+	*value1 = *value2;
+	*value2 = buffer;
 }
 
-void QuickSort(int* Array, int StartPosition, int EndPosition)
+void QuickSort(int* array, int startPosition, int finishPosition)
 {
-	if (StartPosition < EndPosition)
+	if (startPosition < finishPosition)
 	{
-		int Start = StartPosition;
-		int End = EndPosition;
-		int ComprasionValue = Array[(StartPosition + EndPosition) / 2];
+		int begin = startPosition;
+		int end = finishPosition;
+		int comprasionValue = array[(startPosition + finishPosition) / 2];
 
-		while (Start < End)
+		while (begin < end)
 		{
-			while (Array[Start] < ComprasionValue)
+			while (array[begin] < comprasionValue)
 			{
-				++Start;
+				++begin;
 			}
-			while (Array[End] > ComprasionValue)
+			while (array[end] > comprasionValue)
 			{
-				--End;
+				--end;
 			}
 
-			if (Start <= End)
+			if (begin <= end)
 			{
-				Swap(&Array[Start], &Array[End]);
+				Swap(array + begin, array + end);
 
-				++Start;
-				--End;
+				++begin;
+				--end;
 			}
 		}
 
-		QuickSort(Array, Start, EndPosition);
-		QuickSort(Array, StartPosition, End);
+		QuickSort(array, begin, finishPosition);
+		QuickSort(array, startPosition, end);
 	}
 }
 
 int main()
 {
-	int ArraySize = 0;
+	int arraySize = 0;
 
-	assert(scanf("%d", &ArraySize) != EOF);
+	assert(scanf("%d", &arraySize) == 1);
 
-	int* Array = malloc(sizeof(*Array) * ArraySize);
-    assert(Array != NULL);
+	int* array = malloc(sizeof(*array) * arraySize);
+    assert(array != NULL);
 
-	InputArray(ArraySize, Array);
+	InputArray(arraySize, array);
 
-	QuickSort(Array, 0, ArraySize - 1);
-	OutputArray(ArraySize, Array);
-	free(Array);
+	QuickSort(array, 0, arraySize - 1);
+	OutputArray(arraySize, array);
+	free(array);
 
 	return SUCCESS;
 }
