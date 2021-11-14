@@ -36,7 +36,9 @@ bool IsEmpty(TStack stack)
 void Remove(TStack* stack)
 {
     assert(!IsEmpty(*stack));
+    TStack last = *stack;
     *stack = (*stack)->Next;
+    free(last);
 }
 
 char GetTop(TStack stack)
