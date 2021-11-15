@@ -1,11 +1,14 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <setjmp.h>
+
+static jmp_buf position;
 
 enum
 {    
+    SUCCESS = 1,
     SIZE_NOTATION = 1000
 };
 
@@ -14,19 +17,19 @@ enum
 void SyntaxError()
 {
     printf("syntax error");
-    exit(EXIT_SUCCESS);
+    longjmp(position, SUCCESS);
 }
 
 void DivisionByZero()
 {
     printf("division by zero");
-    exit(EXIT_SUCCESS);
+    longjmp(position, SUCCESS);
 }
 
 void OtherError(int line)
 {
     printf("other error (line %d)", line);
-    exit(EXIT_SUCCESS);
+    longjmp(position, SUCCESS);
 }
 
 ////////////////////////////////  VALUE TYPE  ////////////////////////////////
@@ -321,8 +324,11 @@ int main()
 {
     char infix [SIZE_NOTATION + 1] = { 0 };
     
-    InputInfix(infix);
-    printf("%d", Calc(infix));
+    if(setjmp(position) == 0)
+    {
+        InputInfix(infix);
+        printf("%d", Calc(infix));
+    }
 
     return EXIT_SUCCESS;
 }
