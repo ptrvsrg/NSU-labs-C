@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -201,26 +202,6 @@ int OperatorPriority(char value)
     OtherError(__LINE__);
 }
 
-int SymbolToDigit(char symbol)
-{
-    return symbol - '0';
-}
-
-int StringToNumber(char* numberLine)
-{
-    int number = 0;
-    int power = 1;
-    int length = strlen(numberLine);
-
-    for(int i = 0; i < length; ++i)
-    {
-        number += power * SymbolToDigit(numberLine[length - i - 1]);
-        power *= 10;
-    }
-
-    return number;  
-}
-
 void CalcExpression(TStack* operatorStack, TStack* numberStack)
 {
     if (IsEmptyStack(*operatorStack) || IsEmptyStack(*numberStack) || IsEmptyStack((*numberStack)->Next))
@@ -261,28 +242,31 @@ int Calc(const char* infix)
 {
     TStack operatorStack = CreateStack();
     TStack numberStack = CreateStack();
-    size_t index = 0;
 
-    while(infix[index] != '\0')
+    while(*infix != '\0')
     {
-        if(IsDigit(infix[index]))
+        if(IsDigit(*infix))
         {
-            char number[SIZE_NOTATION] = { 0 };
-            for(int i = 0; IsDigit(infix[index]); ++index, ++i)
+            int number = atoi(infix);
+            if(number == INT_MIN)
             {
-                number[i] = infix[index];
+                SyntaxError();
             }
+
+            do
+            {
+                ++infix;
+            } while (IsDigit(*infix));
             
-            PushStack(&numberStack, CreateValue('\0', StringToNumber(number)));
-            memset(number, 0, SIZE_NOTATION);
+            PushStack(&numberStack, CreateValue('\0', number));
         }
         else
         {
-            if(infix[index] == '(')
+            if(*infix == '(')
             {
-                PushStack(&operatorStack, CreateValue(infix[index], 0));
+                PushStack(&operatorStack, CreateValue(*infix, INT_MIN));
             }
-            else if(infix[index] == ')')
+            else if(*infix == ')')
             {
                 while(GetTopStack(operatorStack).Operator != '(')
                 {
@@ -293,15 +277,15 @@ int Calc(const char* infix)
             }
             else
             {
-                while(!IsEmptyStack(operatorStack) && OperatorPriority(GetTopStack(operatorStack).Operator) >= OperatorPriority(infix[index]))
+                while(!IsEmptyStack(operatorStack) && OperatorPriority(GetTopStack(operatorStack).Operator) >= OperatorPriority(*infix))
                 {
                     CalcExpression(&operatorStack, &numberStack);
                 }
 
-                PushStack(&operatorStack, CreateValue(infix[index], 0));
+                PushStack(&operatorStack, CreateValue(*infix, INT_MIN));
             }
 
-            ++index;
+            ++infix;
         }
     }
 
