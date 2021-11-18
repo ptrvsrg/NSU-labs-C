@@ -1,9 +1,9 @@
 #include <limits.h>
+#include <setjmp.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <setjmp.h>
 
 static jmp_buf position;
 
@@ -172,10 +172,12 @@ void CheckSymbols(const char* line)
 
 void InputInfix(char* infix)
 {
-    if(gets(infix) == NULL)
+    if(fgets(infix, SIZE_NOTATION, stdin) == NULL)
     {
         OtherError(__LINE__);
     }
+
+    infix[strlen(infix) - 1] = '\0';
 
     if(*infix == '\0')
     {
