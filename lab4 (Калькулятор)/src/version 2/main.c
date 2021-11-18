@@ -1,4 +1,4 @@
-#include <limits.h>
+#include <float.h>
 #include <setjmp.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -38,10 +38,10 @@ void OtherError(int line)
 typedef struct TValue
 {
     char Operator;
-    int Number;
+    float Number;
 } TValue;
 
-TValue CreateValue(char operator, int number)
+TValue CreateValue(char operator, float number)
 {
     TValue new;
     new.Number = number;
@@ -128,6 +128,11 @@ bool IsOperator(char symbol)
     return symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/' || symbol == '(' || symbol == ')';
 }
 
+bool IsSpecialSymbol(char symbol)
+{
+    return symbol == '.';
+}
+
 void CheckBrackets(const char* line)
 {
     TStack stack = CreateStack();
@@ -161,7 +166,11 @@ void CheckSymbols(const char* line)
 {
     while(*line)
     {
-        if(!IsOperator(*line) && !IsDigit(*line))
+        if(IsSpecialSymbol(*line) && !IsDigit(*(line + 1)))
+        {
+            SyntaxError();
+        }
+        else if(!IsOperator(*line) && !IsDigit(*line) && !IsSpecialSymbol(*line))
         {
             SyntaxError();
         }
@@ -212,8 +221,8 @@ void CalcExpression(TStack* operatorStack, TStack* numberStack)
     }
 
     char operator = PopStack(operatorStack).Operator;
-    int second = PopStack(numberStack).Number;
-    int first = PopStack(numberStack).Number;
+    float second = PopStack(numberStack).Number;
+    float first = PopStack(numberStack).Number;
 
     switch(operator)
     {
@@ -227,7 +236,7 @@ void CalcExpression(TStack* operatorStack, TStack* numberStack)
             PushStack(numberStack, CreateValue('\0', first * second));
             return;
         case '/':
-            if(second == 0)
+            if(second < 1.0E-6)
             {
                 DestroyStack(operatorStack);
                 DestroyStack(numberStack);
@@ -240,17 +249,17 @@ void CalcExpression(TStack* operatorStack, TStack* numberStack)
     OtherError(__LINE__);
 }
 
-int Calc(const char* infix) 
+float Calc(const char* infix) 
 {
     TStack operatorStack = CreateStack();
     TStack numberStack = CreateStack();
 
     while(*infix != '\0')
     {
-        if(IsDigit(*infix))
+        if(IsDigit(*infix) || IsSpecialSymbol(*infix))
         {
-            int number = atoi(infix);
-            if(number == INT_MIN)
+            float number = atof(infix);
+            if(number == FLT_MIN)
             {
                 SyntaxError();
             }
@@ -258,7 +267,7 @@ int Calc(const char* infix)
             do
             {
                 ++infix;
-            } while (IsDigit(*infix));
+            } while (IsDigit(*infix) || IsSpecialSymbol(*infix));
             
             PushStack(&numberStack, CreateValue('\0', number));
         }
@@ -266,7 +275,7 @@ int Calc(const char* infix)
         {
             if(*infix == '(')
             {
-                PushStack(&operatorStack, CreateValue(*infix, INT_MIN));
+                PushStack(&operatorStack, CreateValue(*infix, FLT_MIN));
             }
             else if(*infix == ')')
             {
@@ -284,7 +293,7 @@ int Calc(const char* infix)
                     CalcExpression(&operatorStack, &numberStack);
                 }
 
-                PushStack(&operatorStack, CreateValue(*infix, INT_MIN));
+                PushStack(&operatorStack, CreateValue(*infix, FLT_MIN));
             }
 
             ++infix;
@@ -296,7 +305,7 @@ int Calc(const char* infix)
         CalcExpression(&operatorStack, &numberStack);
     }
 
-    int result = PopStack(&numberStack).Number;
+    float result = PopStack(&numberStack).Number;
 
     DestroyStack(&operatorStack);
     DestroyStack(&numberStack);
@@ -313,7 +322,7 @@ int main()
     if(setjmp(position) == 0)
     {
         InputInfix(infix);
-        printf("%d", Calc(infix));
+        printf("%f", Calc(infix));
     }
 
     return EXIT_SUCCESS;
