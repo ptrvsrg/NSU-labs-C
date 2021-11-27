@@ -213,6 +213,11 @@ int OperatorPriority(char value)
     OtherError(__LINE__);
 }
 
+float Fabs(float a)
+{
+    return (a >= 0) ? a : -a;
+}
+
 void CalcExpression(TStack* operatorStack, TStack* numberStack)
 {
     if (IsEmptyStack(*operatorStack) || IsEmptyStack(*numberStack) || IsEmptyStack((*numberStack)->Next))
@@ -236,7 +241,7 @@ void CalcExpression(TStack* operatorStack, TStack* numberStack)
             PushStack(numberStack, CreateValue('\0', first * second));
             return;
         case '/':
-            if(second < 1.0E-6)
+            if(Fabs(second) < 1.0E-6)
             {
                 DestroyStack(operatorStack);
                 DestroyStack(numberStack);
