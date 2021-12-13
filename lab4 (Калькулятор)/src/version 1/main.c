@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 enum
 {    
@@ -15,54 +14,46 @@ enum
 
 ////////////////////////////////  STACK  ////////////////////////////////
 
-struct TStack 
+typedef struct TStack 
 {
-    char Value;
-    struct TStack* Next;
-};
+    char Values[2 * SIZE_NOTATION];
+    size_t position;
+} TStack;
 
-typedef struct TStack* TStack;
-
-TStack CreateStack() 
+void CreateStack(TStack* stack) 
 {
-    return NULL;
-}
-
-bool IsEmpty(TStack stack)
-{
-    return stack == NULL;
+    stack->position = 0;
 }
 
 void Remove(TStack* stack)
 {
-    assert(!IsEmpty(*stack));
-    TStack last = *stack;
-    *stack = (*stack)->Next;
-    free(last);
+    assert(stack->position != 0);
+    --stack->position;
 }
 
-char GetTop(TStack stack)
+char GetTop(const TStack* stack)
 {
-    assert(!IsEmpty(stack));
-    return stack->Value;
+    assert(stack->position != 0);
+    return stack->Values[stack->position - 1];
 }
 
 char Pop(TStack* stack)
 {
-    assert(!IsEmpty(*stack));
-    char top = GetTop(*stack);
+    assert(stack->position != 0);
+    char top = GetTop(stack);
     Remove(stack);
     return top;
 }
 
 void Push(TStack* stack, char value)
 {
-    TStack new = malloc(sizeof(*new));
-    assert(new != NULL);
-    TStack last = *stack;
-    new->Value = value;
-    new->Next = last;
-    *stack = new;
+    stack->Values[stack->position] = value;
+    ++stack->position;
+}
+
+bool IsEmpty(TStack stack)
+{
+    return stack.position == 0;
 }
 
 void DestroyStack(TStack stack) 
@@ -98,6 +89,8 @@ int InputNotation(char* infixNotation)
 
         switch(infixNotation[i])
         {
+            case EOF:
+                return SYNTAX_ERROR;
             case '\n':
                 if (i == 0 || beginBrackets != backBrackets || i <= indexOperatorCount + 1)
                 {
@@ -108,8 +101,6 @@ int InputNotation(char* infixNotation)
                     infixNotation[i] = '\0';
                     return SUCCESS;
                 }
-            case EOF:
-                return SYNTAX_ERROR;
             case '(':
                 ++beginBrackets;
                 indexBeginBrackets = i;
@@ -120,13 +111,13 @@ int InputNotation(char* infixNotation)
                     return SYNTAX_ERROR;
                 }
                 ++backBrackets;
-                break;
+                break;                
             default:
                 if(IsDigit(infixNotation[i]))
                 {
                     break;
                 }
-                else if (IsOperator(infixNotation[i]))
+                else if(IsOperator(infixNotation[i]))
                 {
                     if(i == indexOperatorCount + 1)
                     {
@@ -175,7 +166,8 @@ int OperatorPriority(char value)
 
 void GetPostfixNotation(const char* infixNotation, char* postfixNotation) 
 {
-    TStack operatorStack = CreateStack();
+    TStack operatorStack;
+    CreateStack(&operatorStack);
     size_t index = 0;
 
     while(infixNotation[index] != '\0')
@@ -200,7 +192,7 @@ void GetPostfixNotation(const char* infixNotation, char* postfixNotation)
             }
             else if(infixNotation[index] == ')')
             {
-                while(GetTop(operatorStack) != '(')
+                while(GetTop(&operatorStack) != '(')
                 {
                     *postfixNotation = Pop(&operatorStack);
                     ++postfixNotation;
@@ -210,7 +202,7 @@ void GetPostfixNotation(const char* infixNotation, char* postfixNotation)
             }
             else
             {
-                while(!IsEmpty(operatorStack) && OperatorPriority(GetTop(operatorStack)) >= OperatorPriority(infixNotation[index]))
+                while(!IsEmpty(operatorStack) && OperatorPriority(GetTop(&operatorStack)) >= OperatorPriority(infixNotation[index]))
                 {
                     *postfixNotation = Pop(&operatorStack);
                     ++postfixNotation;
@@ -260,7 +252,7 @@ int GetNumberToString(TStack* numberStack)
 
     do
     {
-        if (!IsEmpty(*numberStack) && GetTop(*numberStack) == '-')
+        if (!IsEmpty(*numberStack) && GetTop(numberStack) == '-')
         {
             number *= -1;
             break;
@@ -268,7 +260,7 @@ int GetNumberToString(TStack* numberStack)
 
         number += SymbolToNumber(Pop(numberStack)) * power;
         power *= 10;
-    } while (!IsEmpty(*numberStack) && GetTop(*numberStack) != '|');
+    } while (!IsEmpty(*numberStack) && GetTop(numberStack) != '|');
 
     return number;  
 }
@@ -319,7 +311,8 @@ int GetExpressionValue(char operator, int first, int second, int* errorControl)
 
 int Calc(const char* infixNotation, int* errorControl)
 {
-    TStack numberStack = CreateStack();
+    TStack numberStack; 
+    CreateStack(&numberStack);
     char postfixNotation[SIZE_NOTATION * 2];
 
     GetPostfixNotation(infixNotation, postfixNotation);

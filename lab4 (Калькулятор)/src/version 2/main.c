@@ -1,203 +1,163 @@
-#include <float.h>
-#include <setjmp.h>
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static jmp_buf position;
-
 enum
 {    
-    SUCCESS = 1,
-    SIZE_NOTATION = 1000
+    SIZE_NOTATION = 1000,
+    SUCCESS = 0,
+    FAILURE = -1,
+    SYNTAX_ERROR = -2,
+    DIVISION_BY_ZERO = -3
 };
-
-////////////////////////////////  ERRORS  ////////////////////////////////
-
-void SyntaxError()
-{
-    printf("syntax error");
-    longjmp(position, SUCCESS);
-}
-
-void DivisionByZero()
-{
-    printf("division by zero");
-    longjmp(position, SUCCESS);
-}
-
-void OtherError(int line)
-{
-    printf("other error (line %d)", line);
-    longjmp(position, SUCCESS);
-}
-
-////////////////////////////////  VALUE TYPE  ////////////////////////////////
-
-typedef struct TValue
-{
-    char Operator;
-    float Number;
-} TValue;
-
-TValue CreateValue(char operator, float number)
-{
-    TValue new;
-    new.Number = number;
-    new.Operator = operator;
-    return new;
-}
 
 ////////////////////////////////  STACK  ////////////////////////////////
 
-struct Tstack 
+struct TStack 
 {
-    TValue Value;
-    struct Tstack* Next;
+    char Value;
+    struct TStack* Next;
 };
 
-typedef struct Tstack* TStack;
+typedef struct TStack* TStack;
 
 TStack CreateStack() 
 {
     return NULL;
 }
 
-bool IsEmptyStack(TStack stack)
+bool IsEmpty(TStack stack)
 {
     return stack == NULL;
 }
 
-TValue GetTopStack(TStack stack)
+void Remove(TStack* stack)
 {
-    if (IsEmptyStack(stack))
-    {
-        OtherError(__LINE__);
-    }
-    
+    assert(!IsEmpty(*stack));
+    TStack last = *stack;
+    *stack = (*stack)->Next;
+    free(last);
+}
+
+char GetTop(TStack stack)
+{
+    assert(!IsEmpty(stack));
     return stack->Value;
 }
 
-TValue PopStack(TStack* stack)
+char Pop(TStack* stack)
 {
-    if (IsEmptyStack(*stack))
-    {
-        OtherError(__LINE__);
-    }
-
-    TValue top = GetTopStack(*stack);
-    TStack removeElem = *stack;
-    *stack = (*stack)->Next;
-    free(removeElem);
+    assert(!IsEmpty(*stack));
+    char top = GetTop(*stack);
+    Remove(stack);
     return top;
 }
 
-void PushStack(TStack* stack, TValue value)
+void Push(TStack* stack, char value)
 {
     TStack new = malloc(sizeof(*new));
-
-    if (!new)
-    {
-        OtherError(__LINE__);
-    }
-
+    assert(new != NULL);
     TStack last = *stack;
     new->Value = value;
     new->Next = last;
     *stack = new;
 }
 
-void DestroyStack(TStack* stack) 
+void DestroyStack(TStack stack) 
 {
-    while (!IsEmptyStack(*stack)) 
+    while (!IsEmpty(stack)) 
     {
-        PopStack(stack);
+        Remove(&stack);
     }
 }
 
 ////////////////////////////////  INPUT - OUTPUT  ////////////////////////////////
 
-bool IsDigit(char symbol)
+bool IsDigit(char value)
 {
-    return symbol >= '0' && symbol <= '9';
+    return value >= '0' && value <= '9';
 }
 
-bool IsOperator(char symbol)
+bool IsOperator(char value)
 {
-    return symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/' || symbol == '(' || symbol == ')';
+    return value == '+' || value == '-' || value == '*' || value == '/';
 }
 
-bool IsSpecialSymbol(char symbol)
+int InputNotation(char* infixNotation)
 {
-    return symbol == '.';
-}
+    size_t beginBrackets = 0;
+    size_t backBrackets = 0;
+    size_t indexOperatorCount = -1;
+    size_t indexBeginBrackets = SIZE_NOTATION;
 
-void CheckBrackets(const char* line)
-{
-    TStack stack = CreateStack();
-    int index = 0;
+    for (size_t i = 0; i < SIZE_NOTATION + 1; i++)
+	{
+		infixNotation[i] = getchar();
 
-    while(line[index] != '\0')
-    {
-        if(line[index] == ')')
+        switch(infixNotation[i])
         {
-            if(!stack || index - PopStack(&stack).Number == 1)
-            {
-                SyntaxError();
-            }
+            case '\n':
+                if (i == 0 || beginBrackets != backBrackets || i <= indexOperatorCount + 1)
+                {
+                    return SYNTAX_ERROR;
+                }
+                else
+                {
+                    infixNotation[i] = '\0';
+                    return SUCCESS;
+                }
+            case EOF:
+                return SYNTAX_ERROR;
+            case '(':
+                ++beginBrackets;
+                indexBeginBrackets = i;
+                break;
+            case ')':
+                if(i <= indexBeginBrackets + 1 || i <= indexOperatorCount + 1)
+                {
+                    return SYNTAX_ERROR;
+                }
+                ++backBrackets;
+                break;
+            default:
+                if(IsDigit(infixNotation[i]))
+                {
+                    break;
+                }
+                else if (IsOperator(infixNotation[i]))
+                {
+                    if(i == indexOperatorCount + 1)
+                    {
+                        return SYNTAX_ERROR;
+                    }
+                    indexOperatorCount = i;
+                    break;
+                }
+                return SYNTAX_ERROR;
         }
-        else if(line[index] == '(')
-        {
-            PushStack(&stack, CreateValue(line[index], index));
-        }
-        
-        ++index;
-    }
 
-    if(stack)
-    {
-        DestroyStack(&stack);
-        SyntaxError();
-    }
+        if(i == SIZE_NOTATION)
+        {
+            return SYNTAX_ERROR;
+        }
+	}
+
+    return SUCCESS;
 }
 
-void CheckSymbols(const char* line)
+void SyntaxError()
 {
-    while(*line)
-    {
-        if(IsSpecialSymbol(*line) && !IsDigit(*(line + 1)))
-        {
-            SyntaxError();
-        }
-        else if(!IsOperator(*line) && !IsDigit(*line) && !IsSpecialSymbol(*line))
-        {
-            SyntaxError();
-        }
-
-        ++line;
-    }
+    printf("syntax error");
 }
 
-void InputInfix(char* infix)
+void DivisionByZero()
 {
-    if(fgets(infix, SIZE_NOTATION, stdin) == NULL)
-    {
-        OtherError(__LINE__);
-    }
-
-    infix[strlen(infix) - 1] = '\0';
-
-    if(*infix == '\0')
-    {
-        SyntaxError();
-    }
-
-    CheckSymbols(infix);
-    CheckBrackets(infix);
+    printf("division by zero");
 }
 
-////////////////////////////////  POSTFIX NOTATION AND CALCULATOR  ////////////////////////////////
+////////////////////////////////  POSTFIX NOTATION  ////////////////////////////////
 
 int OperatorPriority(char value)
 {
@@ -208,127 +168,224 @@ int OperatorPriority(char value)
         case '+': return 1; 
         case '*': return 2;     
         case '/': return 2;
+        default: assert(false);
     }
-
-    OtherError(__LINE__);
+    return FAILURE;
 }
 
-float Fabs(float a)
-{
-    return (a >= 0) ? a : -a;
-}
-
-void CalcExpression(TStack* operatorStack, TStack* numberStack)
-{
-    if (IsEmptyStack(*operatorStack) || IsEmptyStack(*numberStack) || IsEmptyStack((*numberStack)->Next))
-    {
-        SyntaxError();
-    }
-
-    char operator = PopStack(operatorStack).Operator;
-    float second = PopStack(numberStack).Number;
-    float first = PopStack(numberStack).Number;
-
-    switch(operator)
-    {
-        case '+': 
-            PushStack(numberStack, CreateValue('\0', first + second));
-            return;
-        case '-': 
-            PushStack(numberStack, CreateValue('\0', first - second));
-            return;
-        case '*': 
-            PushStack(numberStack, CreateValue('\0', first * second));
-            return;
-        case '/':
-            if(Fabs(second) < 1.0E-6)
-            {
-                DestroyStack(operatorStack);
-                DestroyStack(numberStack);
-                DivisionByZero();
-            }
-            PushStack(numberStack, CreateValue('\0', first / second));
-            return;
-    }
-
-    OtherError(__LINE__);
-}
-
-float Calc(const char* infix) 
+void GetPostfixNotation(const char* infixNotation, char* postfixNotation) 
 {
     TStack operatorStack = CreateStack();
-    TStack numberStack = CreateStack();
+    size_t index = 0;
 
-    while(*infix != '\0')
+    while(infixNotation[index] != '\0')
     {
-        if(IsDigit(*infix) || IsSpecialSymbol(*infix))
+        if(IsDigit(infixNotation[index]))
         {
-            float number = atof(infix);
-            if(number == FLT_MIN)
-            {
-                SyntaxError();
-            }
-
             do
             {
-                ++infix;
-            } while (IsDigit(*infix) || IsSpecialSymbol(*infix));
+                *postfixNotation = infixNotation[index];
+                ++postfixNotation;
+                ++index;
+            } while (IsDigit(infixNotation[index]));
             
-            PushStack(&numberStack, CreateValue('\0', number));
+            *postfixNotation = '|';
+            ++postfixNotation;
         }
         else
         {
-            if(*infix == '(')
+            if(infixNotation[index] == '(')
             {
-                PushStack(&operatorStack, CreateValue(*infix, FLT_MIN));
+                Push(&operatorStack, infixNotation[index]);
             }
-            else if(*infix == ')')
+            else if(infixNotation[index] == ')')
             {
-                while(GetTopStack(operatorStack).Operator != '(')
+                while(GetTop(operatorStack) != '(')
                 {
-                    CalcExpression(&operatorStack, &numberStack);
+                    *postfixNotation = Pop(&operatorStack);
+                    ++postfixNotation;
                 }
 
-                PopStack(&operatorStack);
+                Remove(&operatorStack);
             }
             else
             {
-                while(!IsEmptyStack(operatorStack) && OperatorPriority(GetTopStack(operatorStack).Operator) >= OperatorPriority(*infix))
+                while(!IsEmpty(operatorStack) && OperatorPriority(GetTop(operatorStack)) >= OperatorPriority(infixNotation[index]))
                 {
-                    CalcExpression(&operatorStack, &numberStack);
+                    *postfixNotation = Pop(&operatorStack);
+                    ++postfixNotation;
                 }
 
-                PushStack(&operatorStack, CreateValue(*infix, FLT_MIN));
+                Push(&operatorStack, infixNotation[index]);
             }
 
-            ++infix;
+            ++index;
         }
     }
 
-    while(!IsEmptyStack(operatorStack))
+    while(!IsEmpty(operatorStack))
     {
-        CalcExpression(&operatorStack, &numberStack);
+        *postfixNotation = Pop(&operatorStack);
+        ++postfixNotation;
     }
 
-    float result = PopStack(&numberStack).Number;
+    *postfixNotation = '\0';
 
-    DestroyStack(&operatorStack);
-    DestroyStack(&numberStack);
+    DestroyStack(operatorStack);
+}
 
-    return result;
+////////////////////////////////  CALCULATOR  ////////////////////////////////
+
+int Fabs(int value)
+{
+    return (value >= 0) ? value : -value;
+}
+
+int SymbolToNumber(char symbol)
+{
+    return symbol - '0';
+}
+
+char NumberToSymbol(int digit)
+{
+    return digit + '0';
+}
+
+int GetNumberToString(TStack* numberStack)
+{
+    Remove(numberStack);
+
+    int number = 0;
+    int power = 1;
+
+    do
+    {
+        if (!IsEmpty(*numberStack) && GetTop(*numberStack) == '-')
+        {
+            number *= -1;
+            break;
+        }
+
+        number += SymbolToNumber(Pop(numberStack)) * power;
+        power *= 10;
+    } while (!IsEmpty(*numberStack) && GetTop(*numberStack) != '|');
+
+    return number;  
+}
+
+void GetStringToNumber(int value, TStack* numberStack)
+{
+    if(value != Fabs(value))
+    {
+        value *= -1;
+        Push(numberStack, '-');
+    }
+
+    int power = 1;
+
+    while(value > power * 10)
+    {
+        power *= 10;
+    }
+
+    while (power != 0)
+    {
+        Push(numberStack, NumberToSymbol(value / power));
+        value %= power;
+        power /= 10;
+    }
+
+    Push(numberStack, '|');
+}
+
+int GetExpressionValue(char operator, int first, int second, int* errorControl)
+{
+    switch(operator)
+    {
+        case '+': return first + second;
+        case '-': return first - second;
+        case '*': return first * second;
+        case '/':
+            if(second == 0)
+            {
+                *errorControl = DIVISION_BY_ZERO;
+                return 0;
+            }
+            return first / second;
+        default: assert(false);
+    }
+    return FAILURE;
+}
+
+int Calc(const char* infixNotation, int* errorControl)
+{
+    TStack numberStack = CreateStack();
+    char postfixNotation[SIZE_NOTATION * 2];
+
+    GetPostfixNotation(infixNotation, postfixNotation);
+
+    size_t index = 0;
+
+    while(postfixNotation[index] != '\0')
+    {
+        if(IsDigit(postfixNotation[index]))
+        {
+            do
+            {
+                Push(&numberStack, postfixNotation[index]);
+                ++index;
+            } while (postfixNotation[index] != '|');
+
+            Push(&numberStack, postfixNotation[index]);
+        }
+        else
+        {
+            int a = GetNumberToString(&numberStack);
+            int b = GetNumberToString(&numberStack);
+            int c = GetExpressionValue(postfixNotation[index], b, a, errorControl);
+
+            if(*errorControl != SUCCESS)
+            {
+                return 0;
+            }
+
+            GetStringToNumber(c, &numberStack);
+        }
+
+        ++index;
+    }
+
+    int answer = GetNumberToString(&numberStack);
+    DestroyStack(numberStack);
+
+    return answer;
 }
 
 ////////////////////////////////  MAIN  ////////////////////////////////
 
 int main()
 {
-    char infix [SIZE_NOTATION + 1] = { 0 };
+    char infixNotation [SIZE_NOTATION + 1];
     
-    if(setjmp(position) == 0)
+    if(InputNotation(infixNotation) == SYNTAX_ERROR)
     {
-        InputInfix(infix);
-        printf("%f", Calc(infix));
+        SyntaxError();
+        return SUCCESS;
     }
 
-    return EXIT_SUCCESS;
+    int errorControl = SUCCESS;
+    int value = Calc(infixNotation, &errorControl);
+
+    switch(errorControl)
+    {
+        case SUCCESS:
+            printf("%d", value);
+            return SUCCESS;
+        case DIVISION_BY_ZERO: 
+            DivisionByZero();
+            return SUCCESS;
+        case SYNTAX_ERROR: 
+            SyntaxError();
+            return SUCCESS;
+    }
 }
