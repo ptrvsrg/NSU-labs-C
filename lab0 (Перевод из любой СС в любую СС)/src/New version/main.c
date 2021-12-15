@@ -4,10 +4,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#define SUCCESS_JUMP 1
 
 const char* Symbols = "0123456789abcdef";
 static jmp_buf position;
+
+enum
+{
+	SUCCESS_JUMP = 1,
+	SIZE = 13,
+	MAX_SYSTEM = 16,
+	MIN_SYSTEM = 2
+};
 
 void PrintBadInput()
 {
@@ -94,6 +101,7 @@ double To10(int System1, const char* Line)
 char* From10(int System2, double Sum)
 {
 	long long Integer = (long long)Sum;
+	double Fractional = Sum - Integer;
 	int IntegerSize = 0;
 	
 	do
@@ -101,14 +109,15 @@ char* From10(int System2, double Sum)
 		++IntegerSize;
 	} while (Integer >= Pow(System2, IntegerSize));
 
-	char* Line;
+	int LineSize = IntegerSize + SIZE + 1;
+	char* Line = malloc(sizeof(char) * (LineSize));
 
-	if ((Line = malloc(sizeof(char) * (IntegerSize + 14))) == NULL)
+	if(Line == NULL)
 	{
 		PrintBadInput();
 	}
 
-	memset(Line, 0, IntegerSize + 14);
+	memset(Line, 0, IntegerSize + SIZE + 1);
 
 	for (int i = IntegerSize - 1; i >= 0; i--)
 	{
@@ -116,12 +125,10 @@ char* From10(int System2, double Sum)
 		Integer /= System2;
 	}
 
-	double Fractional = Sum - Integer;
-
 	if (Fractional > 0)
 	{
 		Line[IntegerSize] = '.';
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < SIZE - 1; i++)
 		{
 			Fractional *= System2;
 			Line[IntegerSize + 1 + i] = Symbols[(int)Fractional];
@@ -136,16 +143,16 @@ char* From10(int System2, double Sum)
 int main()
 {
 	int System1, System2;
-	char Line[14];
+	char Line[SIZE + 1];
 
     if(setjmp(position) == 0)
 	{
-        if (scanf("%d %d", &System1, &System2) == EOF || System1 > 16 || System2 > 16 || System1 < 2 || System2 < 2)
+        if (scanf("%d %d", &System1, &System2) != 2 || System1 > MAX_SYSTEM || System2 > MAX_SYSTEM || System1 < MIN_SYSTEM || System2 < MIN_SYSTEM)
         {
             PrintBadInput();
         }
 
-        if (scanf("%13s", Line) == EOF)
+        if (scanf("%13s", Line) != 1)
         {
             PrintBadInput();
         }
