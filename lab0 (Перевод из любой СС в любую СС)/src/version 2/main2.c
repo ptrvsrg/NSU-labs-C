@@ -1,21 +1,18 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <ctype.h>
+#include <setjmp.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#define SUCCESS_JUMP 1
 
 const char* Symbols = "0123456789abcdef";
-
-enum
-{
-	SUCCESS = 0,
-	FAILURE = 1
-};
+static jmp_buf position;
 
 void PrintBadInput()
 {
 	printf("bad input");
-	exit(SUCCESS);
+	longjmp(position, SUCCESS_JUMP);
 }
 
 int CharToInt(int System, char Symbol)
@@ -141,17 +138,20 @@ int main()
 	int System1, System2;
 	char Line[14];
 
-	if (scanf("%d %d", &System1, &System2) == EOF || System1 > 16 || System2 > 16 || System1 < 2 || System2 < 2)
+    if(setjmp(position) == 0)
 	{
-		PrintBadInput();
-	}
+        if (scanf("%d %d", &System1, &System2) == EOF || System1 > 16 || System2 > 16 || System1 < 2 || System2 < 2)
+        {
+            PrintBadInput();
+        }
 
-	if (scanf("%13s", Line) == EOF)
-	{
-		PrintBadInput();
-	}
+        if (scanf("%13s", Line) == EOF)
+        {
+            PrintBadInput();
+        }
 
-	printf("%s", From10(System2, To10(System1, Line)));
+        printf("%s", From10(System2, To10(System1, Line)));
+    }
 
-	return SUCCESS;
+	return EXIT_SUCCESS;
 }

@@ -9,7 +9,7 @@ static jmp_buf position;
 
 enum
 {    
-    SUCCESS = 1,
+    SUCCESS_JUMP = 1,
     SIZE_NOTATION = 1000
 };
 
@@ -18,19 +18,19 @@ enum
 void SyntaxError()
 {
     printf("syntax error");
-    longjmp(position, SUCCESS);
+    longjmp(position, SUCCESS_JUMP);
 }
 
 void DivisionByZero()
 {
     printf("division by zero");
-    longjmp(position, SUCCESS);
+    longjmp(position, SUCCESS_JUMP);
 }
 
 void OtherError(int line)
 {
     printf("other error (line %d)", line);
-    longjmp(position, SUCCESS);
+    longjmp(position, SUCCESS_JUMP);
 }
 
 ////////////////////////////////  VALUE TYPE  ////////////////////////////////
