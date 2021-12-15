@@ -4,13 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum
-{
-	SUCCESS = 0,
-	FAILURE = 1
-};
-
-int InputArray(int ArraySize, int* Array)
+void InputArray(int ArraySize, int* Array)
 {
 	for (int i = 0; i < ArraySize; i++)
 	{
@@ -75,19 +69,16 @@ void HeapSort(int ArraySize, int* Array)
 int main()
 {
 	int ArraySize = 0;
-
 	assert(scanf("%d", &ArraySize) != EOF);
 
 	int* Array = malloc(sizeof(*Array) * ArraySize);
     assert(Array != NULL);
 
 	InputArray(ArraySize, Array);
-
 	HeapSort(ArraySize, Array);
-
 	OutputArray(ArraySize, Array);
     
 	free(Array);
 
-	return SUCCESS;
+	return EXIT_SUCCESS;
 }
