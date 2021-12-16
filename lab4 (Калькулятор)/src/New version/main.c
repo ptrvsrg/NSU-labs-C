@@ -254,7 +254,7 @@ int Calc(const char* infix)
     {
         if(IsDigit(*infix))
         {
-            int number = atof(infix);
+            int number = atoi(infix);
 
             do
             {
@@ -262,34 +262,32 @@ int Calc(const char* infix)
             } while (IsDigit(*infix));
             
             PushStack(&numberStack, CreateValue('\0', number));
+            continue;
+        }
+        else if(*infix == '(')
+        {
+            PushStack(&operatorStack, CreateValue(*infix, INT_MIN));
+        }
+        else if(*infix == ')')
+        {
+            while(GetTopStack(operatorStack).Operator != '(')
+            {
+                CalcExpression(&operatorStack, &numberStack);
+            }
+
+            PopStack(&operatorStack);
         }
         else
         {
-            if(*infix == '(')
+            while(!IsEmptyStack(operatorStack) && OperatorPriority(GetTopStack(operatorStack).Operator) >= OperatorPriority(*infix))
             {
-                PushStack(&operatorStack, CreateValue(*infix, INT_MIN));
-            }
-            else if(*infix == ')')
-            {
-                while(GetTopStack(operatorStack).Operator != '(')
-                {
-                    CalcExpression(&operatorStack, &numberStack);
-                }
-
-                PopStack(&operatorStack);
-            }
-            else
-            {
-                while(!IsEmptyStack(operatorStack) && OperatorPriority(GetTopStack(operatorStack).Operator) >= OperatorPriority(*infix))
-                {
-                    CalcExpression(&operatorStack, &numberStack);
-                }
-
-                PushStack(&operatorStack, CreateValue(*infix, INT_MIN));
+                CalcExpression(&operatorStack, &numberStack);
             }
 
-            ++infix;
+            PushStack(&operatorStack, CreateValue(*infix, INT_MIN));
         }
+
+        ++infix;
     }
 
     while(!IsEmptyStack(operatorStack))
