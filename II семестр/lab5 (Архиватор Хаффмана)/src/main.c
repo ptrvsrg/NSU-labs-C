@@ -36,8 +36,8 @@ TCode CreateCode(char symbol, int length, char* code)
 
 //////////////////////////////////////// BINARY TREE TYPE ////////////////////////////////////////
 
-typedef struct TTree* TTree;
-struct TTree
+typedef struct Ttree* TTree;
+struct Ttree
 {
     char Symbol;
     TTree Left;
@@ -91,8 +91,9 @@ void DestroyTree(TTree* tree)
 
 //////////////////////////////////////// PRIORITY LIST TYPE ////////////////////////////////////////
 
-typedef struct TList* TList;
-struct TList
+typedef struct Tlist* TList;
+
+struct Tlist
 {
     int Frecuency;
     TTree Tree;
@@ -155,19 +156,19 @@ void DestroyList(TList* list)
 
 //////////////////////////////////////// TYPECASTING ////////////////////////////////////////
 
-void FillFrecuencyTable(int frecuencyTable[], FILE* inFile)
+void FillFrecuencyTable(int frecuencyTable[])
 {
     unsigned char readSymbol;
-    while (fread(&readSymbol, sizeof(readSymbol), 1, inFile) == 1)
+    while (fread(&readSymbol, sizeof(readSymbol), 1, stdin) == 1)
     {
         ++frecuencyTable[readSymbol];
     }
 }
 
-TList CreateLeafList(FILE* inFile)
+TList CreateLeafList()
 {
     int frecuencyTable[CHAR_SIZE] = { 0 };
-    FillFrecuencyTable(frecuencyTable, inFile);
+    FillFrecuencyTable(frecuencyTable);
     TList list = CreateList();
 
     for (int i = 0; i < CHAR_SIZE; ++i)
@@ -279,9 +280,8 @@ char ExtractSymbolFromBitLine(void)
     return symbol;
 }
 
-void AppendNullBits(FILE* outFile)
+void AppendNullBits(void)
 {
-    UNUSED(outFile);
     if(lengthBitLine != 0)
     {
         for (int i = lengthBitLine; i < CHAR_BITS; ++i)
@@ -291,7 +291,7 @@ void AppendNullBits(FILE* outFile)
 
         char encodedSymbol = ExtractSymbolFromBitLine();
         UNUSED(encodedSymbol);
-        assert(fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, outFile) == 1);
+        assert(fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, stdout) == 1);
     }
 }
 
@@ -309,38 +309,38 @@ void AddSymbolCodeToBitLineUsingHuffmanTable(char symbol, TCode* HuffmanTable)
     }
 }
 
-void ExtractSymbolFromBitLineUsingHuffmanTree(TTree tree, FILE* inFile, FILE* outFile)
+void ExtractSymbolFromBitLineUsingHuffmanTree(TTree tree)
 {
     if(IsLeaf(tree))
     {
         char writtenSymbol = tree->Symbol;
         UNUSED(writtenSymbol);
-        assert(fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, outFile) == 1);
+        assert(fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, stdout) == 1);
         return;
     }
 
     unsigned char readSymbol;
-    if(lengthBitLine == 0 && fread(&readSymbol, sizeof(readSymbol), 1, inFile) == 1)
+    if(lengthBitLine == 0 && fread(&readSymbol, sizeof(readSymbol), 1, stdin) == 1)
     {
         AddSymbolCodeToBitLine(readSymbol);
     }
 
     char bit = *bitLine;
     MoveBitLine(1);
-    ExtractSymbolFromBitLineUsingHuffmanTree(bit == '0' ? tree->Left : tree->Right, inFile, outFile);
+    ExtractSymbolFromBitLineUsingHuffmanTree(bit == '0' ? tree->Left : tree->Right);
 }
 
 //////////////////////////////////////// INPUT / OUTPUT HUFFMAN TREE ////////////////////////////////////////
 
-void OutputHuffmanTreeValue(TTree tree, FILE* outFile)
+void OutputHuffmanTreeValue(TTree tree)
 {
     if(IsEmptyTree(tree))
     {
         return;
     }
 
-    OutputHuffmanTreeValue(tree->Left, outFile);
-    OutputHuffmanTreeValue(tree->Right, outFile);
+    OutputHuffmanTreeValue(tree->Left);
+    OutputHuffmanTreeValue(tree->Right);
 
     AddBitToBitLine((IsLeaf(tree)) ? '1' : '0');
     if (IsEmptyTree(tree->Left) && IsEmptyTree(tree->Right))
@@ -352,19 +352,18 @@ void OutputHuffmanTreeValue(TTree tree, FILE* outFile)
     {
         unsigned char writtenSymbol = ExtractSymbolFromBitLine();
         UNUSED(writtenSymbol);
-        assert(fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, outFile) == 1);
+        assert(fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, stdout) == 1);
     }
 }
 
-void OutputHuffmanTree(TTree tree, FILE* outFile)
+void OutputHuffmanTree(TTree tree)
 {
-    OutputHuffmanTreeValue(tree, outFile);
+    OutputHuffmanTreeValue(tree);
     AddBitToBitLine('0');
 }
 
-TTree InputHuffmanTree(FILE* inFile)
+TTree InputHuffmanTree(void)
 {
-    UNUSED(inFile);
     TList stack = CreateList();
 
     while(true)
@@ -372,7 +371,7 @@ TTree InputHuffmanTree(FILE* inFile)
         while(*bitLine != '0' && lengthBitLine < CHAR_BITS + 1)
         {
             unsigned char readSymbol = '\0';
-            assert(fread(&readSymbol, sizeof(readSymbol), 1, inFile) == 1);
+            assert(fread(&readSymbol, sizeof(readSymbol), 1, stdin) == 1);
             AddSymbolCodeToBitLine(readSymbol);
         }
 
@@ -405,27 +404,27 @@ TTree InputHuffmanTree(FILE* inFile)
 
 //////////////////////////////////////// ENCODER ////////////////////////////////////////
 
-void OutputEncodedMessage(TCode* HuffmanTable, FILE* inFile, FILE* outFile)
+void OutputEncodedMessage(TCode* HuffmanTable)
 {
     char readSymbol;
 
-    while (fread(&readSymbol, sizeof(readSymbol), 1, inFile) == 1)
+    while (fread(&readSymbol, sizeof(readSymbol), 1, stdin) == 1)
     {
         AddSymbolCodeToBitLineUsingHuffmanTable(readSymbol, HuffmanTable);
         while (lengthBitLine >= CHAR_BITS)
         {
             char encodedSymbol = ExtractSymbolFromBitLine();
             UNUSED(encodedSymbol);
-            assert(fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, outFile) == 1);
+            assert(fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, stdout) == 1);
         }
     }
 
-    AppendNullBits(outFile);
+    AppendNullBits();
 }
 
-void Encoder(FILE* inFile, FILE* outFile)
+void Encoder(void)
 {
-    TList list = CreateLeafList(inFile);
+    TList list = CreateLeafList();
 
     if (IsEmptyList(list))
     {
@@ -435,13 +434,13 @@ void Encoder(FILE* inFile, FILE* outFile)
     TTree tree = ConvertLeafListToHuffmanTree(&list);
     int symbolCount = list->Frecuency;
     UNUSED(symbolCount);
-    assert(fwrite(&symbolCount, sizeof(symbolCount), 1, outFile) == 1);
-    OutputHuffmanTree(tree, outFile);
+    assert(fwrite(&symbolCount, sizeof(symbolCount), 1, stdout) == 1);
+    OutputHuffmanTree(tree);
 
     TCode* HuffmanTable = ConvertHuffmanTreeToHuffmanTable(tree);
 
-    assert(fseek(inFile, sizeof(char), SEEK_SET) == 0);
-    OutputEncodedMessage(HuffmanTable, inFile, outFile);
+    assert(fseek(stdin, sizeof(char), SEEK_SET) == 0);
+    OutputEncodedMessage(HuffmanTable);
 
     free(HuffmanTable);
     DestroyList(&list);
@@ -449,24 +448,24 @@ void Encoder(FILE* inFile, FILE* outFile)
 
 //////////////////////////////////////// DECODER ////////////////////////////////////////
 
-void OutputDecodedMessage(int symbolCount, TTree tree, FILE* inFile, FILE* outFile)
+void OutputDecodedMessage(int symbolCount, TTree tree)
 {
     for (int i = 0; i < symbolCount; ++i)
     {
-        ExtractSymbolFromBitLineUsingHuffmanTree(tree, inFile, outFile);
+        ExtractSymbolFromBitLineUsingHuffmanTree(tree);
     }
 }
 
-void Decoder(FILE* inFile, FILE* outFile)
+void Decoder(void)
 {
     int symbolCount = 0;
-    if(fread(&symbolCount, sizeof(symbolCount), 1, inFile) != 1)
+    if(fread(&symbolCount, sizeof(symbolCount), 1, stdin) != 1)
     {
         return;
     }
 
-    TTree tree = InputHuffmanTree(inFile);
-    OutputDecodedMessage(symbolCount, tree, inFile, outFile);
+    TTree tree = InputHuffmanTree();
+    OutputDecodedMessage(symbolCount, tree);
     DestroyTree(&tree);
 }
 
@@ -474,29 +473,26 @@ void Decoder(FILE* inFile, FILE* outFile)
 
 int main(void)
 {
-    FILE* inFile = fopen("in.txt", "rb");
-    FILE* outFile = fopen("out.txt", "wb");
-
-    assert(inFile != NULL);
-    assert(outFile != NULL);
+    assert(freopen("in.txt", "rb", stdin) != NULL);
+    assert(freopen("out.txt", "wb", stdout) != NULL);
     
     char workMode = '\0';
-    assert(fread(&workMode, sizeof(workMode), 1, inFile) == 1);
+    assert(fread(&workMode, sizeof(workMode), 1, stdin) == 1);
 
     switch (workMode)
     {
         case 'c':
-            Encoder(inFile, outFile);
+            Encoder();
             break;
         case 'd':
-            Decoder(inFile, outFile);
+            Decoder();
             break;
         default:
             assert(false);
     } 
 
-    fclose(inFile);
-    fclose(outFile);
+    fclose(stdin);
+    fclose(stdout);
 
     return EXIT_SUCCESS;
 }
