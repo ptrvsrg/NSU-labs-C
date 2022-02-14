@@ -291,7 +291,9 @@ void AppendNullBits(void)
 
         char encodedSymbol = ExtractSymbolFromBitLine();
         UNUSED(encodedSymbol);
-        assert(fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, stdout) == 1);
+        int control = fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, stdout);
+        UNUSED(control);
+        assert(control == 1);
     }
 }
 
@@ -315,7 +317,9 @@ void ExtractSymbolFromBitLineUsingHuffmanTree(TTree tree)
     {
         char writtenSymbol = tree->Symbol;
         UNUSED(writtenSymbol);
-        assert(fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, stdout) == 1);
+        int control = fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, stdout);
+        UNUSED(control);
+        assert(control == 1);
         return;
     }
 
@@ -352,7 +356,9 @@ void OutputHuffmanTreeValue(TTree tree)
     {
         unsigned char writtenSymbol = ExtractSymbolFromBitLine();
         UNUSED(writtenSymbol);
-        assert(fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, stdout) == 1);
+        int control = fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, stdout);
+        UNUSED(control);
+        assert(control == 1);
     }
 }
 
@@ -371,7 +377,9 @@ TTree InputHuffmanTree(void)
         while(*bitLine != '0' && lengthBitLine < CHAR_BITS + 1)
         {
             unsigned char readSymbol = '\0';
-            assert(fread(&readSymbol, sizeof(readSymbol), 1, stdin) == 1);
+            int control = fread(&readSymbol, sizeof(readSymbol), 1, stdin);
+            UNUSED(control);
+            assert(control == 1);
             AddSymbolCodeToBitLine(readSymbol);
         }
 
@@ -415,7 +423,9 @@ void OutputEncodedMessage(TCode* HuffmanTable)
         {
             char encodedSymbol = ExtractSymbolFromBitLine();
             UNUSED(encodedSymbol);
-            assert(fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, stdout) == 1);
+            int control = fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, stdout);
+            UNUSED(control);
+            assert(control == 1);
         }
     }
 
@@ -432,14 +442,20 @@ void Encoder(void)
     }
 
     TTree tree = ConvertLeafListToHuffmanTree(&list);
+
     int symbolCount = list->Frecuency;
     UNUSED(symbolCount);
-    assert(fwrite(&symbolCount, sizeof(symbolCount), 1, stdout) == 1);
+    int control = fwrite(&symbolCount, sizeof(symbolCount), 1, stdout);
+    UNUSED(control);
+    assert(control == 1);
+
     OutputHuffmanTree(tree);
 
     TCode* HuffmanTable = ConvertHuffmanTreeToHuffmanTable(tree);
 
-    assert(fseek(stdin, sizeof(char), SEEK_SET) == 0);
+    control = fseek(stdin, sizeof(char), SEEK_SET);
+    assert(control == 0);
+
     OutputEncodedMessage(HuffmanTable);
 
     free(HuffmanTable);
@@ -473,11 +489,16 @@ void Decoder(void)
 
 int main(void)
 {
-    assert(freopen("in.txt", "rb", stdin) != NULL);
-    assert(freopen("out.txt", "wb", stdout) != NULL);
+    FILE* streamControl = freopen("in.txt", "rb", stdin);
+    UNUSED(streamControl);
+    assert(streamControl != NULL);
+    streamControl = freopen("out.txt", "wb", stdout);
+    assert(streamControl != NULL);
     
     char workMode = '\0';
-    assert(fread(&workMode, sizeof(workMode), 1, stdin) == 1);
+    int control = fread(&workMode, sizeof(workMode), 1, stdin);
+    UNUSED(control);
+    assert(control == 1);
 
     switch (workMode)
     {

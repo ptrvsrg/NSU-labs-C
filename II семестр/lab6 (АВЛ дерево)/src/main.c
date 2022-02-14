@@ -2,21 +2,16 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-///////////////////////////// ADDITIONAL FUNCTION /////////////////////////////
-
-int Max(int X, int Y)
-{
-    return X >= Y ? X : Y;
-}
+#define UNUSED(x) (void)(x)
 
 ///////////////////////////// MEMORY FUNCTION /////////////////////////////
 
 typedef struct TAVL* TAVL;
 struct TAVL
 {
+    char Height;
+    char HeightDifference;
     int Value;
-    int Height;
     TAVL Left;
     TAVL Right;
 };
@@ -28,27 +23,26 @@ typedef struct TMemory
     TAVL Buffer;
 } TMemory;
 
-static TMemory Memory = { 0, 0, NULL };
-
-void CreateMemory(int count)
+TMemory CreateMemory(int count)
 {
-    Memory.Count = count;
-    Memory.Index = 0; 
+    TMemory Memory = { count, 0, NULL };
 
-    Memory.Buffer = calloc(count, sizeof(*Memory.Buffer));
+    Memory.Buffer = malloc(count * sizeof(*Memory.Buffer));
     assert(Memory.Buffer != NULL);
+
+    return Memory;
 }
 
-TAVL AVLAllocate(void)
+TAVL AVLAllocate(TMemory* Memory)
 {
-    assert(Memory.Count != Memory.Index);
-    ++Memory.Index;
-    return &Memory.Buffer[Memory.Index - 1];
+    assert(Memory->Count != Memory->Index);
+    ++Memory->Index;
+    return &Memory->Buffer[Memory->Index - 1];
 }
 
-void DestroyMemory(void)
+void DestroyMemory(TMemory* Memory)
 {
-    free(Memory.Buffer);
+    free(Memory->Buffer);
 }
 
 ///////////////////////////// AVL TREE TYPE /////////////////////////////
@@ -63,31 +57,46 @@ bool IsEmpty(TAVL tree)
     return tree == NULL;
 }
 
-TAVL CreateLeaf(int value, TAVL left, TAVL right)
+TAVL CreateLeaf(int value, TMemory* Memory)
 {
-    TAVL new = AVLAllocate();
+    TAVL new = AVLAllocate(Memory);
 
     new->Height = 1;
+    new->HeightDifference = 0;
     new->Value = value;
-    new->Left = left;
-    new->Right = right;
+    new->Left = NULL;
+    new->Right = NULL;
 
     return new;
 }
 
 int GetHeight(TAVL tree)
 {
-    return !IsEmpty(tree) ? tree->Height : 0;
+    if(IsEmpty(tree))
+    {
+        return 0;
+    }
+    return tree->Height;
 }
 
-int HeightDifference(TAVL tree)
+int GetHeightDifference(TAVL tree)
 {
-    return GetHeight(tree->Right) - GetHeight(tree->Left);
+    if(IsEmpty(tree))
+    {
+        return 0;
+    }
+    return tree->HeightDifference;
+}
+
+int Max(int X, int Y)
+{
+    return X >= Y ? X : Y;
 }
 
 void FixHeight(TAVL tree)
 {
     tree->Height = Max(GetHeight(tree->Left), GetHeight(tree->Right)) + 1;
+    tree->HeightDifference = GetHeight(tree->Right) - GetHeight(tree->Left);
 }
 
 TAVL RotateRight(TAVL tree)
@@ -117,18 +126,18 @@ TAVL RotateLeft(TAVL tree)
 TAVL Balance(TAVL tree)
 {
     FixHeight(tree);
-    
-    if(HeightDifference(tree) == 2)
+
+    if(GetHeightDifference(tree) == 2)
     {
-        if(HeightDifference(tree->Right) < 0)
+        if(GetHeightDifference(tree->Right) < 0)
         {
             tree->Right = RotateRight(tree->Right);
         }
         return RotateLeft(tree);
     }
-    else if(HeightDifference(tree) == -2)
+    else if(GetHeightDifference(tree) == -2)
     {
-        if(HeightDifference(tree->Left) > 0)
+        if(GetHeightDifference(tree->Left) > 0)
         {
             tree->Left = RotateLeft(tree->Left);
         }
@@ -138,19 +147,19 @@ TAVL Balance(TAVL tree)
     return tree;
 }
 
-void Insert(int value, TAVL* tree)
+void Insert(int value, TAVL* tree, TMemory* memory)
 {
-    if(IsEmpty(*tree)) 
+    if(IsEmpty(*tree))
     {
-        *tree = CreateLeaf(value, NULL, NULL);
+        *tree = CreateLeaf(value, memory);
     }
-    else if(value < (*tree)->Value)   
+    else if(value < (*tree)->Value)
     {
-        Insert(value, &(*tree)->Left);
+        Insert(value, &(*tree)->Left, memory);
     }
     else
     {
-        Insert(value, &(*tree)->Right);
+        Insert(value, &(*tree)->Right, memory);
     }
 
     *tree = Balance(*tree);
@@ -161,19 +170,23 @@ void Insert(int value, TAVL* tree)
 int InputTreeSize(void)
 {
     int treeSize = 0;
-    assert(scanf("%d", &treeSize) == 1);
+    int control = scanf("%d", &treeSize);
+    UNUSED(control);
+    assert(control == 1);
     return treeSize;
 }
 
-TAVL InputTree(int treeSize)
+TAVL InputTree(int treeSize, TMemory* memory)
 {
     TAVL tree = CreateAVL();
 
     for(int i = 0; i < treeSize; ++i)
     {
         int value = 0;
-        assert(scanf("%d", &value) == 1);
-        Insert(value, &tree);
+        int control = scanf("%d", &value);
+        UNUSED(control);
+        assert(control == 1);
+        Insert(value, &tree, memory);
     }
 
     return tree;
@@ -185,10 +198,12 @@ int main(void)
 {
     int count = InputTreeSize();
 
-    CreateMemory(count);
+    TMemory Memory = CreateMemory(count);
 
-    TAVL tree = InputTree(count);
+    TAVL tree = InputTree(count, &Memory);
     printf("%d", GetHeight(tree));
 
-    DestroyMemory();
+    DestroyMemory(&Memory);
+
+    return EXIT_SUCCESS;
 }
