@@ -11,8 +11,41 @@ enum
     MAX_SIZE = CHAR_SIZE + CHAR_BITS + 1
 };
 
-static int lengthBitLine = 0;
-static char bitLine[MAX_SIZE] = { 0 };
+
+//////////////////////////////////////// STREAM TYPE ////////////////////////////////////////
+
+typedef struct TStream
+{
+    FILE* in;
+    FILE* out;
+} TStream;
+
+TStream CreateStreams(void)
+{
+    TStream streams = { NULL, NULL };
+
+    streams.in = fopen("in.txt", "rb");
+    assert(streams.in != NULL);
+
+    streams.out = fopen("out.txt", "wb");
+    assert(streams.out != NULL);
+
+    return streams;
+}
+
+void CloseStreams(TStream* streams)
+{
+    fclose(streams->in);
+    fclose(streams->out);
+}
+
+//////////////////////////////////////// BIT LINE TYPE ////////////////////////////////////////
+
+typedef struct TBitLine
+{
+    int length;
+    char line[MAX_SIZE];
+} TBitLine;
 
 //////////////////////////////////////// SYMBOL CODE TYPE ////////////////////////////////////////
 
@@ -95,7 +128,7 @@ typedef struct Tlist* TList;
 
 struct Tlist
 {
-    int Frecuency;
+    int Frequency;
     TTree Tree;
     TList Next;
 };
@@ -110,26 +143,26 @@ bool IsEmptyList(TList list)
     return list == NULL;
 }
 
-void PushList(TTree tree, int frecuency, TList* list)
+void PushList(TTree tree, int frequency, TList* list)
 {
     TList new = malloc(sizeof(*new));
     assert(!IsEmptyList(new));
 
     new->Tree = tree;
-    new->Frecuency = frecuency;
+    new->Frequency = frequency;
     new->Next = *list;
     *list = new;
 }
 
-void PushPriorityList(TTree tree, int frecuency,  TList* list)
+void PushPriorityList(TTree tree, int frequency,  TList* list)
 {
-    if (IsEmptyList(*list) || frecuency <= (*list)->Frecuency)
+    if (IsEmptyList(*list) || frequency <= (*list)->Frequency)
     {
-        PushList(tree, frecuency, list);
+        PushList(tree, frequency, list);
     }
     else
     {
-        PushPriorityList(tree, frecuency, &(*list)->Next);
+        PushPriorityList(tree, frequency, &(*list)->Next);
     }
 }
 
@@ -156,27 +189,27 @@ void DestroyList(TList* list)
 
 //////////////////////////////////////// TYPECASTING ////////////////////////////////////////
 
-void FillFrecuencyTable(int frecuencyTable[])
+void FillFrequencyTable(int frequencyTable[], TStream streams)
 {
     unsigned char readSymbol;
-    while (fread(&readSymbol, sizeof(readSymbol), 1, stdin) == 1)
+    while (fread(&readSymbol, sizeof(readSymbol), 1, streams.in) == 1)
     {
-        ++frecuencyTable[readSymbol];
+        ++frequencyTable[readSymbol];
     }
 }
 
-TList CreateLeafList()
+TList CreateLeafList(TStream streams)
 {
-    int frecuencyTable[CHAR_SIZE] = { 0 };
-    FillFrecuencyTable(frecuencyTable);
+    int frequencyTable[CHAR_SIZE] = { 0 };
+    FillFrequencyTable(frequencyTable, streams);
     TList list = CreateList();
 
     for (int i = 0; i < CHAR_SIZE; ++i)
     {
-        if (frecuencyTable[i] != 0)
+        if (frequencyTable[i] != 0)
         {
             TTree tree = CreateTree((char)i, NULL, NULL);
-            PushPriorityList(tree, frecuencyTable[i], &list);
+            PushPriorityList(tree, frequencyTable[i], &list);
         }
     }
     
@@ -194,13 +227,13 @@ TTree ConvertLeafListToHuffmanTree(TList* list)
         return (*list)->Tree;
     }
 
-    int frecuencySum = (*list)->Frecuency;
+    int frequencySum = (*list)->Frequency;
     TTree left = PopList(list);
-    frecuencySum += (*list)->Frecuency;
+    frequencySum += (*list)->Frequency;
     TTree right = PopList(list);
 
     TTree result = CreateTree('\0', left, right);
-    PushPriorityList(result, frecuencySum, list);
+    PushPriorityList(result, frequencySum, list);
 
     return ConvertLeafListToHuffmanTree(list);
 }
@@ -242,62 +275,62 @@ TCode* ConvertHuffmanTreeToHuffmanTable(TTree tree)
 
 //////////////////////////////////////// WORKING WITH BITS ////////////////////////////////////////
 
-void MoveBitLine(int shift)
+void MoveBitLine(int shift, TBitLine* bitLine)
 {
-    for (int i = 0; i < lengthBitLine; ++i)
+    for (int i = 0; i < bitLine->length; ++i)
     {
-        bitLine[i] = (lengthBitLine - shift - i > 0) ? bitLine[i + shift] : '\0';
+        bitLine->line[i] = (bitLine->length - shift - i > 0) ? bitLine->line[i + shift] : '\0';
     }
 
-    lengthBitLine -= shift;
+    bitLine->length -= shift;
 }
 
-void AddBitToBitLine(char bit)
+void AddBitToBitLine(char bit, TBitLine* bitLine)
 {
-    bitLine[lengthBitLine] = bit;
-    ++lengthBitLine;
+    bitLine->line[bitLine->length] = bit;
+    ++bitLine->length;
 }
 
-void AddSymbolCodeToBitLine(unsigned char symbol)
+void AddSymbolCodeToBitLine(unsigned char symbol, TBitLine* bitLine)
 {
     for (int i = 0; i < CHAR_BITS; ++i)
     {
-        AddBitToBitLine((symbol & 128) == 0 ? '0' : '1');
+        AddBitToBitLine((symbol & 128) == 0 ? '0' : '1', bitLine);
         symbol <<= 1;
     }
 }
 
-char ExtractSymbolFromBitLine(void)
+char ExtractSymbolFromBitLine(TBitLine* bitLine)
 {
     unsigned char symbol = 0;
     for (int i = 0; i < CHAR_BITS; ++i)
     {
         symbol <<= 1;
-        symbol |= (bitLine[i] == '0') ? 0 : 1;
+        symbol |= (bitLine->line[i] == '0') ? 0 : 1;
     }
 
-    MoveBitLine(CHAR_BITS);
+    MoveBitLine(CHAR_BITS, bitLine);
     return symbol;
 }
 
-void AppendNullBits(void)
+void AppendNullBits(TBitLine* bitLine, TStream streams)
 {
-    if(lengthBitLine != 0)
+    if (bitLine->length != 0)
     {
-        for (int i = lengthBitLine; i < CHAR_BITS; ++i)
+        for (int i = bitLine->length; i < CHAR_BITS; ++i)
         {
-            AddBitToBitLine('0');
+            AddBitToBitLine('0', bitLine);
         }
 
-        char encodedSymbol = ExtractSymbolFromBitLine();
+        char encodedSymbol = ExtractSymbolFromBitLine(bitLine);
         UNUSED(encodedSymbol);
-        int control = fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, stdout);
+        int control = fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, streams.out);
         UNUSED(control);
         assert(control == 1);
     }
 }
 
-void AddSymbolCodeToBitLineUsingHuffmanTable(char symbol, TCode* HuffmanTable)
+void AddSymbolCodeToBitLineUsingHuffmanTable(char symbol, TCode* HuffmanTable, TBitLine* bitLine)
 {
     int index = 0;
     while (HuffmanTable[index].Symbol != symbol)
@@ -307,134 +340,134 @@ void AddSymbolCodeToBitLineUsingHuffmanTable(char symbol, TCode* HuffmanTable)
 
     for (int i = 0; HuffmanTable[index].Code[i] != '\0'; ++i)
     {
-        AddBitToBitLine(HuffmanTable[index].Code[i]);
+        AddBitToBitLine(HuffmanTable[index].Code[i], bitLine);
     }
 }
 
-void ExtractSymbolFromBitLineUsingHuffmanTree(TTree tree)
+void ExtractSymbolFromBitLineUsingHuffmanTree(TTree tree, TBitLine* bitLine, TStream streams)
 {
-    if(IsLeaf(tree))
+    if (IsLeaf(tree))
     {
         char writtenSymbol = tree->Symbol;
         UNUSED(writtenSymbol);
-        int control = fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, stdout);
+        int control = fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, streams.out);
         UNUSED(control);
         assert(control == 1);
         return;
     }
 
     unsigned char readSymbol;
-    if(lengthBitLine == 0 && fread(&readSymbol, sizeof(readSymbol), 1, stdin) == 1)
+    if (bitLine->length == 0 && fread(&readSymbol, sizeof(readSymbol), 1, streams.in) == 1)
     {
-        AddSymbolCodeToBitLine(readSymbol);
+        AddSymbolCodeToBitLine(readSymbol, bitLine);
     }
 
-    char bit = *bitLine;
-    MoveBitLine(1);
-    ExtractSymbolFromBitLineUsingHuffmanTree(bit == '0' ? tree->Left : tree->Right);
+    char bit = *bitLine->line;
+    MoveBitLine(1, bitLine);
+    ExtractSymbolFromBitLineUsingHuffmanTree(bit == '0' ? tree->Left : tree->Right, bitLine, streams);
 }
 
 //////////////////////////////////////// INPUT / OUTPUT HUFFMAN TREE ////////////////////////////////////////
 
-void OutputHuffmanTreeValue(TTree tree)
+void OutputHuffmanTreeValue(TTree tree, TBitLine* bitLine, TStream streams)
 {
-    if(IsEmptyTree(tree))
+    if (IsEmptyTree(tree))
     {
         return;
     }
 
-    OutputHuffmanTreeValue(tree->Left);
-    OutputHuffmanTreeValue(tree->Right);
+    OutputHuffmanTreeValue(tree->Left, bitLine, streams);
+    OutputHuffmanTreeValue(tree->Right, bitLine, streams);
 
-    AddBitToBitLine((IsLeaf(tree)) ? '1' : '0');
+    AddBitToBitLine((IsLeaf(tree)) ? '1' : '0', bitLine);
     if (IsEmptyTree(tree->Left) && IsEmptyTree(tree->Right))
     {
-        AddSymbolCodeToBitLine(tree->Symbol);
+        AddSymbolCodeToBitLine(tree->Symbol, bitLine);
     }
 
-    while (lengthBitLine >= CHAR_BITS)
+    while (bitLine->length >= CHAR_BITS)
     {
-        unsigned char writtenSymbol = ExtractSymbolFromBitLine();
+        unsigned char writtenSymbol = ExtractSymbolFromBitLine(bitLine);
         UNUSED(writtenSymbol);
-        int control = fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, stdout);
+        int control = fwrite(&writtenSymbol, sizeof(writtenSymbol), 1, streams.out);
         UNUSED(control);
         assert(control == 1);
     }
 }
 
-void OutputHuffmanTree(TTree tree)
+void OutputHuffmanTree(TTree tree, TBitLine* bitLine, TStream streams)
 {
-    OutputHuffmanTreeValue(tree);
-    AddBitToBitLine('0');
+    OutputHuffmanTreeValue(tree, bitLine, streams);
+    AddBitToBitLine('0', bitLine);
 }
 
-TTree InputHuffmanTree(void)
+TTree InputHuffmanTree(TBitLine* bitLine, TStream streams)
 {
     TList stack = CreateList();
 
-    while(true)
+    while (true)
     {
-        while(*bitLine != '0' && lengthBitLine < CHAR_BITS + 1)
+        while (*bitLine->line != '0' && bitLine->length < CHAR_BITS + 1)
         {
             unsigned char readSymbol = '\0';
-            int control = fread(&readSymbol, sizeof(readSymbol), 1, stdin);
+            int control = fread(&readSymbol, sizeof(readSymbol), 1, streams.in);
             UNUSED(control);
             assert(control == 1);
-            AddSymbolCodeToBitLine(readSymbol);
+            AddSymbolCodeToBitLine(readSymbol, bitLine);
         }
 
-        if(*bitLine == '1')
+        if (*bitLine->line == '1')
         {
-            MoveBitLine(1);
-            char symbol = ExtractSymbolFromBitLine();
+            MoveBitLine(1, bitLine);
+            char symbol = ExtractSymbolFromBitLine(bitLine);
             TTree leaf = CreateTree(symbol, NULL, NULL);
             PushList(leaf, 0, &stack);
         }
         else
         {
-            MoveBitLine(1);
+            MoveBitLine(1, bitLine);
 
             if (IsEmptyList(stack->Next))
             {
                 return PopList(&stack);
             }
             
-            int frecuencySum = stack->Frecuency;
+            int frequencySum = stack->Frequency;
             TTree right = PopList(&stack);
-            frecuencySum += stack->Frecuency;
+            frequencySum += stack->Frequency;
             TTree left = PopList(&stack);
 
             TTree result = CreateTree('\0', left, right);
-            PushList(result, frecuencySum, &stack);
+            PushList(result, frequencySum, &stack);
         }
     }
 }
 
 //////////////////////////////////////// ENCODER ////////////////////////////////////////
 
-void OutputEncodedMessage(TCode* HuffmanTable)
+void OutputEncodedMessage(TCode* HuffmanTable, TBitLine* bitLine, TStream streams)
 {
     char readSymbol;
 
-    while (fread(&readSymbol, sizeof(readSymbol), 1, stdin) == 1)
+    while (fread(&readSymbol, sizeof(readSymbol), 1, streams.in) == 1)
     {
-        AddSymbolCodeToBitLineUsingHuffmanTable(readSymbol, HuffmanTable);
-        while (lengthBitLine >= CHAR_BITS)
+        AddSymbolCodeToBitLineUsingHuffmanTable(readSymbol, HuffmanTable, bitLine);
+        while (bitLine->length >= CHAR_BITS)
         {
-            char encodedSymbol = ExtractSymbolFromBitLine();
+            char encodedSymbol = ExtractSymbolFromBitLine(bitLine);
             UNUSED(encodedSymbol);
-            int control = fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, stdout);
+            int control = fwrite(&encodedSymbol, sizeof(encodedSymbol), 1, streams.out);
             UNUSED(control);
             assert(control == 1);
         }
     }
 
-    AppendNullBits();
+    AppendNullBits(bitLine, streams);
 }
 
-void Encoder(void)
+void Encoder(TStream streams)
 {
-    TList list = CreateLeafList();
+    TList list = CreateLeafList(streams);
 
     if (IsEmptyList(list))
     {
@@ -443,20 +476,21 @@ void Encoder(void)
 
     TTree tree = ConvertLeafListToHuffmanTree(&list);
 
-    int symbolCount = list->Frecuency;
+    int symbolCount = list->Frequency;
     UNUSED(symbolCount);
-    int control = fwrite(&symbolCount, sizeof(symbolCount), 1, stdout);
+    int control = fwrite(&symbolCount, sizeof(symbolCount), 1, streams.out);
     UNUSED(control);
     assert(control == 1);
 
-    OutputHuffmanTree(tree);
+    TBitLine bitLine = { 0, "" };
+    OutputHuffmanTree(tree, &bitLine, streams);
 
     TCode* HuffmanTable = ConvertHuffmanTreeToHuffmanTable(tree);
 
-    control = fseek(stdin, sizeof(char), SEEK_SET);
+    control = fseek(streams.in, sizeof(char), SEEK_SET);
     assert(control == 0);
 
-    OutputEncodedMessage(HuffmanTable);
+    OutputEncodedMessage(HuffmanTable, &bitLine, streams);
 
     free(HuffmanTable);
     DestroyList(&list);
@@ -464,24 +498,25 @@ void Encoder(void)
 
 //////////////////////////////////////// DECODER ////////////////////////////////////////
 
-void OutputDecodedMessage(int symbolCount, TTree tree)
+void OutputDecodedMessage(int symbolCount, TTree tree, TBitLine* bitLine, TStream streams)
 {
     for (int i = 0; i < symbolCount; ++i)
     {
-        ExtractSymbolFromBitLineUsingHuffmanTree(tree);
+        ExtractSymbolFromBitLineUsingHuffmanTree(tree, bitLine, streams);
     }
 }
 
-void Decoder(void)
+void Decoder(TStream streams)
 {
     int symbolCount = 0;
-    if(fread(&symbolCount, sizeof(symbolCount), 1, stdin) != 1)
+    if (fread(&symbolCount, sizeof(symbolCount), 1, streams.in) != 1)
     {
         return;
     }
 
-    TTree tree = InputHuffmanTree();
-    OutputDecodedMessage(symbolCount, tree);
+    TBitLine bitLine = { 0, "" };
+    TTree tree = InputHuffmanTree(&bitLine, streams);
+    OutputDecodedMessage(symbolCount, tree, &bitLine, streams);
     DestroyTree(&tree);
 }
 
@@ -489,31 +524,26 @@ void Decoder(void)
 
 int main(void)
 {
-    FILE* streamControl = freopen("in.txt", "rb", stdin);
-    UNUSED(streamControl);
-    assert(streamControl != NULL);
-    streamControl = freopen("out.txt", "wb", stdout);
-    assert(streamControl != NULL);
+    TStream streams = CreateStreams();
     
     char workMode = '\0';
-    int control = fread(&workMode, sizeof(workMode), 1, stdin);
+    int control = fread(&workMode, sizeof(workMode), 1, streams.in);
     UNUSED(control);
     assert(control == 1);
 
     switch (workMode)
     {
         case 'c':
-            Encoder();
+            Encoder(streams);
             break;
         case 'd':
-            Decoder();
+            Decoder(streams);
             break;
         default:
             assert(false);
     } 
 
-    fclose(stdin);
-    fclose(stdout);
+    CloseStreams(&streams);
 
     return EXIT_SUCCESS;
 }
