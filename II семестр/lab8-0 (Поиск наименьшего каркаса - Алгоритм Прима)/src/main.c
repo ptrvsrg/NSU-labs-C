@@ -14,9 +14,91 @@ enum
     MAX_VERTEX_COUNT = 5000
 };
 
+///////////////////////////////////  BINARY HEAP TYPE  ///////////////////////////////////
+
+typedef struct
+{
+    short Count;
+    short Max;
+    int* DistanceToMST;
+    int* Array;
+} THeap;
+
+void Swap(int* value1, int* value2)
+{
+	int buffer = *value1;
+	*value1 = *value2;
+	*value2 = buffer;
+}
+
+THeap CreateHeap(int max)
+{
+    THeap heap = { 0, max, NULL, NULL };
+
+    heap.Array = calloc(max, sizeof(*heap.Array));
+    assert(heap.Array != NULL);
+
+    heap.DistanceToMST = calloc(max, sizeof(*heap.DistanceToMST));
+    assert(heap.DistanceToMST != NULL);
+
+    return heap;
+}
+
+void SiftDown(int index, THeap* heap)
+{
+    while (2 * index + 1 < heap->Count)
+    {
+        int left = 2 * index + 1;
+        int right = 2 * index + 2;
+
+        int newIndex = (right < heap->Count && heap->DistanceToMST[heap->Array[right] - 1] < heap->DistanceToMST[heap->Array[left] - 1]) ? right : left;
+
+        if (heap->Array[index] <= heap->Array[newIndex])
+        {
+            break;
+        }
+
+        Swap(&heap->Array[index], &heap->Array[newIndex]);
+
+        index = newIndex;
+    }
+}
+
+void SiftUp(int index, THeap* heap)
+{
+    while (heap->Array[index] < heap->Array[(index - 1) / 2])
+    {
+        Swap(&heap->Array[index], &heap->Array[(index - 1) / 2]);
+        index = (index - 1) / 2;
+    }
+}
+
+int PopHeap(THeap* heap)
+{
+    assert(heap->Count != 0);
+    int min = heap->Array[0];
+    heap->Array[0] = heap->Array[heap->Count - 1];
+    --heap->Count;
+    SiftDown(0, heap);
+    return min;
+}
+
+void PushHeap(int value, THeap* heap)
+{
+    assert(heap->Max != heap->Count);
+    ++heap->Count;
+    heap->Array[heap->Count - 1] = value;
+    SiftUp(heap->Count - 1, heap);
+}
+
+void DestroyHeap(THeap* heap)
+{
+    free(heap->Array);
+}
+
 ///////////////////////////////////  EDGE TYPE  ///////////////////////////////////
 
-typedef struct TEdge
+typedef struct
 {
     short Begin;
     short End;
@@ -25,19 +107,19 @@ typedef struct TEdge
 
 ///////////////////////////////////  GRAPH TYPE  ///////////////////////////////////
 
-typedef struct TGraph
+typedef struct
 {
-    int EdgeIndex;
     int EdgeCount;
+    int EdgeMax;
     int VertexCount;
     TEdge* Edges;
 } TGraph;
 
-TGraph CreateGraph(int vertexCount, int edgeCount)
+TGraph CreateGraph(int vertexCount, int edgeMax)
 {
-    TGraph graph = { 0, edgeCount, vertexCount, NULL };
+    TGraph graph = { 0, edgeMax, vertexCount, NULL };
 
-    graph.Edges = calloc(edgeCount, sizeof(*graph.Edges));
+    graph.Edges = calloc(edgeMax, sizeof(*graph.Edges));
     assert(graph.Edges != NULL);
 
     return graph;
@@ -45,9 +127,9 @@ TGraph CreateGraph(int vertexCount, int edgeCount)
 
 void AddEdge(TEdge edge, TGraph* graph)
 {
-    assert(graph->EdgeCount != graph->EdgeIndex);
-    graph->Edges[graph->EdgeIndex] = edge;
-    ++graph->EdgeIndex;
+    assert(graph->EdgeCount != graph->EdgeMax);
+    graph->Edges[graph->EdgeCount] = edge;
+    ++graph->EdgeCount;
 }
 
 void DestroyGraph(TGraph* graph)
@@ -139,11 +221,6 @@ int InputEdgeCount(int vertexCount)
     }
     BadNumberOfEdgesError(edgeCount, vertexCount);
 
-    if (vertexCount > 1 && edgeCount == 0)
-    {
-        NoSpanningTreeError();
-    }
-    
     return edgeCount;
 }
 
@@ -171,7 +248,7 @@ bool InputEdge(int vertexCount, TGraph* graph)
     BadLengthError(length, graph);
 
     TEdge edge = { begin, end, length };
-    AddEdge(edge, graph);
+    PushGraph(edge, graph);
     return true;
 }
 
@@ -198,94 +275,34 @@ TGraph InputGraph(int vertexCount, int edgeCount)
 
 void OutputGraph(TGraph graph)
 {
-    for (int i = 0; i < graph.EdgeIndex; ++i)
+    for (int i = 0; i < graph.EdgeCount; ++i)
     {
         printf("%d %d\n", graph.Edges[i].Begin, graph.Edges[i].End);
     }
 }
 
-///////////////////////////////////  FUNCTION FOR QSORT  ///////////////////////////////////
+///////////////////////////////////  PRIM ALGORITHM  ///////////////////////////////////
 
-int Compare(const void* a, const void* b)
+void PrimAlgorithm(TGraph* graph, TGraph* spanningTree)
 {
-    const TEdge* A = a;
-    const TEdge* B = b;
-    return A->Length - B->Length;
-}
+    int* distanceToSpanningTree = calloc(graph->VertexCount, sizeof(*distanceToSpanningTree));
+    assert(distanceToSpanningTree != NULL);
 
-///////////////////////////////////  KRUSKAL ALGORITHM  ///////////////////////////////////
-
-int FindEdge(bool* added, TGraph graph)
-{
-    for (int i = 0; i < graph.EdgeIndex; ++i)
+    for (int i = 0; i < graph->VertexCount; ++i)
     {
-        bool begin = added[graph.Edges[i].Begin - 1];
-        bool end = added[graph.Edges[i].End - 1];
-
-        if ((!begin && end) || (begin && !end))
-        {
-            return i + 1;
-        }
+        distanceToSpanningTree[i] = INT_MAX;
     }
 
-    return 0;
-}
-
-void AddEdgeToSpanningTree(bool* added, TEdge edge, TGraph* spanningTree)
-{
-    AddEdge(edge, spanningTree);
-    added[edge.Begin - 1] = true;
-    added[edge.End - 1] = true;
-}
-
-bool ConnectivityCheck(int vertexCount, bool* added)
-{
-    for (int i = 0; i < vertexCount; ++i)
-    {
-        if (!added[i])
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void KruskalAlgorithm(TGraph* graph, TGraph* spanningTree)
-{
-    qsort(graph->Edges, graph->EdgeIndex, sizeof(TEdge), Compare);
-
-    if (graph->VertexCount == 1)
-    {
-        return;
-    }
-
-    bool* added = calloc(graph->VertexCount, sizeof(*added));
-    assert(added != NULL);
-
-    int vertexNum = 1;
-
-    do
-    {
-        AddEdgeToSpanningTree(added, graph->Edges[vertexNum - 1], spanningTree);
-        vertexNum = FindEdge(added, *graph);
-    } while(vertexNum != 0);
-
-    if (!ConnectivityCheck(graph->VertexCount, added))
-    {
-        free(added);
-        DestroyGraph(graph);
-        DestroyGraph(spanningTree);
-        NoSpanningTreeError();
-    }
-
-    free(added);
+    
 }
 
 ///////////////////////////////////  MAIN  ///////////////////////////////////
 
 int main(void)
 {
+    assert(freopen("in.txt", "r", stdin) != NULL);
+    assert(freopen("out.txt", "w", stdout) != NULL);
+
     if (setjmp(position) == 0)
     {
         int vertexCount = InputVertexCount();
@@ -293,12 +310,15 @@ int main(void)
         TGraph graph = InputGraph(vertexCount, edgeCount);
 
         TGraph spanningTree = CreateGraph(graph.VertexCount, graph.VertexCount - 1);
-        KruskalAlgorithm(&graph, &spanningTree);
-        OutputGraph(spanningTree);
+        PrimAlgorithm(&graph, &spanningTree);
+        OutputGraph(&spanningTree);
 
         DestroyGraph(&graph);
         DestroyGraph(&spanningTree);
     }
+
+    fclose(stdin);
+    fclose(stdout);
 
     return EXIT_SUCCESS;
 }
