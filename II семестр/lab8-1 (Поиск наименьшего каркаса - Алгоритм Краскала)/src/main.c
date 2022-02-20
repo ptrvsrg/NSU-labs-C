@@ -139,11 +139,6 @@ int InputEdgeCount(int vertexCount)
     }
     BadNumberOfEdgesError(edgeCount, vertexCount);
 
-    if (vertexCount > 1 && edgeCount == 0)
-    {
-        NoSpanningTreeError();
-    }
-    
     return edgeCount;
 }
 
@@ -206,80 +201,108 @@ void OutputGraph(TGraph graph)
 
 ///////////////////////////////////  FUNCTION FOR QSORT  ///////////////////////////////////
 
-int Compare(const void* a, const void* b)
+int CompareEdge(const void* a, const void* b)
 {
     const TEdge* A = a;
     const TEdge* B = b;
     return A->Length - B->Length;
 }
 
-///////////////////////////////////  KRUSKAL ALGORITHM  ///////////////////////////////////
+///////////////////////////////////  DISJOINT SET UNION  ///////////////////////////////////
 
-int FindEdge(bool* added, TGraph graph)
+typedef struct TDSU
 {
-    for (int i = 0; i < graph.EdgeIndex; ++i)
-    {
-        bool begin = added[graph.Edges[i].Begin - 1];
-        bool end = added[graph.Edges[i].End - 1];
+    short* Parent;
+    short* Depth;
+} TDSU;
 
-        if ((!begin && end) || (begin && !end))
-        {
-            return i + 1;
-        }
-    }
-
-    return 0;
-}
-
-void AddEdgeToSpanningTree(bool* added, TEdge edge, TGraph* spanningTree)
+TDSU CreateDSU(int vertexCount)
 {
-    AddEdge(edge, spanningTree);
-    added[edge.Begin - 1] = true;
-    added[edge.End - 1] = true;
-}
+    TDSU dsu = { NULL, NULL };
 
-bool ConnectivityCheck(int vertexCount, bool* added)
-{
+    dsu.Parent = malloc(vertexCount * sizeof(*dsu.Parent));
+    assert(dsu.Parent != NULL);
+
     for (int i = 0; i < vertexCount; ++i)
     {
-        if (!added[i])
-        {
-            return false;
-        }
+        dsu.Parent[i] = i + 1;
     }
 
-    return true;
+    dsu.Depth = calloc(vertexCount, sizeof(*dsu.Depth));
+    assert(dsu.Depth != NULL);
+
+    return dsu;
 }
 
-void KruskalAlgorithm(TGraph* graph, TGraph* spanningTree)
+short FindSet(int vertexNum, TDSU* dsu)
 {
-    qsort(graph->Edges, graph->EdgeIndex, sizeof(TEdge), Compare);
+    if (dsu->Parent[vertexNum - 1] != vertexNum)
+    {
+        dsu->Parent[vertexNum - 1] = FindSet(dsu->Parent[vertexNum - 1], dsu);
+    }
 
-    if (graph->VertexCount == 1)
+    return dsu->Parent[vertexNum - 1];
+}
+
+void MergeSet(int vertexNum1, int vertexNum2, TDSU* dsu)
+{
+    int set1 = FindSet(vertexNum1, dsu);
+    int set2 = FindSet(vertexNum2, dsu);
+
+    if (set1 == set2)
     {
         return;
     }
 
-    bool* added = calloc(graph->VertexCount, sizeof(*added));
-    assert(added != NULL);
-
-    int vertexNum = 1;
-
-    do
+    if (dsu->Depth[set1 - 1] < dsu->Depth[set2 - 1])
     {
-        AddEdgeToSpanningTree(added, graph->Edges[vertexNum - 1], spanningTree);
-        vertexNum = FindEdge(added, *graph);
-    } while(vertexNum != 0);
-
-    if (!ConnectivityCheck(graph->VertexCount, added))
+        dsu->Parent[set1 - 1] = set2;
+    }
+    else
     {
-        free(added);
+        dsu->Parent[set2 - 1] = set1;
+
+        if (dsu->Depth[set1 - 1] == dsu->Depth[set2 - 1])
+        {
+            ++dsu->Depth[set1 - 1];
+        }
+    }
+}
+
+void DestroyDSU(TDSU* dsu)
+{
+    free(dsu->Parent);
+    free(dsu->Depth);
+}
+
+///////////////////////////////////  KRUSKAL ALGORITHM  ///////////////////////////////////
+
+void KruskalAlgorithm(TGraph* graph, TGraph* spanningTree)
+{
+    qsort(graph->Edges, graph->EdgeIndex, sizeof(TEdge), CompareEdge);
+
+    TDSU dsu = CreateDSU(graph->VertexCount);
+
+    for (int i = 0; i < graph->EdgeIndex; ++i)
+    {
+        int set1 = FindSet(graph->Edges[i].Begin, &dsu);
+        int set2 = FindSet(graph->Edges[i].End, &dsu);
+
+        if (set1 != set2)
+        {
+            AddEdge(graph->Edges[i], spanningTree);
+            MergeSet(set1, set2, &dsu);
+        }
+    }
+
+    DestroyDSU(&dsu);
+
+    if (spanningTree->EdgeIndex != spanningTree->VertexCount - 1)
+    {
         DestroyGraph(graph);
         DestroyGraph(spanningTree);
         NoSpanningTreeError();
     }
-
-    free(added);
 }
 
 ///////////////////////////////////  MAIN  ///////////////////////////////////
