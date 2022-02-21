@@ -197,9 +197,9 @@ void PushEdge(int begin, int end, int length, TGraph* graph)
     AddMatrixValue(begin - 1, end - 1, graph->VertexCount, length, graph->AdjMatrix);
 }
 
-int GetEdgeLength(int begin, int end, TGraph* graph)
+int GetEdgeLength(int begin, int end, TGraph graph)
 {
-    return GetMatrixValue(begin - 1, end - 1, graph->VertexCount, graph->AdjMatrix);
+    return GetMatrixValue(begin - 1, end - 1, graph.VertexCount, graph.AdjMatrix);
 }
 
 void DestroyGraph(TGraph* graph)
@@ -342,32 +342,23 @@ TGraph InputGraph(int vertexCount, int edgeCount)
 
 ///////////////////////////////////  OUTPUT  ///////////////////////////////////
 
-void OutputGraph(int vertexCount, int* parent)
+void OutputGraph(TGraph graph)
 {
-    for (int i = 1; i < vertexCount; ++i)
+    for (int i = 0; i < graph.VertexCount; ++i)
     {
-        int min = (parent[i] >= i + 1) ? i + 1 : parent[i];
-        int max = (parent[i] < i + 1) ? i + 1 : parent[i];
-        printf("%d %d\n", min, max);
+        for (int j = 0; j < graph.VertexCount; ++j)
+        {
+            if (i > j && GetEdgeLength(i + 1, j + 1, graph) != 0)
+            {
+                printf("%d %d\n", j + 1, i + 1);
+            }
+        }
     }
 }
 
 ///////////////////////////////////  PRIM ALGORITHM  ///////////////////////////////////
 
-bool ConnectivityCheck(int vertexCount, int* parents)
-{
-    for (int i = 1; i < vertexCount; ++i)
-    {
-        if (parents[i] == 0)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-int* PrimAlgorithm(TGraph* graph)
+void PrimAlgorithm(TGraph* graph, TGraph* MST)
 {
     int* parents = calloc(graph->VertexCount, sizeof(*parents));
     assert(parents != NULL);
@@ -383,9 +374,24 @@ int* PrimAlgorithm(TGraph* graph)
         int dadVertex = PopHeap(&heap);
         deleted[dadVertex - 1] = true;
 
+        if (dadVertex != 1)
+        {
+            if (parents[dadVertex - 1] == 0)
+            {
+                free(parents);
+                free(deleted);
+                DestroyHeap(&heap);
+                DestroyGraph(graph);
+                DestroyGraph(MST);
+                NoSpanningTreeError();
+            }
+
+            PushEdge(dadVertex, parents[dadVertex - 1], heap.Distance[dadVertex - 1], MST);
+        }
+
         for (int i = 0; i < graph->VertexCount; ++i)
         {
-            int length = GetEdgeLength(i + 1, dadVertex, graph);
+            int length = GetEdgeLength(i + 1, dadVertex, *graph);
 
             if (length != 0 && !deleted[i] && (unsigned int)length < heap.Distance[i])
             {
@@ -395,17 +401,9 @@ int* PrimAlgorithm(TGraph* graph)
         }        
     }
 
+    free(parents);
     free(deleted);
     DestroyHeap(&heap);
-
-    if (!ConnectivityCheck(graph->VertexCount, parents))
-    {
-        free(parents);
-        DestroyGraph(graph);
-        NoSpanningTreeError();
-    }
-
-    return parents;
 }
 
 ///////////////////////////////////  MAIN  ///////////////////////////////////
@@ -418,12 +416,13 @@ int main(void)
         int edgeCount = InputEdgeCount(vertexCount);
         TGraph graph = InputGraph(vertexCount, edgeCount);
 
-        int* parents = PrimAlgorithm(&graph);
-        OutputGraph(vertexCount, parents);
+        TGraph MST = CreateGraph(vertexCount);
+        PrimAlgorithm(&graph, &MST);
+        OutputGraph(MST);
 
         DestroyGraph(&graph);
-        free(parents);
+        DestroyGraph(&MST);
     }
-
+    
     return EXIT_SUCCESS;
 }
