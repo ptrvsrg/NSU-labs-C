@@ -14,127 +14,197 @@ enum
     MAX_VERTEX_COUNT = 5000
 };
 
+int SumArithmeticProgression(int begin, int end, int count)
+{
+    return (begin + end) * count / 2;
+}
+
 ///////////////////////////////////  BINARY HEAP TYPE  ///////////////////////////////////
 
 typedef struct
 {
     short Count;
-    short Max;
-    int* DistanceToMST;
-    int* Array;
+    short MaxCount;
+    unsigned int* Distance;
+    int* Vertices;
 } THeap;
 
 void Swap(int* value1, int* value2)
 {
-	int buffer = *value1;
-	*value1 = *value2;
-	*value2 = buffer;
+    int buffer = *value1;
+    *value1 = *value2;
+    *value2 = buffer;
 }
 
 THeap CreateHeap(int max)
 {
     THeap heap = { 0, max, NULL, NULL };
 
-    heap.Array = calloc(max, sizeof(*heap.Array));
-    assert(heap.Array != NULL);
+    heap.Vertices = calloc(max, sizeof(*heap.Vertices));
+    assert(heap.Vertices != NULL);
 
-    heap.DistanceToMST = calloc(max, sizeof(*heap.DistanceToMST));
-    assert(heap.DistanceToMST != NULL);
+    heap.Distance = calloc(max, sizeof(*heap.Distance));
+    assert(heap.Distance != NULL);
 
     return heap;
+}
+
+THeap BuildHeap(int vertexCount)
+{
+    THeap heap = CreateHeap(vertexCount);
+
+    for (int i = 0; i < vertexCount; ++i)
+    {
+        heap.Vertices[i] = i + 1;
+        heap.Distance[i] = UINT_MAX;
+        ++heap.Count;
+    }
+
+    return heap;
+}
+
+bool IsEmptyHeap(THeap heap)
+{
+    return heap.Count == 0;
+}
+
+void SiftUp(int index, THeap* heap)
+{
+    int vertex = heap->Vertices[index];
+    int parentVertex = heap->Vertices[(index - 1) / 2];
+
+    while (heap->Distance[vertex - 1] < heap->Distance[parentVertex - 1])
+    {
+        Swap(&heap->Vertices[index], &heap->Vertices[(index - 1) / 2]);
+        index = (index - 1) / 2;
+        vertex = heap->Vertices[index];
+        parentVertex = heap->Vertices[(index - 1) / 2];
+    }
 }
 
 void SiftDown(int index, THeap* heap)
 {
     while (2 * index + 1 < heap->Count)
     {
-        int left = 2 * index + 1;
-        int right = 2 * index + 2;
+        int leftIndex = 2 * index + 1;
+        int rightIndex = 2 * index + 2;
 
-        int newIndex = (right < heap->Count && heap->DistanceToMST[heap->Array[right] - 1] < heap->DistanceToMST[heap->Array[left] - 1]) ? right : left;
+        int leftVertex = heap->Vertices[leftIndex];
+        int rightVertex = heap->Vertices[rightIndex];
 
-        if (heap->Array[index] <= heap->Array[newIndex])
+        int newIndex = (rightIndex < heap->Count && heap->Distance[rightVertex - 1] < heap->Distance[leftVertex - 1]) ? rightIndex : leftIndex;
+
+        int indexVertex = heap->Vertices[index];
+        int newIndexVertex = heap->Vertices[newIndex];
+
+        if (heap->Distance[indexVertex - 1] <= heap->Distance[newIndexVertex - 1])
         {
-            break;
+            return;
         }
 
-        Swap(&heap->Array[index], &heap->Array[newIndex]);
+        Swap(&heap->Vertices[index], &heap->Vertices[newIndex]);
 
         index = newIndex;
-    }
-}
-
-void SiftUp(int index, THeap* heap)
-{
-    while (heap->Array[index] < heap->Array[(index - 1) / 2])
-    {
-        Swap(&heap->Array[index], &heap->Array[(index - 1) / 2]);
-        index = (index - 1) / 2;
     }
 }
 
 int PopHeap(THeap* heap)
 {
     assert(heap->Count != 0);
-    int min = heap->Array[0];
-    heap->Array[0] = heap->Array[heap->Count - 1];
+    int min = heap->Vertices[0];
+    heap->Vertices[0] = heap->Vertices[heap->Count - 1];
     --heap->Count;
     SiftDown(0, heap);
     return min;
 }
 
-void PushHeap(int value, THeap* heap)
+int FindVertex(int vertex, THeap heap)
 {
-    assert(heap->Max != heap->Count);
-    ++heap->Count;
-    heap->Array[heap->Count - 1] = value;
-    SiftUp(heap->Count - 1, heap);
+    for (int i = 0; i < heap.Count; ++i)
+    {
+        if (heap.Vertices[i] == vertex)
+        {
+            return i;
+        }
+    }
+    
+    return -1;
+}
+
+void DecreaseDistance(int vertexNum, int newLength, THeap* heap)
+{
+    assert(vertexNum <= heap->MaxCount);
+    heap->Distance[vertexNum - 1] = newLength;
+    int index = FindVertex(vertexNum, *heap);
+    assert(index != -1);
+    SiftUp(index, heap);
 }
 
 void DestroyHeap(THeap* heap)
 {
-    free(heap->Array);
+    free(heap->Vertices);
+    free(heap->Distance);
 }
 
-///////////////////////////////////  EDGE TYPE  ///////////////////////////////////
+///////////////////////////////////  MATRIX TYPE  ///////////////////////////////////
 
-typedef struct
+int* CreateMatrix(int count)
 {
-    short Begin;
-    short End;
-    int Length;
-} TEdge;
+    int* matrix = calloc(SumArithmeticProgression(1, count, count), sizeof(*matrix));
+    assert(matrix != NULL);
+    return matrix;
+}
+
+void AddMatrixValue(int row, int column, int size, int length, int* matrix)
+{
+    int min = (row >= column) ? column : row;
+    int max = (row < column) ? column : row;
+
+    assert(matrix[SumArithmeticProgression(size, size - min + 1, min) + (max - min)] == 0);
+    matrix[SumArithmeticProgression(size, size - min + 1, min) + (max - min)] = length;
+}
+
+int GetMatrixValue(int row, int column, int size, int* matrix)
+{
+    int min = (row >= column) ? column : row;
+    int max = (row < column) ? column : row;
+
+    return matrix[SumArithmeticProgression(size, size - min + 1, min) + (max - min)];
+}
+
+void DestroyMatrix(int* matrix)
+{
+    free(matrix);
+}
 
 ///////////////////////////////////  GRAPH TYPE  ///////////////////////////////////
 
-typedef struct
+typedef struct 
 {
-    int EdgeCount;
-    int EdgeMax;
     int VertexCount;
-    TEdge* Edges;
+    int* AdjMatrix;
 } TGraph;
 
-TGraph CreateGraph(int vertexCount, int edgeMax)
+TGraph CreateGraph(int vertexCount)
 {
-    TGraph graph = { 0, edgeMax, vertexCount, NULL };
-
-    graph.Edges = calloc(edgeMax, sizeof(*graph.Edges));
-    assert(graph.Edges != NULL);
-
+    TGraph graph = { vertexCount, NULL };
+    graph.AdjMatrix = CreateMatrix(vertexCount);
     return graph;
 }
 
-void AddEdge(TEdge edge, TGraph* graph)
+void PushEdge(int begin, int end, int length, TGraph* graph)
 {
-    assert(graph->EdgeCount != graph->EdgeMax);
-    graph->Edges[graph->EdgeCount] = edge;
-    ++graph->EdgeCount;
+    AddMatrixValue(begin - 1, end - 1, graph->VertexCount, length, graph->AdjMatrix);
+}
+
+int GetEdgeLength(int begin, int end, TGraph* graph)
+{
+    return GetMatrixValue(begin - 1, end - 1, graph->VertexCount, graph->AdjMatrix);
 }
 
 void DestroyGraph(TGraph* graph)
 {
-    free(graph->Edges);
+    DestroyMatrix(graph->AdjMatrix);
 }
 
 ///////////////////////////////////  ERRORS  ///////////////////////////////////
@@ -247,14 +317,13 @@ bool InputEdge(int vertexCount, TGraph* graph)
     }
     BadLengthError(length, graph);
 
-    TEdge edge = { begin, end, length };
-    PushGraph(edge, graph);
+    PushEdge(begin, end, length, graph);
     return true;
 }
 
 TGraph InputGraph(int vertexCount, int edgeCount)
 {
-    TGraph graph = CreateGraph(vertexCount, edgeCount);
+    TGraph graph = CreateGraph(vertexCount);
 
     int edgeNum = 0;
     while (InputEdge(vertexCount, &graph))
@@ -273,52 +342,88 @@ TGraph InputGraph(int vertexCount, int edgeCount)
 
 ///////////////////////////////////  OUTPUT  ///////////////////////////////////
 
-void OutputGraph(TGraph graph)
+void OutputGraph(int vertexCount, int* parent)
 {
-    for (int i = 0; i < graph.EdgeCount; ++i)
+    for (int i = 1; i < vertexCount; ++i)
     {
-        printf("%d %d\n", graph.Edges[i].Begin, graph.Edges[i].End);
+        int min = (parent[i] >= i + 1) ? i + 1 : parent[i];
+        int max = (parent[i] < i + 1) ? i + 1 : parent[i];
+        printf("%d %d\n", min, max);
     }
 }
 
 ///////////////////////////////////  PRIM ALGORITHM  ///////////////////////////////////
 
-void PrimAlgorithm(TGraph* graph, TGraph* spanningTree)
+bool ConnectivityCheck(int vertexCount, int* parents)
 {
-    int* distanceToSpanningTree = calloc(graph->VertexCount, sizeof(*distanceToSpanningTree));
-    assert(distanceToSpanningTree != NULL);
-
-    for (int i = 0; i < graph->VertexCount; ++i)
+    for (int i = 1; i < vertexCount; ++i)
     {
-        distanceToSpanningTree[i] = INT_MAX;
+        if (parents[i] == 0)
+        {
+            return false;
+        }
     }
 
-    
+    return true;
+}
+
+int* PrimAlgorithm(TGraph* graph)
+{
+    int* parents = calloc(graph->VertexCount, sizeof(*parents));
+    assert(parents != NULL);
+
+    bool* deleted = calloc(graph->VertexCount, sizeof(*deleted));
+    assert(deleted != NULL);
+
+    THeap heap = BuildHeap(graph->VertexCount);
+    heap.Distance[0] = 0;
+
+    while (!IsEmptyHeap(heap))
+    {
+        int dadVertex = PopHeap(&heap);
+        deleted[dadVertex - 1] = true;
+
+        for (int i = 0; i < graph->VertexCount; ++i)
+        {
+            int length = GetEdgeLength(i + 1, dadVertex, graph);
+
+            if (length != 0 && !deleted[i] && (unsigned int)length < heap.Distance[i])
+            {
+                DecreaseDistance(i + 1, length, &heap);
+                parents[i] = dadVertex;
+            }
+        }        
+    }
+
+    free(deleted);
+    DestroyHeap(&heap);
+
+    if (!ConnectivityCheck(graph->VertexCount, parents))
+    {
+        free(parents);
+        DestroyGraph(graph);
+        NoSpanningTreeError();
+    }
+
+    return parents;
 }
 
 ///////////////////////////////////  MAIN  ///////////////////////////////////
 
 int main(void)
 {
-    assert(freopen("in.txt", "r", stdin) != NULL);
-    assert(freopen("out.txt", "w", stdout) != NULL);
-
     if (setjmp(position) == 0)
     {
         int vertexCount = InputVertexCount();
         int edgeCount = InputEdgeCount(vertexCount);
         TGraph graph = InputGraph(vertexCount, edgeCount);
 
-        TGraph spanningTree = CreateGraph(graph.VertexCount, graph.VertexCount - 1);
-        PrimAlgorithm(&graph, &spanningTree);
-        OutputGraph(&spanningTree);
+        int* parents = PrimAlgorithm(&graph);
+        OutputGraph(vertexCount, parents);
 
         DestroyGraph(&graph);
-        DestroyGraph(&spanningTree);
+        free(parents);
     }
-
-    fclose(stdin);
-    fclose(stdout);
 
     return EXIT_SUCCESS;
 }
