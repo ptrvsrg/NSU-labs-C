@@ -277,7 +277,7 @@ void DestroyDSU(TDSU* dsu)
 
 ///////////////////////////////////  KRUSKAL ALGORITHM  ///////////////////////////////////
 
-void KruskalAlgorithm(TGraph* graph, TGraph* spanningTree)
+void KruskalAlgorithm(TGraph* graph, TGraph* MST)
 {
     qsort(graph->Edges, graph->EdgeIndex, sizeof(TEdge), CompareEdge);
 
@@ -290,17 +290,17 @@ void KruskalAlgorithm(TGraph* graph, TGraph* spanningTree)
 
         if (set1 != set2)
         {
-            AddEdge(graph->Edges[i], spanningTree);
+            AddEdge(graph->Edges[i], MST);
             MergeSet(set1, set2, &dsu);
         }
     }
 
     DestroyDSU(&dsu);
 
-    if (spanningTree->EdgeIndex != spanningTree->VertexCount - 1)
+    if (MST->EdgeIndex != MST->VertexCount - 1)
     {
         DestroyGraph(graph);
-        DestroyGraph(spanningTree);
+        DestroyGraph(MST);
         NoSpanningTreeError();
     }
 }
@@ -315,12 +315,12 @@ int main(void)
         int edgeCount = InputEdgeCount(vertexCount);
         TGraph graph = InputGraph(vertexCount, edgeCount);
 
-        TGraph spanningTree = CreateGraph(graph.VertexCount, graph.VertexCount - 1);
-        KruskalAlgorithm(&graph, &spanningTree);
-        OutputGraph(spanningTree);
+        TGraph MST = CreateGraph(graph.VertexCount, graph.VertexCount - 1);
+        KruskalAlgorithm(&graph, &MST);
+        OutputGraph(MST);
 
         DestroyGraph(&graph);
-        DestroyGraph(&spanningTree);
+        DestroyGraph(&MST);
     }
 
     return EXIT_SUCCESS;
