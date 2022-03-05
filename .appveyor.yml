@@ -1,8 +1,5 @@
 image: bobrofon/lemon-jar:v1.0.0
 
-stages:
-  - test
-
 .test:
   stage: test
   before_script:
