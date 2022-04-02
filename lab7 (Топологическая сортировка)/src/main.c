@@ -21,6 +21,56 @@ typedef enum TColor
     BLACK
 } TColor;
 
+/////////////////////////////////// STACK TYPE  ///////////////////////////////////
+
+typedef struct
+{
+    short Count;
+    short Max;
+    short* Array;
+} TStack;
+
+TStack CreateStack(short max)
+{
+    TStack stack = { 0, max, NULL };
+
+    stack.Array = calloc(max, sizeof(*stack.Array));
+    assert(stack.Array != NULL);
+
+    return stack;
+}
+
+void PushStack(short value, TStack* stack)
+{
+    assert(stack->Count != stack->Max);
+    stack->Array[stack->Count] = value;
+    ++stack->Count;
+}
+
+short PopStack(TStack* stack)
+{
+    assert(stack->Count != 0);
+    short value = stack->Array[stack->Count - 1];
+    --stack->Count;
+    return value;
+}
+
+void PrintStack(TStack stack)
+{
+    int count = stack.Count;
+    for (int i = 0; i < count; ++i)
+    {
+        printf("%hd ", PopStack(&stack));
+    }
+}
+
+void DestroyStack(TStack* stack)
+{
+    free(stack->Array);
+    stack->Count = 0;
+    stack->Max = 0;
+}
+
 /////////////////////////////////// MATRIX FUNCTION  ///////////////////////////////////
 
 char* CreateMatrix(int count)
@@ -187,82 +237,52 @@ TGraph InputGraph(void)
     return graph;
 }
 
-void OutputNumbering(int size, short* numbering)
-{
-    for(int i = 0; i < size; ++i)
-    {
-        printf("%hd ", numbering[size - 1 - i]);
-    }
-}
-
 ///////////////////////////////////  DEPTH-FIRST SEARCH  ///////////////////////////////////
 
-bool  DepthFirstSearch(int numVertex, TColor* status, short* numbering, TGraph* graph)
+void DepthFirstSearch(int numVertex, TColor* status, TStack* numbering, TGraph* graph)
 {
     if(status[numVertex - 1] == GREY)
     {
-        return false;
+        free(status);
+        DestroyStack(numbering);
+        DestroyGraph(graph);
+        ImpossibleToSortError();
     }
-    else if(status[numVertex - 1] == BLACK)
+    else if(status[numVertex - 1] == WHITE)
     {
-        return true;
-    }
+        status[numVertex - 1] = GREY;
 
-    status[numVertex - 1] = GREY;
-
-    for (int i = 0; i < graph->VertexCount; ++i)
-    {
-        if(GetMatrixValue(numVertex - 1, i, graph->VertexCount, graph->Matrix) == '1')
+        for (int i = 0; i < graph->VertexCount; ++i)
         {
-            if(!DepthFirstSearch(i + 1, status, numbering, graph))
+            if(GetMatrixValue(numVertex - 1, i, graph->VertexCount, graph->Matrix) == '1')
             {
-                return false;
+                DepthFirstSearch(i + 1, status, numbering, graph);
             }
         }
+
+        PushStack(numVertex, numbering);
+        status[numVertex- 1] = BLACK;
     }
-
-    static int index = 0;
-    numbering[index] = numVertex;
-    ++index;
-    status[numVertex- 1] = BLACK;
-
-    return true;
 }
 
 ///////////////////////////////////  TOPOLOGICAL SORT  ///////////////////////////////////
 
 void TopologicalSort(TGraph* graph)
 {
-    short* numbering = calloc(graph->VertexCount, sizeof(*numbering));
-    assert(numbering != NULL);
+    TStack numbering = CreateStack(graph->VertexCount);
 
     TColor* status = calloc(graph->VertexCount, sizeof(*status));
     assert(status != NULL);
 
-    bool control = true;
-
     for (int i = 0; i < graph->VertexCount; ++i)
     {
-        if(!DepthFirstSearch(i + 1, status, numbering, graph))
-        {
-            control = false;
-            break;
-        }
+        DepthFirstSearch(i + 1, status, &numbering, graph);
     }
 
-    if(control)
-    {
-        OutputNumbering(graph->VertexCount, numbering);
-    }
+    PrintStack(numbering);
 
-    free(numbering);
     free(status);
-
-    if(!control)
-    {
-        DestroyGraph(graph);
-        ImpossibleToSortError();
-    }
+    DestroyStack(&numbering);
 }
 
 ///////////////////////////////////  MAIN  ///////////////////////////////////
