@@ -11,10 +11,11 @@ enum
 {
     SUCCESS_JUMP = 1,
     CHAR_SIZE = 8,
-    MAX_VERTEX_COUNT = 2000
+    MAX_VERTEX_COUNT = 2000,
+    MASK_BASE = 0b10000000
 };
 
-typedef enum TColor
+typedef enum
 {
     WHITE = 0,
     GREY,
@@ -86,17 +87,18 @@ char* CreateMatrix(int count)
 
 void AddMatrixValue(int row, int column, int size,  char* matrix)
 {
-    int index = (row * size + column) / CHAR_SIZE;
-    unsigned char mask = 128 >> (row * size + column) % CHAR_SIZE;
-    matrix[index] |= mask;
+    int bitIndex = row * size + column;
+    int symbolIndex = bitIndex / CHAR_SIZE;
+    unsigned char mask = MASK_BASE >> bitIndex % CHAR_SIZE;
+    matrix[symbolIndex] |= mask;
 }
 
-char GetMatrixValue(int row, int column, int size,  char* matrix)
+bool GetMatrixValue(int row, int column, int size,  char* matrix)
 {
-    int index = (row * size + column) / CHAR_SIZE;
-    unsigned char mask = 128 >> (row * size + column) % CHAR_SIZE;
-    mask &= matrix[index];
-    return (mask == 0) ? '0' : '1';
+    int bitIndex = row * size + column;
+    int symbolIndex = bitIndex / CHAR_SIZE;
+    unsigned char mask = MASK_BASE >> bitIndex % CHAR_SIZE;
+    return (mask & matrix[symbolIndex]) != 0;
 }
 
 void DestroyMatrix(char* matrix)
@@ -118,6 +120,11 @@ TGraph CreateGraph(int vertexCount)
     TGraph graph = { vertexCount, NULL };
     graph.Matrix = CreateMatrix(vertexCount);
     return graph;
+}
+
+bool EdgeExists(int start, int end, TGraph graph)
+{
+    return GetMatrixValue(start - 1, end - 1, graph.VertexCount, graph.Matrix);
 }
 
 void PushEdge(int start, int end, TGraph graph)
@@ -254,7 +261,7 @@ void DepthFirstSearch(int numVertex, TColor* status, TStack* numbering, TGraph* 
 
         for (int i = 0; i < graph->VertexCount; ++i)
         {
-            if(GetMatrixValue(numVertex - 1, i, graph->VertexCount, graph->Matrix) == '1')
+            if(EdgeExists(numVertex, i + 1, *graph))
             {
                 DepthFirstSearch(i + 1, status, numbering, graph);
             }
