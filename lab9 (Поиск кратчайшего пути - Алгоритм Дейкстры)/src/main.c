@@ -14,12 +14,6 @@ enum
     MAX_VERTEX_COUNT = 5000
 };
 
-typedef enum TColor
-{
-    WHITE,
-    BLACK
-} TColor;
-
 int SumArithmeticProgression(int begin, int end, int count)
 {
     return (begin + end) * count / 2;
@@ -34,21 +28,25 @@ int* CreateMatrix(int count)
     return matrix;
 }
 
-void AddMatrixValue(int row, int column, int size, int length, int* matrix)
+int GetMatrixIndex(int row, int column, int size)
 {
     int min = (row >= column) ? column : row;
     int max = (row < column) ? column : row;
 
-    assert(matrix[SumArithmeticProgression(size, size - min + 1, min) + (max - min)] == 0);
-    matrix[SumArithmeticProgression(size, size - min + 1, min) + (max - min)] = length;
+    return SumArithmeticProgression(size, size - min + 1, min) + (max - min);
+}
+
+void AddMatrixValue(int row, int column, int size, int length, int* matrix)
+{
+    int index = GetMatrixIndex(row, column, size);
+    assert(matrix[index] == 0);
+    matrix[index] = length;
 }
 
 int GetMatrixValue(int row, int column, int size, int* matrix)
 {
-    int min = (row >= column) ? column : row;
-    int max = (row < column) ? column : row;
-
-    return matrix[SumArithmeticProgression(size, size - min + 1, min) + (max - min)];
+    int index = GetMatrixIndex(row, column, size);
+    return matrix[index];
 }
 
 void DestroyMatrix(int* matrix)
@@ -305,14 +303,14 @@ void OutputShortestPathVertex(int endNum, uint64_t* pathArray, TGraph* graph)
 
 ///////////////////////////////////  Dijkstra algorithm  ///////////////////////////////////
 
-int FindNearestVertex(int vertexCount, uint64_t* pathArray, TColor* visitArray)
+int FindNearestVertex(int vertexCount, uint64_t* pathArray, bool* visited)
 {
     int minNum = 0;
     uint64_t min = UINT64_MAX;
 
     for (int i = 0; i < vertexCount; ++i)
     {
-        if (visitArray[i] == WHITE && pathArray[i] <= min)
+        if (!visited[i] && pathArray[i] <= min)
         {
             min = pathArray[i];
             minNum = i + 1;
@@ -322,26 +320,26 @@ int FindNearestVertex(int vertexCount, uint64_t* pathArray, TColor* visitArray)
     return minNum;
 }
 
-void ChangeLength(int vertexNum, uint64_t* pathArray, TColor* visitArray, TGraph* graph)
+void ChangeLength(int vertexNum, uint64_t* pathArray, bool* visited, TGraph* graph)
 {
     for (int i = 0; i < graph->VertexCount; ++i)
     {
         uint64_t length = GetEdgeLength(vertexNum, i + 1, graph);
-        if (length > 0 && visitArray[i] == WHITE && pathArray[i] > length + pathArray[vertexNum - 1])
+        if (length > 0 && !visited[i] && pathArray[i] > length + pathArray[vertexNum - 1])
         {
             pathArray[i] = length + pathArray[vertexNum - 1];
         }
     }
 }
 
-void DijkstraAlgorithm(uint64_t* pathArray, TColor* visitArray, TGraph* graph)
+void DijkstraAlgorithm(uint64_t* pathArray, bool* visited, TGraph* graph)
 {
     for (int i = 0; i < graph->VertexCount; ++i)
     {
-        int vertexNum = FindNearestVertex(graph->VertexCount, pathArray, visitArray);
-        visitArray[vertexNum - 1] = BLACK;
+        int vertexNum = FindNearestVertex(graph->VertexCount, pathArray, visited);
+        visited[vertexNum - 1] = true;
 
-        ChangeLength(vertexNum, pathArray, visitArray, graph);
+        ChangeLength(vertexNum, pathArray, visited, graph);
     }
 }
 
@@ -352,17 +350,13 @@ int main(void)
     if(setjmp(position) == 0)
     {
         int vertexCount = InputVertexCount();
-
         int beginNum = InputVertexNumber(vertexCount);
-
         int endNum = InputVertexNumber(vertexCount);
-
         int edgeCount = InputEdgeCount(vertexCount);
-
         TGraph graph = InputGraph(vertexCount, edgeCount);
 
-        TColor* visitArray = calloc(graph.VertexCount, sizeof(*visitArray));
-        assert(visitArray != NULL);
+        bool* visited = calloc(graph.VertexCount, sizeof(*visited));
+        assert(visited != NULL);
 
         uint64_t* pathArray = calloc(graph.VertexCount, sizeof(*pathArray));
         assert(pathArray != NULL);
@@ -374,14 +368,14 @@ int main(void)
             }
         }
 
-        DijkstraAlgorithm(pathArray, visitArray, &graph);
+        DijkstraAlgorithm(pathArray, visited, &graph);
 
         OutputPathArray(vertexCount, pathArray);
         printf("\n");
         OutputShortestPathVertex(endNum, pathArray, &graph);
 
         free(pathArray);
-        free(visitArray);
+        free(visited);
         DestroyGraph(&graph);
     }
 
