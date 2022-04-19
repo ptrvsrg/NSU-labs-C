@@ -75,9 +75,9 @@ void PushEdge(int begin, int end, int length, TGraph* graph)
     AddMatrixValue(begin - 1, end - 1, graph->VertexCount, length, graph->Matrix);
 }
 
-int GetEdgeLength(int begin, int end, TGraph* graph)
+int GetEdgeLength(int begin, int end, TGraph graph)
 {
-    return GetMatrixValue(begin - 1, end - 1, graph->VertexCount, graph->Matrix);
+    return GetMatrixValue(begin - 1, end - 1, graph.VertexCount, graph.Matrix);
 }
 
 void DestroyGraph(TGraph* graph)
@@ -219,7 +219,65 @@ TGraph InputGraph(int vertexCount, int edgeCount)
     return graph;
 }
 
-///////////////////////////////////  OUTPUT  ///////////////////////////////////
+///////////////////////////////////  DIJKSTRA ALGORITHM  ///////////////////////////////////
+
+int FindNearestVertex(int vertexCount, uint64_t* pathArray, bool* visited)
+{
+    int minNum = 0;
+    uint64_t min = UINT64_MAX;
+
+    for (int i = 0; i < vertexCount; ++i)
+    {
+        if (!visited[i] && pathArray[i] <= min)
+        {
+            min = pathArray[i];
+            minNum = i + 1;
+        }
+    }
+
+    return minNum;
+}
+
+void ChangeLength(int vertexNum, uint64_t* pathArray, bool* visited, TGraph graph)
+{
+    for (int i = 0; i < graph.VertexCount; ++i)
+    {
+        uint64_t length = GetEdgeLength(vertexNum, i + 1, graph);
+        if (length > 0 && !visited[i] && pathArray[i] > length + pathArray[vertexNum - 1])
+        {
+            pathArray[i] = length + pathArray[vertexNum - 1];
+        }
+    }
+}
+
+uint64_t* DijkstraAlgorithm(int beginNum, TGraph graph)
+{
+    bool* visited = calloc(graph.VertexCount, sizeof(*visited));
+    assert(visited != NULL);
+
+    uint64_t* pathArray = calloc(graph.VertexCount, sizeof(*pathArray));
+    assert(pathArray != NULL);
+    for (int i = 0; i < graph.VertexCount; ++i)
+    {
+        if(i != beginNum - 1)
+        {
+            pathArray[i] = UINT64_MAX;
+        }
+    }
+
+    for (int i = 0; i < graph.VertexCount; ++i)
+    {
+        int vertexNum = FindNearestVertex(graph.VertexCount, pathArray, visited);
+        visited[vertexNum - 1] = true;
+
+        ChangeLength(vertexNum, pathArray, visited, graph);
+    }
+
+    free(visited);
+    return pathArray;
+}
+
+///////////////////////////////////  ANSWER OUTPUT  ///////////////////////////////////
 
 void OutputPathArray(int vertexCount, uint64_t* pathArray)
 {
@@ -235,14 +293,14 @@ void OutputPathArray(int vertexCount, uint64_t* pathArray)
         }
         else
         {
-            printf("%llu ", pathArray[i]);
+            printf("%d ", (int)pathArray[i]);
         }
     }
 }
 
-int FindPreviousVertex(int vertexNum, uint64_t* pathArray, TGraph* graph)
+int FindPreviousVertex(int vertexNum, uint64_t* pathArray, TGraph graph)
 {
-    for (int i = 0; i < graph->VertexCount; ++i)
+    for (int i = 0; i < graph.VertexCount; ++i)
     {
         uint64_t length = GetEdgeLength(vertexNum, i + 1, graph);
         if (length > 0 && pathArray[vertexNum - 1] == length + pathArray[i])
@@ -277,14 +335,14 @@ bool CheckOverflow(int vertexNum, int size, uint64_t* pathArray)
     return false;
 }
 
-void OutputShortestPathVertex(int endNum, uint64_t* pathArray, TGraph* graph)
+void OutputShortestPath(int endNum, uint64_t* pathArray, TGraph graph)
 {
     if (pathArray[endNum - 1] == UINT64_MAX)
     {
         printf("no path");
         return;
     }
-    else if (CheckOverflow(endNum, graph->VertexCount, pathArray))
+    else if (CheckOverflow(endNum, graph.VertexCount, pathArray))
     {
         printf("overflow");
         return;
@@ -301,48 +359,6 @@ void OutputShortestPathVertex(int endNum, uint64_t* pathArray, TGraph* graph)
     }
 }
 
-///////////////////////////////////  Dijkstra algorithm  ///////////////////////////////////
-
-int FindNearestVertex(int vertexCount, uint64_t* pathArray, bool* visited)
-{
-    int minNum = 0;
-    uint64_t min = UINT64_MAX;
-
-    for (int i = 0; i < vertexCount; ++i)
-    {
-        if (!visited[i] && pathArray[i] <= min)
-        {
-            min = pathArray[i];
-            minNum = i + 1;
-        }
-    }
-
-    return minNum;
-}
-
-void ChangeLength(int vertexNum, uint64_t* pathArray, bool* visited, TGraph* graph)
-{
-    for (int i = 0; i < graph->VertexCount; ++i)
-    {
-        uint64_t length = GetEdgeLength(vertexNum, i + 1, graph);
-        if (length > 0 && !visited[i] && pathArray[i] > length + pathArray[vertexNum - 1])
-        {
-            pathArray[i] = length + pathArray[vertexNum - 1];
-        }
-    }
-}
-
-void DijkstraAlgorithm(uint64_t* pathArray, bool* visited, TGraph* graph)
-{
-    for (int i = 0; i < graph->VertexCount; ++i)
-    {
-        int vertexNum = FindNearestVertex(graph->VertexCount, pathArray, visited);
-        visited[vertexNum - 1] = true;
-
-        ChangeLength(vertexNum, pathArray, visited, graph);
-    }
-}
-
 ///////////////////////////////////  MAIN  ///////////////////////////////////
 
 int main(void)
@@ -355,27 +371,13 @@ int main(void)
         int edgeCount = InputEdgeCount(vertexCount);
         TGraph graph = InputGraph(vertexCount, edgeCount);
 
-        bool* visited = calloc(graph.VertexCount, sizeof(*visited));
-        assert(visited != NULL);
-
-        uint64_t* pathArray = calloc(graph.VertexCount, sizeof(*pathArray));
-        assert(pathArray != NULL);
-        for (int i = 0; i < graph.VertexCount; ++i)
-        {
-            if(i != beginNum - 1)
-            {
-                pathArray[i] = UINT64_MAX;
-            }
-        }
-
-        DijkstraAlgorithm(pathArray, visited, &graph);
+        uint64_t* pathArray = DijkstraAlgorithm(beginNum, graph);
 
         OutputPathArray(vertexCount, pathArray);
         printf("\n");
-        OutputShortestPathVertex(endNum, pathArray, &graph);
+        OutputShortestPath(endNum, pathArray, graph);
 
         free(pathArray);
-        free(visited);
         DestroyGraph(&graph);
     }
 
