@@ -74,6 +74,11 @@ bool IsEmptyHeap(THeap heap)
 
 void SiftDown(int index, THeap heap)
 {
+    if (index >= heap.Count - 2)
+    {
+        return;
+    }
+    
     while(true)
     {
         int leftChild = 2 * index + 1;
