@@ -75,27 +75,18 @@ bool IsEmptyHeap(THeap heap)
 
 void SiftDown(int index, THeap heap)
 {
-    if (index >= heap.Count - 2)
-    {
-        return;
-    }
-    
     while(true)
     {
         int leftChild = 2 * index + 1;
         int rightChild = 2 * index + 2;
         int largestChild = index;
 
-        int leftVertex = heap.Vertex[leftChild];
-        int rightVertex = heap.Vertex[rightChild];
-        int largestVertex = heap.Vertex[largestChild];
-
-        if (leftChild < heap.Count && heap.Distance[leftVertex - 1] < heap.Distance[largestVertex - 1]) 
+        if (leftChild < heap.Count && heap.Distance[heap.Vertex[leftChild] - 1] < heap.Distance[heap.Vertex[largestChild] - 1]) 
         {
             largestChild = leftChild;
         }
 
-        if (rightChild < heap.Count && heap.Distance[rightVertex - 1] < heap.Distance[largestVertex - 1])
+        if (rightChild < heap.Count && heap.Distance[heap.Vertex[rightChild] - 1] < heap.Distance[heap.Vertex[largestChild] - 1])
         {
             largestChild = rightChild;
         }
