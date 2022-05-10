@@ -10,7 +10,7 @@ enum
 	FAILURE = 1
 };
 
-int InputArray(int arraySize, int* array)
+void InputArray(int arraySize, int* array)
 {
 	for (int i = 0; i < arraySize; ++i)
 	{

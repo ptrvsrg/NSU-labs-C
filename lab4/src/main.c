@@ -202,6 +202,7 @@ int OperatorPriority(char value)
     }
 
     OtherError(__LINE__);
+    return -1;
 }
 
 int Fabs(int a)

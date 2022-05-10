@@ -12,7 +12,7 @@ enum
     SUCCESS_JUMP = 1,
     CHAR_SIZE = 8,
     MAX_VERTEX_COUNT = 2000,
-    MASK_BASE = 0b10000000
+    MASK_BASE = 128
 };
 
 typedef enum

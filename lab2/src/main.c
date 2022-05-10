@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#define UNUSED(x) (void)(x);
 
 enum
 {
@@ -18,6 +19,7 @@ void PrintBadInput()
 
 void PrintSequence(const char* Sequence)
 {
+    UNUSED(Sequence);
 	assert(puts(Sequence) != EOF);
 }
 

@@ -33,6 +33,7 @@ int CharToInt(int System, char Symbol)
 	}
 	
 	PrintBadInput();
+    return -1;
 }
 
 double Pow(unsigned int Number, int Power)
