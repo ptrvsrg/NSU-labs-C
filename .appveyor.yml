@@ -24,7 +24,7 @@ environment:
 before_test:
   - sh: mkdir -p build_$LAB
   - sh: cd build_$LAB
-  - export CTEST_OUTPUT_ON_FAILURE=1
+  - sh: export CTEST_OUTPUT_ON_FAILURE=1
 
 test_script:
   - sh: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=ON ../$LAB
