@@ -137,7 +137,6 @@ char* From10(int System2, double Sum)
 		}
 	}
 
-
 	return Line;
 }
 
@@ -158,7 +157,11 @@ int main()
             PrintBadInput();
         }
 
-        printf("%s", From10(System2, To10(System1, Line)));
+        double Number10 = To10(System1, Line);
+        char* NewNumber = From10(System2, Number10);
+        printf("%s", NewNumber);
+
+        free(NewNumber);
     }
 
 	return EXIT_SUCCESS;
