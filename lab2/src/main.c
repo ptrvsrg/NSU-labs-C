@@ -30,10 +30,9 @@ bool ThisIsDigits(char Symbol)
 
 int CheckInput(const char* Sequence)
 {
-	const int Length = strlen(Sequence);
 	int CountEachDigit[10] = { 0 };
 
-	for (int i = 0; i < Length; ++i)
+	for (int i = 0; Sequence[i] != '\0'; ++i)
 	{
 		if (ThisIsDigits(Sequence[i]))
 		{
@@ -59,7 +58,7 @@ int InputSequence(char* Sequence)
 {
     for (int i = 0; i < SIZE_SEQUENCE + 1; i++)
 	{
-		if ((Sequence[i] = getchar()) == EOF)
+		if ((Sequence[i] = (char)getchar()) == EOF)
 		{
 			return FAILURE;
 		}
@@ -93,7 +92,7 @@ void Swap(char* Number1, char* Number2)
 
 void ReverseSequencePart(int Begin, char* Sequence)
 {
-	int End = strlen(Sequence) - 1;
+	int End = (int)strlen(Sequence) - 1;
 
 	while (Begin < End)
 	{
@@ -105,7 +104,7 @@ void ReverseSequencePart(int Begin, char* Sequence)
 
 void NarayanasAlgorithm(int PermutationCount, char* Sequence)
 {
-	const int SequenceLength = strlen(Sequence);
+	int SequenceLength = (int)strlen(Sequence);
 
 	for (int i = 0; i < PermutationCount; i++)
 	{
