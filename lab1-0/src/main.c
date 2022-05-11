@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #define UNUSED(x) (void)(x);
 
 enum
@@ -17,17 +16,18 @@ void PrintNumber(int number)
     printf("%d ", number);
 }
 
-void InputTemplate(char* template)
+void InputTemplate(int* templateLength, char template[])
 {
     for (int i = 0; i < SIZE_TEMPLATE + 1; ++i)
     {
-        int control = scanf("%c", &template[i]);
+        int control = fread(template + i, sizeof(char), 1, stdin);
         UNUSED(control);
-        assert(control == 1);
+        assert(control != EOF);
 
         if (template[i] == '\n')
         {
             template[i] = '\0';
+            *templateLength = i;
             return;
         }
     }
@@ -35,27 +35,21 @@ void InputTemplate(char* template)
     assert(false);
 }
 
-void CreateShiftTable(const char* template, int shiftTable[])
+void CreateShiftTable(int templateLength, const char template[], int shiftTable[])
 {
-    const int templateLength = strlen(template);
-
     for (int i = 0; i < SIZE_CHAR; ++i)
     {
         shiftTable[i] = templateLength;
     }
 
-    for (int i = 1; i < templateLength; ++i)
+    for (int i = 0; i < templateLength - 1; ++i)
     {
-        int index = template[templateLength - 1 - i];
-
-        if (shiftTable[index] == templateLength)
-        {
-            shiftTable[index] = i;
-        }
+        int index = template[i];
+        shiftTable[index] = templateLength - 1 - i;
     }
 }
 
-int ShiftText(char* text)
+int ShiftText(char text[])
 {
     for (int i = 0; i < SIZE_TEMPLATE; ++i)
     {
@@ -69,21 +63,20 @@ int ShiftText(char* text)
     return control;
 }
 
-void BoyerMooreAlgorithm(const char* template)
+void BoyerMooreAlgorithm(int templateLength, const char template[])
 {
-    const int templateLength = strlen(template);
     int currentPosition = templateLength;
     int comparisonPosition = templateLength;
     int lastLength = 0;
         
     int shiftTable[SIZE_CHAR] = { 0 };
-    CreateShiftTable(template, shiftTable);
+    CreateShiftTable(templateLength, template, shiftTable);
 
     char text[SIZE_TEXT + 1] = { 0 };
     int control = fread(text, sizeof(char), SIZE_TEXT, stdin);
     UNUSED(control);
     assert(control != EOF);
-    int textLength = strlen(text);
+    int textLength = control;
 
     while (true)
     {
@@ -118,9 +111,10 @@ void BoyerMooreAlgorithm(const char* template)
 int main(void)
 {
     char template[SIZE_TEMPLATE + 1] = { 0 };
+    int templateLength = 0;
 
-    InputTemplate(template);
-    BoyerMooreAlgorithm(template);
+    InputTemplate(&templateLength, template);
+    BoyerMooreAlgorithm(templateLength, template);
 
     return EXIT_SUCCESS;
 }
