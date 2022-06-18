@@ -172,12 +172,15 @@ void CheckSymbols(const char* line)
 
 void InputInfix(char* infix)
 {
-    if(fgets(infix, SIZE_NOTATION, stdin) == NULL)
+    if(fgets(infix, SIZE_NOTATION + 1, stdin) == NULL)
     {
         OtherError(__LINE__);
     }
 
-    infix[strlen(infix) - 1] = '\0';
+    if (infix[strlen(infix) - 1] == '\n')
+    {
+        infix[strlen(infix) - 1] = '\0';
+    }
 
     if(*infix == '\0')
     {
@@ -306,7 +309,7 @@ int Calc(const char* infix)
 
 ////////////////////////////////  MAIN  ////////////////////////////////
 
-int main()
+int main(void)
 {
     char infix [SIZE_NOTATION + 1] = { 0 };
     
