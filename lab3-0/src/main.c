@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#define UNUSED(x) (void)x;
 
 void InputArray(int ArraySize, int* Array)
 {
@@ -69,7 +70,9 @@ void HeapSort(int ArraySize, int* Array)
 int main()
 {
 	int ArraySize = 0;
-	assert(scanf("%d", &ArraySize) != EOF);
+	int control = scanf("%d", &ArraySize);
+	assert(control != EOF);
+	UNUSED(control);
 
 	int* Array = malloc(sizeof(*Array) * ArraySize);
     assert(Array != NULL);
