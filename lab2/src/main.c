@@ -1,26 +1,33 @@
-#define _CRT_SECURE_NO_WARNINGS
-#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #define UNUSED(x) (void)(x);
 
 enum
 {
-	SUCCESS = 0,
-	FAILURE = 1,
 	SIZE_SEQUENCE = 10
 };
 
-void PrintBadInput()
+bool PrintBadInput()
 {
-	assert(puts("bad input") != EOF);
+	if (puts("bad input") == EOF)
+    {
+        return false;
+    }
+
+    return true;
 }
 
-void PrintSequence(const char* Sequence)
+bool PrintSequence(const char* Sequence)
 {
     UNUSED(Sequence);
-	assert(puts(Sequence) != EOF);
+	if (puts(Sequence) == EOF)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 bool ThisIsDigits(char Symbol)
@@ -28,39 +35,32 @@ bool ThisIsDigits(char Symbol)
 	return Symbol >= '0' && Symbol <= '9';
 }
 
-int CheckInput(const char* Sequence)
+bool CheckInput(const char* Sequence)
 {
 	int CountEachDigit[10] = { 0 };
 
 	for (int i = 0; Sequence[i] != '\0'; ++i)
 	{
-		if (ThisIsDigits(Sequence[i]))
-		{
-			if (CountEachDigit[Sequence[i] - '0'] == 0)
-			{
-				++CountEachDigit[Sequence[i] - '0'];
-			}
-			else
-			{
-				return FAILURE;
-			}
+		if (ThisIsDigits(Sequence[i]) && CountEachDigit[Sequence[i] - '0'] == 0)
+        {
+            ++CountEachDigit[Sequence[i] - '0'];
 		}
 		else
 		{
-			return FAILURE;
+			return false;
 		}
 	}
 
-	return SUCCESS;
+	return true;
 }
 
-int InputSequence(char* Sequence)
+bool InputSequence(char* Sequence)
 {
     for (int i = 0; i < SIZE_SEQUENCE + 1; i++)
 	{
 		if ((Sequence[i] = (char)getchar()) == EOF)
 		{
-			return FAILURE;
+			return false;
 		}
 
 		if (Sequence[i] == '\n')
@@ -71,16 +71,16 @@ int InputSequence(char* Sequence)
 
 		if (i == SIZE_SEQUENCE)
 		{
-			return FAILURE;
+			return false;
 		}
 	}
 
-	if (CheckInput(Sequence) == FAILURE)
+	if (!CheckInput(Sequence))
 	{
-		return FAILURE;
+		return false;
 	}
 
-    return SUCCESS;
+    return true;
 }
 
 void Swap(char* Number1, char* Number2)
@@ -102,13 +102,14 @@ void ReverseSequencePart(int Begin, char* Sequence)
 	}
 }
 
-void NarayanasAlgorithm(int PermutationCount, char* Sequence)
+bool NarayanasAlgorithm(int PermutationCount, char* Sequence)
 {
 	int SequenceLength = (int)strlen(Sequence);
 
 	for (int i = 0; i < PermutationCount; i++)
 	{
-		int Index1, Index2;
+		int Index1 = 0;
+        int Index2 = 0;
 
 		for (Index1 = SequenceLength - 2; ; Index1--)
 		{
@@ -133,28 +134,36 @@ void NarayanasAlgorithm(int PermutationCount, char* Sequence)
 
 		Swap(&Sequence[Index1], &Sequence[Index2]);
 		ReverseSequencePart(Index1 + 1, Sequence);
-		PrintSequence(Sequence);
+
+		if (!PrintSequence(Sequence))
+        {
+            return false;
+        }
 	}
+
+    return true;
 }
 
-int main()
+int main(void)
 {
-	char Sequence[SIZE_SEQUENCE + 1];
+	char Sequence[SIZE_SEQUENCE + 1] = { 0 };
 
-	if(InputSequence(Sequence) == FAILURE)
+	if(!InputSequence(Sequence))
     {
-        PrintBadInput();
-        return SUCCESS;
+        return PrintBadInput() ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
 	int PermutationCount = 0;
 
 	if (scanf("%d", &PermutationCount) == EOF || PermutationCount < 0)
 	{
-		PrintBadInput();
-		return SUCCESS;
+		return PrintBadInput() ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
 
-	NarayanasAlgorithm(PermutationCount, Sequence);
-	return SUCCESS;
+	if (!NarayanasAlgorithm(PermutationCount, Sequence))
+    {
+        return EXIT_FAILURE;
+    }
+
+	return EXIT_SUCCESS;
 }

@@ -1,28 +1,31 @@
-#define _CRT_SECURE_NO_WARNINGS
-#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define UNUSED(x) (void)x;
 
-void InputArray(int ArraySize, int* Array)
+bool InputArray(int ArraySize, int* Array)
 {
 	for (int i = 0; i < ArraySize; i++)
 	{
 		if (scanf("%d", &Array[i]) == EOF)
 		{
-			free(Array);
-            assert(false);
+            return false;
 		}
 	}
+
+    return true;
 }
 
-void OutputArray(int ArraySize, const int* Array)
+bool OutputArray(int ArraySize, const int* Array)
 {
 	for (int i = 0; i < ArraySize; i++)
 	{
-		printf("%d ", Array[i]);
+		if (printf("%d ", Array[i]) == EOF)
+        {
+            return false;
+        }
 	}
+
+    return true;
 }
 
 void Swap(int* Value1, int* Value2)
@@ -34,22 +37,24 @@ void Swap(int* Value1, int* Value2)
 
 void GetAscendingBranch(int ArraySize, int Index, int* Array)
 {
-	int Largest = Index;
+	int LargestIndex = Index;
+    int LeftIndex = 2 * Index + 1;
+    int RightIndex = 2 * Index + 2;
 
-	if ((2 * Index + 1) < ArraySize && Array[2 * Index + 1] > Array[Largest])
+	if (LeftIndex < ArraySize && Array[LeftIndex] > Array[LargestIndex])
 	{
-		Largest = 2 * Index + 1;
+		LargestIndex = LeftIndex;
 	}
 
-	if ((2 * Index + 2) < ArraySize && Array[2 * Index + 2] > Array[Largest])
+	if (RightIndex < ArraySize && Array[RightIndex] > Array[LargestIndex])
 	{
-		Largest = 2 * Index + 2;
+		LargestIndex = RightIndex;
 	}
 
-	if (Largest != Index)
+	if (LargestIndex != Index)
 	{
-		Swap(&Array[Index], &Array[Largest]);
-		GetAscendingBranch(ArraySize, Largest, Array);
+		Swap(&Array[Index], &Array[LargestIndex]);
+		GetAscendingBranch(ArraySize, LargestIndex, Array);
 	}
 }
 
@@ -67,19 +72,33 @@ void HeapSort(int ArraySize, int* Array)
 	}
 }
 
-int main()
+int main(void)
 {
 	int ArraySize = 0;
-	int control = scanf("%d", &ArraySize);
-	assert(control != EOF);
-	UNUSED(control);
+	if (scanf("%d", &ArraySize) == EOF)
+    {
+        return EXIT_FAILURE;
+    }
 
 	int* Array = malloc(sizeof(*Array) * ArraySize);
-    assert(Array != NULL);
+    if (Array == NULL)
+    {
+        return EXIT_FAILURE;
+    }
 
-	InputArray(ArraySize, Array);
+	if (!InputArray(ArraySize, Array))
+    {
+        free(Array);
+        return EXIT_FAILURE;
+    }
+
 	HeapSort(ArraySize, Array);
-	OutputArray(ArraySize, Array);
+
+	if (!OutputArray(ArraySize, Array))
+    {
+        free(Array);
+        return EXIT_FAILURE;
+    }
     
 	free(Array);
 

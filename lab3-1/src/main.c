@@ -1,33 +1,31 @@
-#define _CRT_SECURE_NO_WARNINGS
-#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-enum
-{
-	SUCCESS = 0,
-	FAILURE = 1
-};
-
-void InputArray(int arraySize, int* array)
+bool InputArray(int arraySize, int* array)
 {
 	for (int i = 0; i < arraySize; ++i)
 	{
-		if(scanf("%d", &array[i]) != 1)
+		if (scanf("%d", &array[i]) == EOF)
         {
-            free(array);
-            assert(false);
+            return false;
         }
 	}
+
+    return true;
 }
 
-void OutputArray(int arraySize, const int* array)
+bool OutputArray(int arraySize, const int* array)
 {
 	for (int i = 0; i < arraySize; ++i)
 	{
-		printf("%d ", array[i]);
+		if (printf("%d ", array[i]) == EOF)
+        {
+            return false;
+        }
 	}
+
+    return true;
 }
 
 void Swap(int* value1, int* value2)
@@ -70,20 +68,35 @@ void QuickSort(int* array, int startPosition, int finishPosition)
 	}
 }
 
-int main()
+int main(void)
 {
 	int arraySize = 0;
-
-	assert(scanf("%d", &arraySize) == 1);
+	if (scanf("%d", &arraySize) == EOF)
+    {
+        return EXIT_FAILURE;
+    }
 
 	int* array = malloc(sizeof(*array) * arraySize);
-    assert(array != NULL);
+    if (array == NULL)
+    {
+        return EXIT_FAILURE;
+    }
 
-	InputArray(arraySize, array);
+	if (!InputArray(arraySize, array))
+    {
+        free(array);
+        return EXIT_FAILURE;
+    }
 
 	QuickSort(array, 0, arraySize - 1);
-	OutputArray(arraySize, array);
+
+	if (!OutputArray(arraySize, array))
+    {
+        free(array);
+        return EXIT_FAILURE;
+    }
+
 	free(array);
 
-	return SUCCESS;
+	return EXIT_SUCCESS;
 }
