@@ -115,7 +115,7 @@ bool NarayanasAlgorithm(int PermutationCount, char* Sequence)
 		{
 			if (Index1 < 0)
 			{
-				return;
+				return true;
 			}
 
 			if (Sequence[Index1] < Sequence[Index1 + 1])
