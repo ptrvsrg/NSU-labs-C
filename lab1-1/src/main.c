@@ -28,28 +28,21 @@ int Pow(unsigned int number, int power)
 
 bool InputTemplate(char* template)
 {
-    for (int i = 0; i < SIZE_TEMPLATE + 1; i++)
+    for (int i = 0; i < SIZE_TEMPLATE + 1; ++i)
     {
-        if ((template[i] = fgetc(stdin)) == EOF)
+        if (fread(template + i, sizeof(char), 1, stdin) != 1)
         {
             return false;
         }
 
         if (template[i] == '\n')
         {
-            if (i == 0)
-            {
-                return false;
-            }
-            else
-            {
-                template[i] = '\0';
-                break;
-            }
+            template[i] = '\0';
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 ////////////////////////////////  STRING FUNCTION  ////////////////////////////////
@@ -61,7 +54,7 @@ bool ShiftText(int templateLength, char* text)
         text[i] = text[i + 1];
     }
     
-    if ((text[templateLength - 1] = fgetc(stdin)) == EOF)
+    if (fread(text + templateLength - 1, sizeof(char), 1, stdin) != 1)
     {
         return false;
     }
@@ -69,7 +62,7 @@ bool ShiftText(int templateLength, char* text)
     return true;
 }
 
-void CompareString(const char* string1, const char* string2, int length, int position)
+void PrintProtokol(const char* string1, const char* string2, int length, int position)
 {
     for (int i = 0; i < length; i++)
     {
@@ -115,7 +108,7 @@ void RabinKarpAlgorithm(const char* template)
     printf("%d ", templateHash);
 
     char text[SIZE_TEMPLATE + 1] = { 0 };
-    if (fread(text, sizeof(char), templateLength, stdin) != (size_t)templateLength)
+    if (fread(text, sizeof(char), templateLength, stdin) != templateLength)
     {
         return;
     }
@@ -126,7 +119,7 @@ void RabinKarpAlgorithm(const char* template)
     {
         if (templateHash == textHash)
         {
-            CompareString(template, text, templateLength, position);
+            PrintProtokol(template, text, templateLength, position);
         }
 
         unsigned char symbol = text[0];
