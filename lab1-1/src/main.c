@@ -123,7 +123,9 @@ void RabinKarpAlgorithm(TRingArray template)
     const int templateHash = Hash(template);
     printf("%d ", templateHash);
 
-    TRingArray text = { 0, template.Length, 0 };
+    TRingArray text;
+    text.BeginIndex = 0;
+    text.Length = template.Length;
 
     if (!InputText(&text))
     {
@@ -155,7 +157,9 @@ void RabinKarpAlgorithm(TRingArray template)
 
 int main(void)
 {
-    TRingArray template = { 0, 0, 0 };
+    TRingArray template;
+    template.BeginIndex = 0;
+    template.Length = 0;
 
     if (!InputTemplate(&template))
     {
