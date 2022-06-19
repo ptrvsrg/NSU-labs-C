@@ -11,44 +11,17 @@ enum
 
 int Pow(unsigned int number, int power)
 {
-    if (power < 0)
-    {
-        return -1;
-    }
-    else if (power == 0)
-    {
-        return 1;
-    }
-    else if (number == 0 || number == 1)
+    if (number == 0 || number == 1)
     {
         return number;
     }
+
+    if (power <= 0)
+    {
+        return 1;
+    }
     
     return number * Pow(number, power - 1);
-}
-
-////////////////////////////////  HASH FUNCTION  ////////////////////////////////
-
-int Hash(const char* string)
-{
-    int sum = 0;
-    int power = 1;
-    int stringLength = strlen(string);
-
-    for (int i = 0; i < stringLength; i++)
-    {
-        sum += (unsigned char)string[i] % 3 * power;
-        power *= 3;
-    }
-
-    return sum;
-}
-
-void ChangeHash(unsigned char symbol1, unsigned char symbol2, int powerOf3, int* textHash)
-{
-    *textHash -= (unsigned char)symbol1 % 3;
-    *textHash /= 3;
-    *textHash += (unsigned char)symbol2 % 3 * powerOf3;
 }
 
 ////////////////////////////////  INPUT / OUTPUT  ////////////////////////////////
@@ -93,7 +66,7 @@ bool ShiftText(int templateLength, char* text)
         text[i] = text[i + 1];
     }
     
-    if ((text[templateLength - 1] = (char)fgetc(stdin)) == EOF)
+    if (scanf("%c", text[templateLength - 1]) == EOF)
     {
         return false;
     }
@@ -109,9 +82,34 @@ void CompareString(const char* string1, const char* string2, int length, int pos
 
         if (string1[i] != string2[i])
         {
-            break;
+            return;
         }
     }
+}
+
+////////////////////////////////  HASH FUNCTION  ////////////////////////////////
+
+int Hash(const char* string)
+{
+    int sum = 0;
+    int power = 1;
+    int stringLength = strlen(string);
+
+    for (int i = 0; i < stringLength; i++)
+    {
+        sum += (unsigned char)string[i] % 3 * power;
+        power *= 3;
+    }
+
+    return sum;
+}
+
+int ChangeHash(unsigned char symbol1, unsigned char symbol2, int powerOf3, int textHash)
+{
+    textHash -= (unsigned char)symbol1 % 3;
+    textHash /= 3;
+    textHash += (unsigned char)symbol2 % 3 * powerOf3;
+    return textHash;
 }
 
 ////////////////////////////////  RABIN KARP ALGORITHM  ////////////////////////////////
@@ -125,7 +123,6 @@ void RabinKarpAlgorithm(const char* template)
     PrintNumber(templateHash);
 
     char text[SIZE_TEMPLATE + 1] = { 0 };
-    memset(text, 0, SIZE_TEMPLATE + 1);
 
     if (fread(text, sizeof(char), templateLength, stdin) != (size_t)templateLength)
     {
@@ -148,7 +145,7 @@ void RabinKarpAlgorithm(const char* template)
             return;
         }
 
-        ChangeHash(symbol, text[templateLength - 1], powerOf3, &textHash);
+        textHash = ChangeHash(symbol, text[templateLength - 1], powerOf3, textHash);
 
         ++position; 
     }
