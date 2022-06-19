@@ -8,7 +8,6 @@ enum
 {
     SIZE_TEMPLATE = 16
 };
-
 int Pow(unsigned int number, int power)
 {
     if (number == 0 || number == 1)
@@ -24,20 +23,29 @@ int Pow(unsigned int number, int power)
     return number * Pow(number, power - 1);
 }
 
+typedef struct
+{
+    int BeginIndex;
+    int Length;
+    char String[SIZE_TEMPLATE];
+} TRingArray;
+
+
 ////////////////////////////////  INPUT / OUTPUT  ////////////////////////////////
 
-bool InputTemplate(char* template)
+bool InputTemplate(TRingArray* template)
 {
     for (int i = 0; i < SIZE_TEMPLATE + 1; ++i)
     {
-        if (fread(template + i, sizeof(char), 1, stdin) != 1)
+        if ((template->String[i] = getchar()) == EOF)
         {
             return false;
         }
 
-        if (template[i] == '\n')
+        if (template->String[i] == '\n')
         {
-            template[i] = '\0';
+            template->String[i] = '\0';
+            template->Length = i;
             return true;
         }
     }
@@ -45,93 +53,101 @@ bool InputTemplate(char* template)
     return false;
 }
 
-////////////////////////////////  STRING FUNCTION  ////////////////////////////////
-
-bool ShiftText(int templateLength, char* text)
+bool InputText(TRingArray* text)
 {
-    for (int i = 0; i < templateLength - 1; ++i)
+    for (int i = 0; i < text->Length; ++i)
     {
-        text[i] = text[i + 1];
-    }
-    
-    if (fread(text + templateLength - 1, sizeof(char), 1, stdin) != 1)
-    {
-        return false;
+        if ((text->String[i] = getchar()) == EOF)
+        {
+            return false;
+        }
     }
 
     return true;
 }
 
-void PrintProtokol(const char* string1, const char* string2, int length, int position)
+void PrintProtokol(TRingArray template, TRingArray text, int position)
 {
-    for (int i = 0; i < length; i++)
+    for (int i = 0; i < template.Length; i++)
     {
         printf("%d ", position + i);
 
-        if (string1[i] != string2[i])
+        int index = (text.BeginIndex + i) % text.Length;
+        if (template.String[i] != text.String[index])
         {
             return;
         }
     }
 }
 
+////////////////////////////////  TEXT SHIFT  ////////////////////////////////
+
+bool ShiftText(TRingArray* text)
+{    
+    if ((text->String[text->BeginIndex] = getchar()) == EOF)
+    {
+        return false;
+    }
+
+    text->BeginIndex = (text->BeginIndex + 1) % text->Length;
+    return true;
+}
+
 ////////////////////////////////  HASH FUNCTION  ////////////////////////////////
 
-int Hash(const char* string)
+int Hash(TRingArray array)
 {
     int sum = 0;
     int power = 1;
-    int stringLength = strlen(string);
 
-    for (int i = 0; i < stringLength; i++)
+    for (int i = 0; i < array.Length; ++i)
     {
-        sum += (unsigned char)string[i] % 3 * power;
+        int index = (array.BeginIndex + i) % array.Length;
+        sum += (unsigned char)array.String[index] % 3 * power;
         power *= 3;
     }
 
     return sum;
 }
 
-int ChangeHash(unsigned char symbol1, unsigned char symbol2, int powerOf3, int textHash)
+void ChangeHash(unsigned char symbol1, unsigned char symbol2, int powerOf3, int* textHash)
 {
-    return ( textHash - symbol1 % 3 ) / 3 + ( symbol2 % 3 * powerOf3 );
+    *textHash = ( *textHash - symbol1 % 3 ) / 3 + ( symbol2 % 3 * powerOf3 );
 }
 
 ////////////////////////////////  RABIN KARP ALGORITHM  ////////////////////////////////
 
-void RabinKarpAlgorithm(const char* template)
+void RabinKarpAlgorithm(TRingArray template)
 {
-    const int templateLength = strlen(template);
-    const int powerOf3 = Pow(3, templateLength - 1);
+    const int powerOf3 = Pow(3, template.Length - 1);
     const int templateHash = Hash(template);
-    int position = 1;
     printf("%d ", templateHash);
 
-    char text[SIZE_TEMPLATE + 1] = { 0 };
-    if (fread(text, sizeof(char), templateLength, stdin) != templateLength)
+    TRingArray text = { 0, template.Length, 0 };
+
+    if (!InputText(&text))
     {
         return;
     }
 
     int textHash = Hash(text);
 
-    while (true)
+    for (int position = 1; ; ++position)
     {
         if (templateHash == textHash)
         {
-            PrintProtokol(template, text, templateLength, position);
+            PrintProtokol(template, text, position);
         }
 
-        unsigned char symbol = text[0];
+        unsigned char symbol = text.String[text.BeginIndex];
 
-        if (!ShiftText(templateLength, text))
+        if (!ShiftText(&text))
         {
             return;
         }
 
-        textHash = ChangeHash(symbol, text[templateLength - 1], powerOf3, textHash);
-
-        ++position; 
+        int index = (text.BeginIndex + text.Length - 1) % text.Length;
+        ChangeHash(symbol, text.String[index], powerOf3, &textHash);
     }
 }
 
@@ -139,9 +155,9 @@ void RabinKarpAlgorithm(const char* template)
 
 int main(void)
 {
-    char template[SIZE_TEMPLATE + 1] = { 0 };
+    TRingArray template = { 0, 0, 0 };
 
-    if (!InputTemplate(template))
+    if (!InputTemplate(&template))
     {
         return EXIT_FAILURE;
     }
