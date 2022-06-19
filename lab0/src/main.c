@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-const char* Symbols = "0123456789abcdef";
+const char* symbols = "0123456789abcdef";
 static jmp_buf position;
 
 enum
@@ -22,11 +22,11 @@ void PrintBadInput()
 	longjmp(position, SUCCESS_JUMP);
 }
 
-int CharToInt(int System, char Symbol)
+int CharToInt(int system, char sym)
 {
-	for (int i = 0; i < System; i++)
+	for (int i = 0; i < system; i++)
 	{
-		if (tolower(Symbol) == Symbols[i])
+		if (tolower(sym) == symbols[i])
 		{
 			return i;
 		}
@@ -36,132 +36,127 @@ int CharToInt(int System, char Symbol)
     return -1;
 }
 
-double Pow(unsigned int Number, int Power)
+double Pow(unsigned int number, int power)
 {
-	if (Number == 0 || Number == 1)
+	if (number == 0 || number == 1)
 	{
-		return Number;
+		return number;
 	}
 
-	if (Power == 0)
+	if (power == 0)
 	{
 		return 1;
 	}
-	else if (Power < 0)
+	else if (power < 0)
 	{
-		return (1.0 / Number) * Pow(Number, Power + 1);
+		return (1.0 / number) * Pow(number, power + 1);
 	}
-	else
-	{
-		return Number * Pow(Number, Power - 1);
-	}
+	
+    return number * Pow(number, power - 1);
 }
 
-int GetIntegerPartSize(const char* Line)
+int GetIntegerSize(const char* line)
 {
-	char* PointPosition = strchr(Line, '.');
-	int LineLength = strlen(Line);
+	char* pointPosition = strchr(line, '.');
+	int lineLength = strlen(line);
 
-	if (PointPosition == NULL)
+	if (pointPosition == NULL)
 	{
-		return LineLength;
+		return lineLength;
 	}
 	else
 	{
-		int IntegerPartSize = PointPosition - Line;
+		int integerSize = pointPosition - line;
 
-		if (IntegerPartSize == 0 || IntegerPartSize == LineLength - 1)
+		if (integerSize == 0 || integerSize == lineLength - 1)
 		{
 			PrintBadInput();
 		}
 		
-		return IntegerPartSize;
+		return integerSize;
 	}
 }
 
-double To10(int System1, const char* Line)
+double ConvertTo10(int system1, const char* line)
 {
-	int IntegerPartSize = GetIntegerPartSize(Line);
-	double Sum = 0.0;
+	int integerSize = GetIntegerSize(line);
+	double sum = 0.0;
 
-	for (int i = 0; i < IntegerPartSize; i++)
+	for (int i = 0; i < integerSize; i++)
 	{
-		Sum += CharToInt(System1, Line[i]) * Pow(System1, IntegerPartSize - 1 - i);
+		sum += CharToInt(system1, line[i]) * Pow(system1, integerSize - 1 - i);
 	}
 
-	int LineLength = strlen(Line);
+	int lineLength = strlen(line);
 
-	for (int i = IntegerPartSize + 1; i < LineLength; i++)
+	for (int i = integerSize + 1; i < lineLength; i++)
 	{
-		Sum += CharToInt(System1, Line[i]) * Pow(System1, IntegerPartSize - i);
+		sum += CharToInt(system1, line[i]) * Pow(system1, integerSize - i);
 	}
 
-	return Sum;
+	return sum;
 }
 
-char* From10(int System2, double Sum)
+char* ConvertFrom10(int system2, double sum)
 {
-	long long Integer = (long long)Sum;
-	double Fractional = Sum - Integer;
-	int IntegerSize = 0;
+	long long integer = (long long)sum;
+	double fractional = sum - integer;
+	int integerSize = 0;
 	
 	do
 	{
-		++IntegerSize;
-	} while (Integer >= Pow(System2, IntegerSize));
+		++integerSize;
+	} while (integer >= Pow(system2, integerSize));
 
-	int LineSize = IntegerSize + SIZE + 1;
-	char* Line = malloc(sizeof(char) * (LineSize));
-
-	if(Line == NULL)
+	int lineSize = integerSize + SIZE + 1;
+	char* line = calloc(lineSize, sizeof(char));
+	if (line == NULL)
 	{
 		PrintBadInput();
 	}
 
-	memset(Line, 0, IntegerSize + SIZE + 1);
-
-	for (int i = IntegerSize - 1; i >= 0; i--)
+	for (int i = integerSize - 1; i >= 0; i--)
 	{
-		Line[i] = Symbols[Integer % System2];
-		Integer /= System2;
+		line[i] = symbols[integer % system2];
+		integer /= system2;
 	}
 
-	if (Fractional > 0)
+	if (fractional > 0)
 	{
-		Line[IntegerSize] = '.';
+		line[integerSize] = '.';
 		for (int i = 0; i < SIZE - 1; i++)
 		{
-			Fractional *= System2;
-			Line[IntegerSize + 1 + i] = Symbols[(int)Fractional];
-			Fractional -= (int)Fractional;
+			fractional *= system2;
+			line[integerSize + 1 + i] = symbols[(int)fractional];
+			fractional -= (int)fractional;
 		}
 	}
 
-	return Line;
+	return line;
 }
 
-int main()
+int main(void)
 {
-	int System1, System2;
-	char Line[SIZE + 1];
+	int system1, system2;
+	char line[SIZE + 1];
 
     if(setjmp(position) == 0)
 	{
-        if (scanf("%d %d", &System1, &System2) != 2 || System1 > MAX_SYSTEM || System2 > MAX_SYSTEM || System1 < MIN_SYSTEM || System2 < MIN_SYSTEM)
+        if (scanf("%d %d", &system1, &system2) != 2 || system1 > MAX_SYSTEM || system2 > MAX_SYSTEM || system1 < MIN_SYSTEM || system2 < MIN_SYSTEM)
         {
             PrintBadInput();
         }
 
-        if (scanf("%13s", Line) != 1)
+        if (scanf("%13s", line) != 1)
         {
             PrintBadInput();
         }
 
-        double Number10 = To10(System1, Line);
-        char* NewNumber = From10(System2, Number10);
-        printf("%s", NewNumber);
+        double number10 = ConvertTo10(system1, line);
+        char* newNumber = ConvertFrom10(system2, number10);
+        printf("%s", newNumber);
 
-        free(NewNumber);
+        free(newNumber);
     }
 
 	return EXIT_SUCCESS;
