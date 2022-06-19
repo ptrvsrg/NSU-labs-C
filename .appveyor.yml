@@ -30,12 +30,17 @@ test_script:
   - sh: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=ON ../$LAB
   - sh: ninja
   - sh: ninja test
+  - sh: rm -rf *
   - sh: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=OFF ../$LAB
+  - sh: ninja
   - sh: ninja test
   - sh: rm -rf *
   - sh: cmake ../$LAB -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
   - sh: ninja
   - sh: ninja test
+  - sh: rm -rf *
   - sh: cmake ../$LAB -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
   - sh: ninja
   - sh: ninja test
+  - sh: cd ..
+  - sh: rm -rf build_$LAB
