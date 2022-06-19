@@ -26,16 +26,11 @@ int Pow(unsigned int number, int power)
 
 ////////////////////////////////  INPUT / OUTPUT  ////////////////////////////////
 
-void PrintNumber(int number)
-{
-    printf("%d ", number);
-}
-
 bool InputTemplate(char* template)
 {
     for (int i = 0; i < SIZE_TEMPLATE + 1; i++)
     {
-        if (scanf("%c", template + i) == EOF)
+        if ((template[i] = fgetc(stdin)) == EOF)
         {
             return false;
         }
@@ -66,7 +61,7 @@ bool ShiftText(int templateLength, char* text)
         text[i] = text[i + 1];
     }
     
-    if (scanf("%c", text + templateLength - 1) == EOF)
+    if ((text[templateLength - 1] = fgetc(stdin)) == EOF)
     {
         return false;
     }
@@ -78,7 +73,7 @@ void CompareString(const char* string1, const char* string2, int length, int pos
 {
     for (int i = 0; i < length; i++)
     {
-        PrintNumber(position + i);
+        printf("%d ", position + i);
 
         if (string1[i] != string2[i])
         {
@@ -106,10 +101,7 @@ int Hash(const char* string)
 
 int ChangeHash(unsigned char symbol1, unsigned char symbol2, int powerOf3, int textHash)
 {
-    textHash -= (unsigned char)symbol1 % 3;
-    textHash /= 3;
-    textHash += (unsigned char)symbol2 % 3 * powerOf3;
-    return textHash;
+    return ( textHash - symbol1 % 3 ) / 3 + ( symbol2 % 3 * powerOf3 );
 }
 
 ////////////////////////////////  RABIN KARP ALGORITHM  ////////////////////////////////
@@ -120,10 +112,9 @@ void RabinKarpAlgorithm(const char* template)
     const int powerOf3 = Pow(3, templateLength - 1);
     const int templateHash = Hash(template);
     int position = 1;
-    PrintNumber(templateHash);
+    printf("%d ", templateHash);
 
     char text[SIZE_TEMPLATE + 1] = { 0 };
-
     if (fread(text, sizeof(char), templateLength, stdin) != (size_t)templateLength)
     {
         return;
@@ -157,25 +148,12 @@ int main(void)
 {
     char template[SIZE_TEMPLATE + 1] = { 0 };
 
-    if (freopen("in.txt", "r", stdin) == NULL)
-    {
-        return EXIT_FAILURE;
-    }
-
-    if (freopen("out.txt", "w", stdout) == NULL)
-    {
-        return EXIT_FAILURE;
-    }
-
     if (!InputTemplate(template))
     {
         return EXIT_FAILURE;
     }
 
     RabinKarpAlgorithm(template);
-
-    fclose(stdin);
-    fclose(stdout);
 
     return EXIT_SUCCESS;
 }
