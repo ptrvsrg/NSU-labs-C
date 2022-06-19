@@ -2,12 +2,12 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 enum
 {
     SIZE_TEMPLATE = 16
 };
+
 int Pow(unsigned int number, int power)
 {
     if (number == 0 || number == 1)
@@ -27,42 +27,62 @@ typedef struct
 {
     int BeginIndex;
     int Length;
-    char String[SIZE_TEMPLATE];
+    char* String;
 } TRingArray;
-
 
 ////////////////////////////////  INPUT / OUTPUT  ////////////////////////////////
 
 bool InputTemplate(TRingArray* template)
 {
+    char* string = calloc(SIZE_TEMPLATE + 1, sizeof(char));
+    if (string == NULL)
+    {
+        return false;
+    }
+
     for (int i = 0; i < SIZE_TEMPLATE + 1; ++i)
     {
-        if ((template->String[i] = getchar()) == EOF)
+        if ((string[i] = getchar()) == EOF)
         {
+            free(string);
             return false;
         }
 
-        if (template->String[i] == '\n')
+        if (string[i] == '\n')
         {
-            template->String[i] = '\0';
+            string[i] = '\0';
+            template->BeginIndex = 0;
             template->Length = i;
+            template->String = string;
+
             return true;
         }
     }
 
+    free(string);
     return false;
 }
 
-bool InputText(TRingArray* text)
+bool InputText(TRingArray* text, int length)
 {
-    for (int i = 0; i < text->Length; ++i)
+    char* string = calloc(length, sizeof(char));
+    if (string == NULL)
     {
-        if ((text->String[i] = getchar()) == EOF)
+        return false;
+    }
+
+    for (int i = 0; i < length; ++i)
+    {
+        if ((string[i] = getchar()) == EOF)
         {
+            free(string);
             return false;
         }
     }
 
+    text->BeginIndex = 0;
+    text->Length = length;
+    text->String = string;
     return true;
 }
 
@@ -124,10 +144,7 @@ void RabinKarpAlgorithm(TRingArray template)
     printf("%d ", templateHash);
 
     TRingArray text;
-    text.BeginIndex = 0;
-    text.Length = template.Length;
-
-    if (!InputText(&text))
+    if (!InputText(&text, template.Length))
     {
         return;
     }
@@ -145,6 +162,7 @@ void RabinKarpAlgorithm(TRingArray template)
 
         if (!ShiftText(&text))
         {
+            free(text.String);
             return;
         }
 
@@ -158,15 +176,13 @@ void RabinKarpAlgorithm(TRingArray template)
 int main(void)
 {
     TRingArray template;
-    template.BeginIndex = 0;
-    template.Length = 0;
-
     if (!InputTemplate(&template))
     {
         return EXIT_FAILURE;
     }
 
     RabinKarpAlgorithm(template);
+    free(template.String);
 
     return EXIT_SUCCESS;
 }
