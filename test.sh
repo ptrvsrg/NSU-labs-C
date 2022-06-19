@@ -7,18 +7,22 @@ export CTEST_OUTPUT_ON_FAILURE=1
 cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=ON ../$1
 ninja
 ninja test
+rm -rf *
 
 cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=OFF ../$1
+ninja
 ninja test
 rm -rf *
 
 cmake ../$1 -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
 ninja
 ninja test
+rm -rf *
 
 cmake ../$1 -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
 ninja
 ninja test
+rm -rf *
 
 cd ..
 rm -rf build_$1
