@@ -270,11 +270,11 @@ int Calc(const char* infix)
             } while (IsDigit(*infix));
             
             PushStack(&numberStack, CreateValue('\0', number));
-            continue;
         }
         else if(*infix == '(')
         {
             PushStack(&operatorStack, CreateValue(*infix, INT_MIN));
+            ++infix;
         }
         else if(*infix == ')')
         {
@@ -284,6 +284,7 @@ int Calc(const char* infix)
             }
 
             PopStack(&operatorStack);
+            ++infix;
         }
         else
         {
@@ -293,9 +294,8 @@ int Calc(const char* infix)
             }
 
             PushStack(&operatorStack, CreateValue(*infix, INT_MIN));
+            ++infix;
         }
-
-        ++infix;
     }
 
     while(!IsEmptyStack(operatorStack))
