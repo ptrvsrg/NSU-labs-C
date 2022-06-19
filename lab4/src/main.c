@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <limits.h>
 #include <setjmp.h>
 #include <stdbool.h>
@@ -150,7 +151,7 @@ void CheckBrackets(const char* line)
         ++index;
     }
 
-    if(IsEmptyStack(stack))
+    if(!IsEmptyStack(stack))
     {
         DestroyStack(&stack);
         SyntaxError();
