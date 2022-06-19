@@ -1,5 +1,4 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,135 +9,176 @@ enum
     SIZE_TEMPLATE = 16
 };
 
-void PrintNumber(int Number)
+int Pow(unsigned int number, int power)
 {
-    printf("%d ", Number);
+    if (power < 0)
+    {
+        return -1;
+    }
+    else if (power == 0)
+    {
+        return 1;
+    }
+    else if (number == 0 || number == 1)
+    {
+        return number;
+    }
+    
+    return number * Pow(number, power - 1);
 }
 
-void InputTemplate(char* Template, FILE* inFile)
+////////////////////////////////  HASH FUNCTION  ////////////////////////////////
+
+int Hash(const char* string)
+{
+    int sum = 0;
+    int power = 1;
+    int stringLength = strlen(string);
+
+    for (int i = 0; i < stringLength; i++)
+    {
+        sum += (unsigned char)string[i] % 3 * power;
+        power *= 3;
+    }
+
+    return sum;
+}
+
+void ChangeHash(unsigned char symbol1, unsigned char symbol2, int powerOf3, int* textHash)
+{
+    *textHash -= (unsigned char)symbol1 % 3;
+    *textHash /= 3;
+    *textHash += (unsigned char)symbol2 % 3 * powerOf3;
+}
+
+////////////////////////////////  INPUT / OUTPUT  ////////////////////////////////
+
+void PrintNumber(int number)
+{
+    printf("%d ", number);
+}
+
+bool InputTemplate(char* template)
 {
     for (int i = 0; i < SIZE_TEMPLATE + 1; i++)
     {
-        if ((Template[i] = (char)fgetc(inFile)) == EOF)
+        if (scanf("%c", template + i) == EOF)
         {
-            assert(false);
+            return false;
         }
 
-        if (Template[i] == '\n')
+        if (template[i] == '\n')
         {
             if (i == 0)
             {
-                assert(false);
+                return false;
             }
             else
             {
-                Template[i] = '\0';
+                template[i] = '\0';
                 break;
             }
         }
     }
+
+    return true;
 }
 
-int Pow(unsigned int Number, int Power)
-{
-    assert(Power >= 0);
+////////////////////////////////  STRING FUNCTION  ////////////////////////////////
 
-    if (Number == 0 || Number == 1)
+bool ShiftText(int templateLength, char* text)
+{
+    for (int i = 0; i < templateLength - 1; ++i)
     {
-        return Number;
+        text[i] = text[i + 1];
+    }
+    
+    if ((text[templateLength - 1] = (char)fgetc(stdin)) == EOF)
+    {
+        return false;
     }
 
-    if (Power == 0)
+    return true;
+}
+
+void CompareString(const char* string1, const char* string2, int length, int position)
+{
+    for (int i = 0; i < length; i++)
     {
-        return 1;
+        PrintNumber(position + i);
+
+        if (string1[i] != string2[i])
+        {
+            break;
+        }
     }
-    else
-    {
-        return Number * Pow(Number, Power - 1);
-    }
 }
 
-int HashFunction(const char* Line)
+////////////////////////////////  RABIN KARP ALGORITHM  ////////////////////////////////
+
+void RabinKarpAlgorithm(const char* template)
 {
-    int Sum = 0;
-    int Power = 1;
-    int LineLength = strlen(Line);
+    const int templateLength = strlen(template);
+    const int powerOf3 = Pow(3, templateLength - 1);
+    const int templateHash = Hash(template);
+    int position = 1;
+    PrintNumber(templateHash);
 
-    for (int i = 0; i < LineLength; i++)
-    {
-        Sum += (unsigned char)Line[i] % 3 * Power;
-        Power *= 3;
-    }
+    char text[SIZE_TEMPLATE + 1] = { 0 };
+    memset(text, 0, SIZE_TEMPLATE + 1);
 
-    return Sum;
-}
-
-void ShiftText(int TemplateLength, char* Text, FILE* inFile)
-{
-    memmove(Text, Text + 1, TemplateLength);
-    Text[TemplateLength - 1] = (char)fgetc(inFile);
-}
-
-void ChangeHash(unsigned char Symbol1, unsigned char Symbol2, int PowerOf3, int* TextHash)
-{
-    *TextHash -= (unsigned char)Symbol1 % 3;
-    *TextHash /= 3;
-    *TextHash += (unsigned char)Symbol2 % 3 * PowerOf3;
-}
-
-void RabinKarpAlgorithm(const char* Template, FILE* inFile)
-{
-    const int TemplateLength = strlen(Template);
-    const int TemplateHash = HashFunction(Template);
-    PrintNumber(TemplateHash);
-
-    char Text[SIZE_TEMPLATE + 1];
-    int Position = 1;
-    memset(Text, 0, SIZE_TEMPLATE + 1);
-    const int PowerOf3 = Pow(3, TemplateLength - 1);
-
-    if (fread(Text, 1, TemplateLength, inFile) != (size_t)TemplateLength)
+    if (fread(text, sizeof(char), templateLength, stdin) != (size_t)templateLength)
     {
         return;
     }
 
-    int TextHash = HashFunction(Text);
+    int textHash = Hash(text);
 
-    while (!feof(inFile))
+    while (true)
     {
-        if (TemplateHash == TextHash)
+        if (templateHash == textHash)
         {
-            for (int i = 0; i < TemplateLength; i++)
-            {
-                PrintNumber(Position + i);
-
-                if (Template[i] != Text[i])
-                {
-                    break;
-                }
-            }
+            CompareString(template, text, templateLength, position);
         }
 
-        unsigned char Symbol = Text[0];
+        unsigned char symbol = text[0];
 
-        ShiftText(TemplateLength, Text, inFile);
-        ChangeHash(Symbol, Text[TemplateLength - 1], PowerOf3, &TextHash);
+        if (!ShiftText(templateLength, text))
+        {
+            return;
+        }
 
-        ++Position; 
+        ChangeHash(symbol, text[templateLength - 1], powerOf3, &textHash);
+
+        ++position; 
     }
 }
 
+////////////////////////////////  MAIN  ////////////////////////////////
+
 int main(void)
 {
-    char Template[SIZE_TEMPLATE + 1] = { 0 };
+    char template[SIZE_TEMPLATE + 1] = { 0 };
 
-    FILE* inFile = fopen("in.txt", "r");
-    assert(inFile != NULL);
+    if (freopen("in.txt", "r", stdin) == NULL)
+    {
+        return EXIT_FAILURE;
+    }
 
-    InputTemplate(Template, inFile);
-    RabinKarpAlgorithm(Template, inFile);
+    if (freopen("out.txt", "w", stdout) == NULL)
+    {
+        return EXIT_FAILURE;
+    }
 
-    fclose(inFile);
+    if (!InputTemplate(template))
+    {
+        return EXIT_FAILURE;
+    }
+
+    RabinKarpAlgorithm(template);
+
+    fclose(stdin);
+    fclose(stdout);
 
     return EXIT_SUCCESS;
 }
