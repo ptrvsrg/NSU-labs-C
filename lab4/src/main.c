@@ -97,15 +97,13 @@ TValue PopStack(TStack* stack)
 void PushStack(TStack* stack, TValue value)
 {
     TStack new = malloc(sizeof(*new));
-
     if (!new)
     {
         OtherError(__LINE__);
     }
 
-    TStack last = *stack;
     new->Value = value;
-    new->Next = last;
+    new->Next = *stack;
     *stack = new;
 }
 
@@ -218,6 +216,8 @@ void CalcExpression(TStack* operatorStack, TStack* numberStack)
 {
     if (IsEmptyStack(*operatorStack) || IsEmptyStack(*numberStack) || IsEmptyStack((*numberStack)->Next))
     {
+        DestroyStack(operatorStack);
+        DestroyStack(numberStack);
         SyntaxError();
     }
 
