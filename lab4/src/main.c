@@ -150,7 +150,7 @@ void CheckBrackets(const char* line)
         ++index;
     }
 
-    if(stack)
+    if(IsEmptyStack(stack))
     {
         DestroyStack(&stack);
         SyntaxError();
@@ -236,16 +236,19 @@ void CalcExpression(TStack* operatorStack, TStack* numberStack)
             PushStack(numberStack, CreateValue('\0', first * second));
             return;
         case '/':
-            if(Fabs(second) < 1.0E-6)
+            if(second == 0)
             {
                 DestroyStack(operatorStack);
                 DestroyStack(numberStack);
                 DivisionByZero();
             }
+            
             PushStack(numberStack, CreateValue('\0', first / second));
             return;
     }
 
+    DestroyStack(operatorStack);
+    DestroyStack(numberStack);
     OtherError(__LINE__);
 }
 
