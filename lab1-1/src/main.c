@@ -71,13 +71,10 @@ bool InputText(TRingArray* text, int length)
         return false;
     }
 
-    for (int i = 0; i < length; ++i)
+    if (fread(string, sizeof(char), length, stdin) != (size_t)length)
     {
-        if ((string[i] = getchar()) == EOF)
-        {
-            free(string);
-            return false;
-        }
+        free(string);
+        return false;
     }
 
     text->BeginIndex = 0;
