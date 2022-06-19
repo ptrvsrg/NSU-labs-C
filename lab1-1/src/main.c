@@ -66,7 +66,7 @@ bool ShiftText(int templateLength, char* text)
         text[i] = text[i + 1];
     }
     
-    if (scanf("%c", text[templateLength - 1]) == EOF)
+    if (scanf("%c", text + templateLength - 1) == EOF)
     {
         return false;
     }
