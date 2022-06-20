@@ -22,11 +22,11 @@ test_script:
   - sh: NORMAL='\033[0m'
   - sh: YELLOW='\033[1;33m'
 
-  - sh: mkdir -p build_$1
-  - sh: cd build_$1
+  - sh: mkdir -p build_$LAB
+  - sh: cd build_$LAB
   - sh: export CTEST_OUTPUT_ON_FAILURE=1
 
-  - sh: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=ON ../$1
+  - sh: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=ON ../$LAB
   - sh: ninja
   - sh: ninja test
   - sh: echo "${YELLOW} in.txt ${NORMAL}"
@@ -36,7 +36,7 @@ test_script:
   - sh: echo "\n"
   - sh: rm -rf *
 
-  - sh: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=OFF ../$1
+  - sh: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=OFF ../$LAB
   - sh: ninja
   - sh: ninja test
   - sh: echo "${YELLOW} in.txt ${NORMAL}"
@@ -46,7 +46,7 @@ test_script:
   - sh: echo "\n"
   - sh: rm -rf *
 
-  - sh: cmake ../$1 -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
+  - sh: cmake ../$LAB -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
   - sh: ninja
   - sh: ninja test
   - sh: echo "${YELLOW} in.txt ${NORMAL}"
@@ -56,7 +56,7 @@ test_script:
   - sh: echo "\n"
   - sh: rm -rf *
 
-  - sh: cmake ../$1 -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
+  - sh: cmake ../$LAB -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
   - sh: ninja
   - sh: ninja test
   - sh: echo "${YELLOW} in.txt ${NORMAL}"
@@ -67,5 +67,5 @@ test_script:
   - sh: rm -rf *
 
   - sh: cd ..
-  - sh: rm -rf build_$1
+  - sh: rm -rf build_$LAB
 
