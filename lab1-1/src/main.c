@@ -130,8 +130,9 @@ void RabinKarpAlgorithm(TRingArray template)
     }
 
     int textHash = Hash(text);
-
-    for (int position = 1; ; ++position)
+    int position = 1;
+    
+    while (true)
     {
         if (templateHash == textHash)
         {
@@ -147,6 +148,8 @@ void RabinKarpAlgorithm(TRingArray template)
 
         int index = (text.BeginIndex + text.Length - 1) % text.Length;
         textHash = ChangeHash(symbol, text.String[index], powerOf3, textHash);
+
+        ++position;
     }
 }
 
