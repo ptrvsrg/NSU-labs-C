@@ -27,59 +27,42 @@ typedef struct
 {
     int BeginIndex;
     int Length;
-    char* String;
+    char String[SIZE_TEMPLATE + 1];
 } TRingArray;
 
 ////////////////////////////////  INPUT / OUTPUT  ////////////////////////////////
 
 bool InputTemplate(TRingArray* template)
 {
-    char* string = calloc(SIZE_TEMPLATE + 1, sizeof(char));
-    if (string == NULL)
-    {
-        return false;
-    }
-
     for (int i = 0; i < SIZE_TEMPLATE + 1; ++i)
     {
-        if ((string[i] = getchar()) == EOF)
+        if ((template->String[i] = getchar()) == EOF)
         {
-            free(string);
             return false;
         }
 
-        if (string[i] == '\n')
+        if (template->String[i] == '\n')
         {
-            string[i] = '\0';
+            template->String[i] = '\0';
             template->BeginIndex = 0;
             template->Length = i;
-            template->String = string;
 
             return true;
         }
     }
 
-    free(string);
     return false;
 }
 
 bool InputText(TRingArray* text, int length)
 {
-    char* string = calloc(length, sizeof(char));
-    if (string == NULL)
+    if (fread(text->String, sizeof(char), length, stdin) != (size_t)length)
     {
-        return false;
-    }
-
-    if (fread(string, sizeof(char), length, stdin) != (size_t)length)
-    {
-        free(string);
         return false;
     }
 
     text->BeginIndex = 0;
     text->Length = length;
-    text->String = string;
     return true;
 }
 
@@ -127,9 +110,9 @@ int Hash(TRingArray array)
     return sum;
 }
 
-void ChangeHash(unsigned char symbol1, unsigned char symbol2, int powerOf3, int* textHash)
+int ChangeHash(unsigned char symbol1, unsigned char symbol2, int powerOf3, int textHash)
 {
-    *textHash = ( *textHash - symbol1 % 3 ) / 3 + ( symbol2 % 3 * powerOf3 );
+    return ( textHash - symbol1 % 3 ) / 3 + ( symbol2 % 3 * powerOf3 );
 }
 
 ////////////////////////////////  RABIN KARP ALGORITHM  ////////////////////////////////
@@ -164,7 +147,7 @@ void RabinKarpAlgorithm(TRingArray template)
         }
 
         int index = (text.BeginIndex + text.Length - 1) % text.Length;
-        ChangeHash(symbol, text.String[index], powerOf3, &textHash);
+        textHash = ChangeHash(symbol, text.String[index], powerOf3, textHash);
     }
 }
 
@@ -179,7 +162,6 @@ int main(void)
     }
 
     RabinKarpAlgorithm(template);
-    free(template.String);
 
     return EXIT_SUCCESS;
 }
