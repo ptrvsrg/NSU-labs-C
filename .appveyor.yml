@@ -1,8 +1,5 @@
 image:
-  - Ubuntu2004
-
-matrix:
-  fast_finish: false
+  - Ubuntu2204
 
 environment:
   matrix:
@@ -21,26 +18,5 @@ environment:
     - LAB: lab9
     - LAB: lab10
 
-before_test:
-  - sh: mkdir -p build_$LAB
-  - sh: cd build_$LAB
-  - sh: export CTEST_OUTPUT_ON_FAILURE=1
-
 test_script:
-  - sh: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=ON ../$LAB
-  - sh: ninja
-  - sh: ninja test
-  - sh: rm -rf *
-  - sh: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=OFF ../$LAB
-  - sh: ninja
-  - sh: ninja test
-  - sh: rm -rf *
-  - sh: cmake ../$LAB -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
-  - sh: ninja
-  - sh: ninja test
-  - sh: rm -rf *
-  - sh: cmake ../$LAB -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
-  - sh: ninja
-  - sh: ninja test
-  - sh: cd ..
-  - sh: rm -rf build_$LAB
+  - sh: sh test.sh $LAB
