@@ -29,41 +29,41 @@ test_script:
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=ON ../$LAB
   - ninja
   - ninja test
-  - echo "${YELLOW} in.txt ${NORMAL}"
+  - echo -e "${YELLOW} in.txt ${NORMAL}"
   - head -c 256 in.txt
-  - echo "\n${YELLOW} out.txt ${NORMAL}"
+  - echo -e "\n${YELLOW} out.txt ${NORMAL}"
   - head -c 256 out.txt
-  - echo "\n"
+  - echo -e "\n"
   - rm -rf *
 
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=OFF ../$LAB
   - ninja
   - ninja test
-  - echo "${YELLOW} in.txt ${NORMAL}"
+  - echo -e "${YELLOW} in.txt ${NORMAL}"
   - head -c 256 in.txt
-  - echo "\n${YELLOW} out.txt ${NORMAL}"
+  - echo -e "\n${YELLOW} out.txt ${NORMAL}"
   - head -c 256 out.txt
-  - echo "\n"
+  - echo -e "\n"
   - rm -rf *
 
   - cmake ../$LAB -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
   - ninja
   - ninja test
-  - echo "${YELLOW} in.txt ${NORMAL}"
+  - echo -e "${YELLOW} in.txt ${NORMAL}"
   - head -c 256 in.txt
-  - echo "\n${YELLOW} out.txt ${NORMAL}"
+  - echo -e "\n${YELLOW} out.txt ${NORMAL}"
   - head -c 256 out.txt
-  - echo "\n"
+  - echo -e "\n"
   - rm -rf *
 
   - cmake ../$LAB -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
   - ninja
   - ninja test
-  - echo "${YELLOW} in.txt ${NORMAL}"
+  - echo -e "${YELLOW} in.txt ${NORMAL}"
   - head -c 256 in.txt
-  - echo "\n${YELLOW} out.txt ${NORMAL}"
+  - echo -e "\n${YELLOW} out.txt ${NORMAL}"
   - head -c 256 out.txt
-  - echo "\n"
+  - echo -e "\n"
   - rm -rf *
 
   - cd ..
