@@ -1,120 +1,152 @@
-#include <assert.h>
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define UNUSED(x) (void)(x);
 
 enum
 {
     SIZE_TEMPLATE = 16,
-    SIZE_TEXT = 2 * SIZE_TEMPLATE,
-    SIZE_CHAR = 256
+    COUNT_CHAR = 256
 };
 
-void PrintNumber(int number)
+typedef struct
 {
-    printf("%d ", number);
-}
+    int EndIndex;
+    int Length;
+    char String[SIZE_TEMPLATE + 1];
+} TRingArray;
 
-void InputTemplate(int* templateLength, char template[])
+////////////////////////////////  INPUT  ////////////////////////////////
+
+bool InputTemplate(TRingArray* template)
 {
     for (int i = 0; i < SIZE_TEMPLATE + 1; ++i)
     {
-        int control = fread(template + i, sizeof(char), 1, stdin);
-        UNUSED(control);
-        assert(control != EOF);
-
-        if (template[i] == '\n')
+        if (fread(template->String + i, sizeof(char), 1, stdin) != 1)
         {
-            template[i] = '\0';
-            *templateLength = i;
-            return;
+            return false;
+        }
+
+        if (template->String[i] == '\n')
+        {
+            template->String[i] = '\0';
+            template->EndIndex = i - 1;
+            template->Length = i;
+
+            return true;
         }
     }
 
-    assert(false);
+    return false;
 }
 
-void CreateShiftTable(int templateLength, const char template[], int shiftTable[])
+bool InputText(TRingArray* text, int length)
 {
-    for (int i = 0; i < SIZE_CHAR; ++i)
+    if (fread(text->String, sizeof(char), length, stdin) != (size_t)length)
     {
-        shiftTable[i] = templateLength;
+        return false;
     }
 
-    for (int i = 0; i < templateLength - 1; ++i)
+    text->EndIndex = length - 1;
+    text->Length = length;
+    return true;
+}
+
+////////////////////////////////  BOYER MOORE ALGORITHM  ////////////////////////////////
+
+void CreateShiftTable(TRingArray template, int shiftTable[])
+{
+    for (int i = 0; i < COUNT_CHAR; ++i)
     {
-        int index = template[i];
-        shiftTable[index] = templateLength - 1 - i;
+        shiftTable[i] = template.Length;
+    }
+
+    for (int i = 0; i < template.Length - 1; ++i)
+    {
+        unsigned char symbol = template.String[i];
+        shiftTable[(int)symbol] = template.Length - 1 - i;
     }
 }
 
-int ShiftText(char text[])
+bool ShiftText(TRingArray* text, int shift)
 {
-    for (int i = 0; i < SIZE_TEMPLATE; ++i)
+    for (int i = 0; i < shift; ++i)
     {
-        text[i] = text[i + SIZE_TEMPLATE];
+        int index = (text->EndIndex + i + 1) % text->Length;
+        if (fread(text->String + index, sizeof(char), 1, stdin) != 1)
+        {
+            return false;
+        }
     }
         
-    int control = fread(text + SIZE_TEMPLATE, sizeof(char), SIZE_TEMPLATE, stdin);
-    UNUSED(control);
-    assert(control != EOF);
-
-    return control;
+    text->EndIndex = (text->EndIndex + shift) % text->Length;
+    return true;
 }
 
-void BoyerMooreAlgorithm(int templateLength, const char template[])
+void BoyerMooreAlgorithm(TRingArray template)
 {
-    int currentPosition = templateLength;
-    int comparisonPosition = templateLength;
-    int lastLength = 0;
+    int shiftTable[COUNT_CHAR] = { 0 };
+    CreateShiftTable(template, shiftTable);
+
+    TRingArray text;
+    if (!InputText(&text, template.Length))
+    {
+        return;
+    }
+
+    int position = template.Length;
+    int index = 0;
         
-    int shiftTable[SIZE_CHAR] = { 0 };
-    CreateShiftTable(templateLength, template, shiftTable);
-
-    char text[SIZE_TEXT + 1] = { 0 };
-    int control = fread(text, sizeof(char), SIZE_TEXT, stdin);
-    UNUSED(control);
-    assert(control != EOF);
-    int textLength = control;
-
     while (true)
     {
-        if ((unsigned int)comparisonPosition > (unsigned int)lastLength + textLength)
+        printf("%d ", position);
+        int indexText = (text.EndIndex + text.Length - index) % text.Length;
+        int indexTemplate = template.EndIndex - index;
+
+        if (template.String[indexTemplate] != text.String[indexText])
         {
-            if (ShiftText(text) == 0)
+            unsigned char symbol = text.String[(index == 0) ? indexText : text.EndIndex];
+            position += shiftTable[(int)symbol] + index;
+
+            if (!ShiftText(&text, shiftTable[(int)symbol]))
             {
                 return;
             }
 
-            lastLength += SIZE_TEMPLATE;
-            textLength = SIZE_TEXT;
+            index = 0;
+            continue;
         }
 
-        for (int i = 0; i < templateLength; ++i)
+        if (index == text.Length - 1)
         {
-            PrintNumber(currentPosition);
+            position += text.Length + index;
 
-            if (text[comparisonPosition - lastLength - 1 - i] != template[templateLength - 1 - i] || i == templateLength - 1)
-            {               
-                comparisonPosition += shiftTable[(unsigned char)text[comparisonPosition - lastLength - 1]];
-                currentPosition = comparisonPosition;
-                break;
+            if (!ShiftText(&text, text.Length))
+            {
+                return;
             }
-            
-            --currentPosition;
+
+            index = 0;
+            continue;
         }
+
+        --position;
+        ++index;
     }
 
 }
 
+////////////////////////////////  MAIN  ////////////////////////////////
+
 int main(void)
 {
-    char template[SIZE_TEMPLATE + 1] = { 0 };
-    int templateLength = 0;
+    TRingArray template;
+    if (!InputTemplate(&template))
+    {
+        return EXIT_SUCCESS;
+    }
 
-    InputTemplate(&templateLength, template);
-    BoyerMooreAlgorithm(templateLength, template);
+    BoyerMooreAlgorithm(template);
 
     return EXIT_SUCCESS;
 }
