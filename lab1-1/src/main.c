@@ -142,7 +142,6 @@ void RabinKarpAlgorithm(TRingArray template)
 
         if (!ShiftText(&text))
         {
-            free(text.String);
             return;
         }
 
