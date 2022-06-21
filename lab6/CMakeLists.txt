@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(lab6 C)
 
-set(SRC src/main.c)
+set(SRC
+    src/avl-tree.c
+    src/avl-tree.h
+    src/main.c
+    src/memory.c
+    src/memory.h
+    )
 
 add_executable(${PROJECT_NAME} ${SRC})
 
