@@ -1,7 +1,17 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(lab8-0 C)
 
-set(SRC src/main.c)
+set(SRC 
+    src/dsu.c
+    src/dsu.h
+    src/error.c
+    src/error.h
+    src/graph.c
+    src/graph.h
+    src/kruskal.c
+    src/kruskal.h
+    src/main.c
+    )
 
 add_executable(${PROJECT_NAME} ${SRC})
 
