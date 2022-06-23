@@ -14,6 +14,11 @@ TVector CreateVector(int max, int size)
     return vector;
 }
 
+static bool IsEmptyVector(TVector vector)
+{
+    return vector.Count == 0;
+}
+
 void AssignVector(int size, const void* src, void* dest)
 {
     for (int i = 0; i < size; ++i)
@@ -52,10 +57,13 @@ TVector InputVector(int count, int size, int (*Scan)(void*))
 
 void DestroyVector(TVector* vector)
 {
-    free(vector->Array);
+    if (!IsEmptyVector(*vector))
+    {
+        free(vector->Array);
+    }
+    
     vector->Array = NULL;
     vector->Count = 0;
     vector->Max = 0;
     vector->Size = 0;
 }
- 
