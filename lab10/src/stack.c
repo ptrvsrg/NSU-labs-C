@@ -86,8 +86,10 @@ void* PopStack(TStack* stack)
 void DestroyStack(TStack* stack) 
 {
     free(stack->Array);
-    stack->Count = 0;
     stack->Array = NULL;
+    stack->Count = 0;
+    stack->Max = 0;
+    stack->Size = 0;
 }
 
 void PrintStack(TStack stack, int (*Print)(const void*))
