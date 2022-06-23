@@ -85,7 +85,11 @@ void* PopStack(TStack* stack)
 
 void DestroyStack(TStack* stack) 
 {
-    free(stack->Array);
+    if (!IsEmptyStack(*stack))
+    {
+        free(stack->Array);
+    }
+    
     stack->Array = NULL;
     stack->Count = 0;
     stack->Max = 0;
@@ -94,9 +98,9 @@ void DestroyStack(TStack* stack)
 
 void PrintStack(TStack stack, int (*Print)(const void*))
 {
-    for (int i = 0; i < stack.Count; ++i)
+    while (!IsEmptyStack(stack))
     {
-        if (Print(GetNthElementStack(stack, i)) == EOF)
+        if (Print(PopStack(&stack)) == EOF)
         {
             OtherError(__FILE__, __LINE__);
         }
