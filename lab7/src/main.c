@@ -3,9 +3,10 @@
 #include "stack.h"
 #include "topsort.h"
 
-static int PrintInt(const int* value)
+static int PrintInt(const void* value)
 {
-    return printf("%d ", *value);
+    int* intValue = value;
+    return printf("%d ", *intValue);
 }
 
 int main(void)
