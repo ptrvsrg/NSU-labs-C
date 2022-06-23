@@ -4,10 +4,13 @@ TStack CreateStack(int max, int size)
 {
     TStack stack = { 0, max, size, NULL };
 
-    stack.Array = calloc(max, size);
-    if (stack.Array == NULL)
+    if (max > 0)
     {
-        OtherError(__FILE__, __LINE__);
+        stack.Array = calloc(max, size);
+        if (stack.Array == NULL)
+        {
+            OtherError(__FILE__, __LINE__);
+        }
     }
 
     return stack;
@@ -31,7 +34,7 @@ void AssignStack(int size, const void* src, void* dest)
     }
 }
 
-void* GetNthElementStack(TStack stack, int n)
+void* GetNthStack(TStack stack, int n)
 {
     if (n >= stack.Max)
     {
@@ -48,7 +51,7 @@ void PushStack(void* value, TStack* stack)
         OtherError(__FILE__, __LINE__);
     }
 
-    AssignStack(stack->Size, value, GetNthElementStack(*stack, stack->Count));
+    AssignStack(stack->Size, value, GetNthStack(*stack, stack->Count));
     ++stack->Count;
 }
 
@@ -59,7 +62,7 @@ void* TopStack(TStack stack)
         OtherError(__FILE__, __LINE__);
     }
 
-    return GetNthElementStack(stack, stack.Count - 1);
+    return GetNthStack(stack, stack.Count - 1);
 }
 
 void* NextToTopSTack(TStack stack)
@@ -69,7 +72,7 @@ void* NextToTopSTack(TStack stack)
         OtherError(__FILE__, __LINE__);
     }
 
-    return GetNthElementStack(stack, stack.Count - 2);
+    return GetNthStack(stack, stack.Count - 2);
 }
 
 void* PopStack(TStack* stack)
@@ -80,7 +83,7 @@ void* PopStack(TStack* stack)
     }
 
     --stack->Count;
-    return GetNthElementStack(*stack, stack->Count);
+    return GetNthStack(*stack, stack->Count);
 }
 
 void DestroyStack(TStack* stack) 

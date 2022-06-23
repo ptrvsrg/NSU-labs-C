@@ -17,7 +17,7 @@ typedef struct TStack
 TStack CreateStack(int max, int size);
 bool IsEmptyStack(TStack stack);
 void AssignStack(int size, const void* src, void* dest);
-void* GetNthElementStack(TStack stack, int n);
+void* GetNthStack(TStack stack, int n);
 void PushStack(void* value, TStack* stack);
 void* TopStack(TStack stack);
 void* NextToTopSTack(TStack stack);

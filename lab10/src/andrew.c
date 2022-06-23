@@ -34,9 +34,9 @@ static TPoint FindMin(TVector vector)
 
     for (int i = 0; i < vector.Count; ++i)
     {
-        if (ComparePointX(GetNthElementVector(vector, i), &min) == -1 || (ComparePointX(GetNthElementVector(vector, i), &min) == 0 && ComparePointY(GetNthElementVector(vector, i), &min) == -1))
+        if (ComparePointX(GetNthVector(vector, i), &min) == -1 || (ComparePointX(GetNthVector(vector, i), &min) == 0 && ComparePointY(GetNthVector(vector, i), &min) == -1))
         {
-            min = *((TPoint*)GetNthElementVector(vector, i));
+            min = *((TPoint*)GetNthVector(vector, i));
         } 
     }
 
@@ -49,9 +49,9 @@ static TPoint FindMax(TVector vector)
 
     for (int i = 0; i < vector.Count; ++i)
     {
-        if (ComparePointX(&max, GetNthElementVector(vector, i)) == -1 || (ComparePointX(&max, GetNthElementVector(vector, i)) == 0 && ComparePointY(&max, GetNthElementVector(vector, i)) == -1))
+        if (ComparePointX(&max, GetNthVector(vector, i)) == -1 || (ComparePointX(&max, GetNthVector(vector, i)) == 0 && ComparePointY(&max, GetNthVector(vector, i)) == -1))
         {
-            max = *((TPoint*)GetNthElementVector(vector, i));
+            max = *((TPoint*)GetNthVector(vector, i));
         }  
     }
 
@@ -75,16 +75,16 @@ static TVector CreateLowerVector(TVector vector, TPoint min, TPoint max)
     int index = 0;
     for (int i = 0; i < vector.Count; ++i)
     {
-        long double mult = VectorMultiplication(min, max, *((TPoint*)GetNthElementVector(vector, i)));
+        long double mult = VectorMultiplication(min, max, *((TPoint*)GetNthVector(vector, i)));
         if (mult < 0)
         {
-            AssignVector(vector.Size, GetNthElementVector(vector, i), GetNthElementVector(set, index));
+            AssignVector(vector.Size, GetNthVector(vector, i), GetNthVector(set, index));
             ++index;
         }
     }
 
-    AssignVector(vector.Size, &min, GetNthElementVector(set, index));
-    AssignVector(vector.Size, &max, GetNthElementVector(set, index + 1));
+    AssignVector(vector.Size, &min, GetNthVector(set, index));
+    AssignVector(vector.Size, &max, GetNthVector(set, index + 1));
     set.Count = index + 2;
     
     return set;
@@ -97,16 +97,16 @@ static TVector CreateUpperVector(TVector vector, TPoint min, TPoint max)
     int index = 0;
     for (int i = 0; i < vector.Count; ++i)
     {
-        long double mult = VectorMultiplication(min, max, *((TPoint*)GetNthElementVector(vector, i)));
+        long double mult = VectorMultiplication(min, max, *((TPoint*)GetNthVector(vector, i)));
         if (mult > 0)
         {
-            AssignVector(vector.Size, GetNthElementVector(vector, i), GetNthElementVector(set, index));
+            AssignVector(vector.Size, GetNthVector(vector, i), GetNthVector(set, index));
             ++index;
         }
     }
 
-    AssignVector(vector.Size, &min, GetNthElementVector(set, index));
-    AssignVector(vector.Size, &max, GetNthElementVector(set, index + 1));
+    AssignVector(vector.Size, &min, GetNthVector(set, index));
+    AssignVector(vector.Size, &max, GetNthVector(set, index + 1));
     set.Count = index + 2;
     
     return set;
@@ -133,17 +133,17 @@ static TStack GrahamAlgorithm(TVector vector, int (*compare)(const void*, const 
     
     qsort(vector.Array, vector.Count, vector.Size, compare);
 
-    PushStack(GetNthElementVector(vector, 0), &stack);
-    PushStack(GetNthElementVector(vector, 1), &stack);
+    PushStack(GetNthVector(vector, 0), &stack);
+    PushStack(GetNthVector(vector, 1), &stack);
 
     for (int i = 2; i < vector.Count; ++i)
     {
-        while (stack.Count > 1 && !RotationCheck(*((TPoint*)TopStack(stack)), *((TPoint*)GetNthElementVector(vector, i)), *((TPoint*)NextToTopSTack(stack))))
+        while (stack.Count > 1 && !RotationCheck(*((TPoint*)TopStack(stack)), *((TPoint*)GetNthVector(vector, i)), *((TPoint*)NextToTopSTack(stack))))
         {
             PopStack(&stack);
         }
         
-        PushStack(GetNthElementVector(vector, i), &stack);
+        PushStack(GetNthVector(vector, i), &stack);
     }
     
     return stack;
