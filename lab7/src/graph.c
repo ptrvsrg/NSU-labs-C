@@ -31,7 +31,7 @@ void DestroyGraph(TGraph* graph)
     graph->VertexCount = 0;
 }
 
-int InputVertexCount(void)
+static int InputVertexCount(void)
 {
     int vertexCount = 0;
     if(scanf("%d", &vertexCount) == EOF)
@@ -47,7 +47,7 @@ int InputVertexCount(void)
     return vertexCount;
 }
 
-int InputEdgeCount(int vertexCount)
+static int InputEdgeCount(int vertexCount)
 {
     int edgeCount = 0;
     if(scanf("%d", &edgeCount) == EOF)
@@ -63,7 +63,7 @@ int InputEdgeCount(int vertexCount)
     return edgeCount;
 }
 
-bool InputEdge(int vertexCount, TGraph* graph)
+static bool InputEdge(int vertexCount, TGraph* graph)
 {
     int start = 0;
     if(scanf("%d", &start) == EOF)

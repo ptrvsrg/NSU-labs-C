@@ -17,7 +17,7 @@ TStack CreateStack(int max, int size)
     return stack;
 }
 
-bool IsEmptyStack(TStack stack)
+static bool IsEmptyStack(TStack stack)
 {
     return stack.Count == 0;
 }
@@ -27,7 +27,7 @@ static bool StackOverflow(TStack stack)
     return stack.Count == stack.Max;
 }
 
-void AssignStack(int size, const void* src, void* dest)
+static void AssignStack(int size, const void* src, void* dest)
 {
     for (int i = 0; i < size; ++i)
     {
@@ -35,7 +35,7 @@ void AssignStack(int size, const void* src, void* dest)
     }
 }
 
-void* GetNthStack(TStack stack, int n)
+static void* GetNthStack(TStack stack, int n)
 {
     if (n >= stack.Max)
     {
@@ -58,7 +58,7 @@ void PushStack(void* value, TStack* stack)
     ++stack->Count;
 }
 
-void* PopStack(TStack* stack)
+static void* PopStack(TStack* stack)
 {
     if (IsEmptyStack(*stack))
     {

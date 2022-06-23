@@ -15,11 +15,7 @@ typedef struct TStack
 } TStack;
 
 TStack CreateStack(int max, int size);
-bool IsEmptyStack(TStack stack);
-void AssignStack(int size, const void* src, void* dest);
-void* GetNthStack(TStack stack, int n);
 void PushStack(void* value, TStack* stack);
-void* PopStack(TStack* stack);
 void DestroyStack(TStack* stack);
 void PrintStack(TStack stack, int (*Print)(const void*));
 

@@ -16,9 +16,6 @@ TGraph CreateGraph(int vertexCount);
 bool IsEdgeExists(int start, int end, TGraph graph);
 void PushEdge(int start, int end, TGraph* graph);
 void DestroyGraph(TGraph* graph);
-int InputVertexCount(void);
-int InputEdgeCount(int vertexCount);
-bool InputEdge(int vertexCount, TGraph* graph);
 TGraph InputGraph(void);
 
 #endif
