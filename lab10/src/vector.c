@@ -55,4 +55,7 @@ void DestroyVector(TVector* vector)
     free(vector->Array);
     vector->Array = NULL;
     vector->Count = 0;
+    vector->Max = 0;
+    vector->Size = 0;
 }
+ 
