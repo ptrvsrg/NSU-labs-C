@@ -23,11 +23,6 @@ TGraph CreateGraph(int vertexCount, int edgeCount)
     return graph;
 }
 
-static bool IsEmptyGraph(TGraph graph)
-{
-    return graph.Edges == NULL;
-}
-
 void PushEdge(TEdge edge, TGraph* graph)
 {
     if (graph->EdgeIndex >= graph->EdgeCount)
