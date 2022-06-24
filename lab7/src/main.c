@@ -5,7 +5,7 @@
 
 static int PrintInt(const void* value)
 {
-    int* intValue = value;
+    const int* intValue = value;
     return printf("%d ", *intValue);
 }
 
