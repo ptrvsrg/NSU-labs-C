@@ -7,6 +7,6 @@
 #include "matrix.h"
 #include "stack.h"
 
-TStack TopologicalSort(TGraph* graph);
+void TopologicalSort(TGraph* graph);
 
 #endif
