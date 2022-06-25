@@ -4,22 +4,25 @@ TDSU CreateDSU(int vertexCount)
 {
     TDSU dsu = { NULL, NULL };
 
-    dsu.Parent = calloc(vertexCount, sizeof(*dsu.Parent));
-    if (dsu.Parent == NULL)
+    if (vertexCount > 0)
     {
-        OtherError(__FILE__, __LINE__);
-    }
+        dsu.Parent = calloc(vertexCount, sizeof(*dsu.Parent));
+        if (dsu.Parent == NULL)
+        {
+            OtherError(__FILE__, __LINE__);
+        }
 
-    for (int i = 0; i < vertexCount; ++i)
-    {
-        dsu.Parent[i] = i + 1;
-    }
+        for (int i = 0; i < vertexCount; ++i)
+        {
+            dsu.Parent[i] = i + 1;
+        }
 
-    dsu.Depth = calloc(vertexCount, sizeof(*dsu.Depth));
-    if (dsu.Depth == NULL)
-    {
-        free(dsu.Parent);
-        OtherError(__FILE__, __LINE__);
+        dsu.Depth = calloc(vertexCount, sizeof(*dsu.Depth));
+        if (dsu.Depth == NULL)
+        {
+            free(dsu.Parent);
+            OtherError(__FILE__, __LINE__);
+        }
     }
 
     return dsu;

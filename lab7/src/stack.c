@@ -72,7 +72,11 @@ static void* PopStack(TStack* stack)
 
 void DestroyStack(TStack* stack) 
 {
-    free(stack->Array);
+    if (IsEmptyStack(*stack))
+    {
+        free(stack->Array);
+    }
+    
     stack->Array = NULL;
     stack->Count = 0;
     stack->Max = 0;
