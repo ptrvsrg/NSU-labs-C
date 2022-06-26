@@ -57,7 +57,4 @@ test_script:
   - cd ..
   - rm -rf build_$LAB
 
-  - echo $STATUS1
-  - echo $STATUS2
-  - echo $STATUS3
-  - echo $STATUS4
+  - exit ($STATUS1+$STATUS2+$STATUS3+$STATUS4)
