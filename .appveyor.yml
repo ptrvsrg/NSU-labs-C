@@ -25,33 +25,39 @@ test_script:
   - mkdir -p build_$LAB
   - cd build_$LAB
   - export CTEST_OUTPUT_ON_FAILURE=1
-  - STATUS=0
+  - STATUS1=0
+  - STATUS2=0
+  - STATUS3=0
+  - STATUS4=0
 
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=ON ../$LAB
   - ninja
-  - ninja test || STATUS=1 
+  - ninja test || STATUS1=1 
   - echo -e "${YELLOW} in.txt ${NORMAL}" && head -c 256 in.txt && echo -e "\n${YELLOW} out.txt ${NORMAL}" && head -c 256 out.txt && echo -e "\n"
   - rm -rf *
 
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUNLIMITED=OFF ../$LAB
   - ninja
-  - ninja test || STATUS=1
+  - ninja test || STATUS2=1
   - echo -e "${YELLOW} in.txt ${NORMAL}" && head -c 256 in.txt && echo -e "\n${YELLOW} out.txt ${NORMAL}" && head -c 256 out.txt && echo -e "\n"
   - rm -rf *
 
   - cmake ../$LAB -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
   - ninja
-  - ninja test || STATUS=1
+  - ninja test || STATUS3=1
   - echo -e "${YELLOW} in.txt ${NORMAL}" && head -c 256 in.txt && echo -e "\n${YELLOW} out.txt ${NORMAL}" && head -c 256 out.txt && echo -e "\n"
   - rm -rf *
 
   - cmake ../$LAB -GNinja -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
   - ninja
-  - ninja test || STATUS=1
+  - ninja test || STATUS4=1
   - echo -e "${YELLOW} in.txt ${NORMAL}" && head -c 256 in.txt && echo -e "\n${YELLOW} out.txt ${NORMAL}" && head -c 256 out.txt && echo -e "\n"
   - rm -rf *
 
   - cd ..
   - rm -rf build_$LAB
 
-  - exit $STATUS
+  - echo $STATUS1
+  - echo $STATUS2
+  - echo $STATUS3
+  - echo $STATUS4
