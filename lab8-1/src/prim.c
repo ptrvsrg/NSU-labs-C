@@ -1,8 +1,8 @@
 #include "prim.h"
 
-static int CompareUInt(const unsigned int* a, const unsigned int* b)
+static int CompareUInt(const void* a, const void* b)
 {
-    return (*a > *b) ? 1 : (*a == *b) ? 0 : -1;
+    return (*((unsigned int*)a) > *((unsigned int*)b)) ? 1 : (*((unsigned int*)a) == *((unsigned int*)b)) ? 0 : -1;
 }
 
 TGraph PrimAlgorithm(TGraph* graph)
