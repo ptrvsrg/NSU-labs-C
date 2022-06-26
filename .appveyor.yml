@@ -57,4 +57,5 @@ test_script:
   - cd ..
   - rm -rf build_$LAB
 
-  - exit $STATUS1+$STATUS2+$STATUS3+$STATUS4
+  - let STATUS=$STATUS1+$STATUS2+$STATUS3+$STATUS4
+  - exit $STATUS
