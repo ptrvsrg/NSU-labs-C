@@ -83,16 +83,14 @@ void SiftDown(int index, THeap* heap, int (*compareKey)(const void*, const void*
         int rightChild = 2 * index + 2;
         int largestChild = index;
 
-        void* leftKey = GetNthKeyHeap(*heap, heap->Vertex[leftChild] - 1);
-        void* rightKey = GetNthKeyHeap(*heap, heap->Vertex[rightChild] - 1);
-        void* largestKey = GetNthKeyHeap(*heap, heap->Vertex[largestChild] - 1);
-
-        if (leftChild < heap->Count && compareKey(leftKey, largestKey) < 0)
+        if (leftChild < heap->Count && 
+        compareKey(GetNthKeyHeap(*heap, heap->Vertex[leftChild] - 1), GetNthKeyHeap(*heap, heap->Vertex[largestChild] - 1)) < 0)
         {
             largestChild = leftChild;
         }
 
-        if (rightChild < heap->Count && compareKey(rightKey, largestKey) < 0)
+        if (rightChild < heap->Count && 
+        compareKey(GetNthKeyHeap(*heap, heap->Vertex[rightChild] - 1), GetNthKeyHeap(*heap, heap->Vertex[largestChild] - 1)) < 0)
         {
             largestChild = rightChild;
         }
@@ -115,10 +113,7 @@ void SiftUp(int index, THeap* heap, int (*compareKey)(const void *, const void *
         int parentVertex = heap->Vertex[parent];
         int indexVertex = heap->Vertex[index];
 
-        void* indexKey = GetNthKeyHeap(*heap, indexVertex - 1);
-        void* parentKey = GetNthKeyHeap(*heap, parentVertex - 1);
-
-        if (compareKey(indexKey, parentKey) >= 0)
+        if (compareKey(GetNthKeyHeap(*heap, indexVertex - 1), GetNthKeyHeap(*heap, parentVertex - 1)) >= 0)
         {
             break;
         }
