@@ -185,7 +185,7 @@ void AddMatrixValue(int row, int column, int size, int length, int* matrix)
     matrix[index] = length;
 }
 
-int GetMatrixValue(int row, int column, int size, int* matrix)
+int GetValueMatrix(int row, int column, int size, int* matrix)
 {
     int index = GetMatrixIndex(row, column, size);
     return matrix[index];
@@ -216,9 +216,9 @@ void PushEdge(int begin, int end, int length, TGraph* graph)
     AddMatrixValue(begin - 1, end - 1, graph->VertexCount, length, graph->AdjMatrix);
 }
 
-int GetEdgeLength(int begin, int end, TGraph graph)
+int GetValueGraph(int begin, int end, TGraph graph)
 {
-    return GetMatrixValue(begin - 1, end - 1, graph.VertexCount, graph.AdjMatrix);
+    return GetValueMatrix(begin - 1, end - 1, graph.VertexCount, graph.AdjMatrix);
 }
 
 void DestroyGraph(TGraph* graph)
@@ -394,7 +394,7 @@ uint64_t* DijkstraAlgorithm(int beginVertex, TGraph graph)
                 continue;
             }
 
-            unsigned int length = GetEdgeLength(i + 1, vertex, graph);
+            unsigned int length = GetValueGraph(i + 1, vertex, graph);
             if (length == 0)
             {
                 continue;
@@ -446,7 +446,7 @@ int FindPreviousVertex(int vertexNum, uint64_t* pathArray, TGraph graph)
 {
     for (int i = 0; i < graph.VertexCount; ++i)
     {
-        unsigned int length = GetEdgeLength(vertexNum, i + 1, graph);
+        unsigned int length = GetValueGraph(vertexNum, i + 1, graph);
         if (length != 0 && pathArray[vertexNum - 1] == length + pathArray[i])
         {
             return i + 1;
