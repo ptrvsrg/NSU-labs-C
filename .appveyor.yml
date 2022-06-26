@@ -57,5 +57,4 @@ test_script:
   - cd ..
   - rm -rf build_$LAB
 
-  - let STATUS=$STATUS1+$STATUS2+$STATUS3+$STATUS4
-  - exit $STATUS
+  - ((STATUS1==0)) && ((STATUS2==0)) && ((STATUS3==0)) && ((STATUS4==0))
