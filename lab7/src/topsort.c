@@ -7,12 +7,6 @@ typedef enum
     BLACK
 } TColor;
 
-static int PrintInt(const void* value)
-{
-    const int* intValue = value;
-    return printf("%d ", *intValue);
-}
-
 static void DepthFirstSearch(int numVertex, TColor* status, TStack* numbering, TGraph* graph)
 {
     if(status[numVertex - 1] == GREY)
@@ -34,14 +28,14 @@ static void DepthFirstSearch(int numVertex, TColor* status, TStack* numbering, T
             }
         }
 
-        PushStack(&numVertex, numbering);
+        PushStack(numVertex, numbering);
         status[numVertex- 1] = BLACK;
     }
 }
 
-void TopologicalSort(TGraph* graph)
+TStack TopologicalSort(TGraph* graph)
 {
-    TStack numbering = CreateStack(graph->VertexCount, sizeof(int));
+    TStack numbering = CreateStack(graph->VertexCount);
 
     TColor* status = calloc(graph->VertexCount, sizeof(*status));
     if (status == NULL)
@@ -56,8 +50,7 @@ void TopologicalSort(TGraph* graph)
         DepthFirstSearch(i + 1, status, &numbering, graph);
     }
 
-    PrintStack(numbering, PrintInt);
-
     free(status);
-    DestroyStack(&numbering);
+
+    return numbering;
 }

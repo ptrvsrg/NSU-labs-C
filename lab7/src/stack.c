@@ -1,13 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "stack.h"
 
-TStack CreateStack(int max, int size)
+TStack CreateStack(int max)
 {
-    TStack stack = { 0, max, size, NULL };
+    TStack stack = { 0, max, NULL };
 
     if (max > 0)
     {
-        stack.Array = calloc(max, size);
+        stack.Array = calloc(max, sizeof(int));
         if (stack.Array == NULL)
         {
             OtherError(__FILE__, __LINE__);
@@ -27,26 +27,7 @@ static bool StackOverflow(TStack stack)
     return stack.Count == stack.Max;
 }
 
-static void AssignStack(int size, const void* src, void* dest)
-{
-    for (int i = 0; i < size; ++i)
-    {
-        ((char*)dest)[i] = ((char*)src)[i];
-    }
-}
-
-static void* GetNthStack(TStack stack, int n)
-{
-    if (n >= stack.Max)
-    {
-        DestroyStack(&stack);
-        OtherError(__FILE__, __LINE__);
-    }
-
-    return (char*)stack.Array + n * stack.Size;
-}
-
-void PushStack(void* value, TStack* stack)
+void PushStack(int value, TStack* stack)
 {
     if (StackOverflow(*stack))
     {
@@ -54,11 +35,11 @@ void PushStack(void* value, TStack* stack)
         OtherError(__FILE__, __LINE__);
     }
 
-    AssignStack(stack->Size, value, GetNthStack(*stack, stack->Count));
+    stack->Array[stack->Count] = value;
     ++stack->Count;
 }
 
-static void* PopStack(TStack* stack)
+static int PopStack(TStack* stack)
 {
     if (IsEmptyStack(*stack))
     {
@@ -67,7 +48,7 @@ static void* PopStack(TStack* stack)
     }
 
     --stack->Count;
-    return GetNthStack(*stack, stack->Count);
+    return stack->Array[stack->Count];
 }
 
 void DestroyStack(TStack* stack) 
@@ -77,17 +58,14 @@ void DestroyStack(TStack* stack)
         free(stack->Array);
     }
     
-    stack->Array = NULL;
-    stack->Count = 0;
-    stack->Max = 0;
-    stack->Size = 0;
+    *stack = CreateStack(0);
 }
 
-void PrintStack(TStack stack, int (*Print)(const void*))
+void PrintStack(TStack stack)
 {
     while (!IsEmptyStack(stack))
     {
-        if (Print(PopStack(&stack)) == EOF)
+        if (printf("%d ", PopStack(&stack)) == EOF)
         {
             DestroyStack(&stack);
             OtherError(__FILE__, __LINE__);

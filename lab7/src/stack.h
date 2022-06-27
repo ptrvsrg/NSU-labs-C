@@ -10,13 +10,12 @@ typedef struct TStack
 {
     int Count;
     int Max;
-    int Size;
-    void* Array;
+    int * Array;
 } TStack;
 
-TStack CreateStack(int max, int size);
-void PushStack(void* value, TStack* stack);
+TStack CreateStack(int max);
+void PushStack(int value, TStack* stack);
 void DestroyStack(TStack* stack);
-void PrintStack(TStack stack, int (*Print)(const void*));
+void PrintStack(TStack stack);
 
 #endif 
