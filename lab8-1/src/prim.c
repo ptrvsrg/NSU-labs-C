@@ -1,10 +1,5 @@
 #include "prim.h"
 
-static int CompareUInt(const void* a, const void* b)
-{
-    return (*((unsigned int*)a) > *((unsigned int*)b)) ? 1 : (*((unsigned int*)a) == *((unsigned int*)b)) ? 0 : -1;
-}
-
 TGraph PrimAlgorithm(TGraph* graph)
 {
     TGraph MST = CreateGraph(graph->VertexCount);
@@ -21,13 +16,11 @@ TGraph PrimAlgorithm(TGraph* graph)
         OtherError(__FILE__, __LINE__);
     }
 
-    unsigned int defaultValue = UINT_MAX;
-    unsigned int nullValue = 0;
+    THeap heap = CreateHeap(graph->VertexCount);
+    InitHeap(&heap);
+    heap.Key[0] = 0;
 
-    THeap heap = InitHeap(graph->VertexCount, sizeof(unsigned int), &defaultValue);
-    AssignHeap(sizeof(unsigned int), &nullValue, heap.Key);
-
-    int vertex = ExtractMin(&heap, CompareUInt);
+    int vertex = ExtractMin(&heap);
     extracted[vertex - 1] = true;
     
     while (!IsEmptyHeap(heap))
@@ -45,10 +38,10 @@ TGraph PrimAlgorithm(TGraph* graph)
                 continue;
             } 
 
-            if (CompareUInt(&length, GetNthKeyHeap(heap, i)) < 0)
+            if (length < heap.Key[i])
             {
                 parents[i] = vertex;
-                AssignHeap(sizeof(unsigned int), &length, GetNthKeyHeap(heap, i));
+                heap.Key[i] = length;
 
                 int index = FindVertexIndex(i + 1, heap);
                 if (index == -1)
@@ -61,11 +54,11 @@ TGraph PrimAlgorithm(TGraph* graph)
                     OtherError(__FILE__, __LINE__);
                 }
 
-                SiftUp(index, &heap, CompareUInt);
+                SiftUp(index, &heap);
             }
         } 
 
-        vertex = ExtractMin(&heap, CompareUInt);
+        vertex = ExtractMin(&heap);
         extracted[vertex - 1] = true;   
 
         if (parents[vertex - 1] == 0)

@@ -8,14 +8,12 @@
 typedef struct TMatrix
 {
     int Count;
-    int Size;
-    void* Array;
+    int* Array;
 } TMatrix;
 
-TMatrix CreateMatrix(int count, int size);
-void* GetValueMatrix(int row, int column, TMatrix matrix);
-bool IsNullValueMatrix(int size, void* value);
-void PushMatrix(int row, int column, void* value, TMatrix* matrix);
+TMatrix CreateMatrix(int count);
+int GetValueMatrix(int row, int column, TMatrix matrix);
+void PushMatrix(int row, int column, int value, TMatrix* matrix);
 void DestroyMatrix(TMatrix* matrix);
 
 #endif

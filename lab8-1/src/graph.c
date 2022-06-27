@@ -4,20 +4,19 @@
 
 TGraph CreateGraph(int count)
 {
-    TMatrix matrix = CreateMatrix(count, sizeof(int));
+    TMatrix matrix = CreateMatrix(count);
     TGraph graph = { count, matrix };
     return graph;
 }
 
 void PushEdge(int begin, int end, int length, TGraph* graph)
 {
-    PushMatrix(begin - 1, end - 1, &length, &(graph->Matrix));
+    PushMatrix(begin - 1, end - 1, length, &(graph->Matrix));
 }
 
 int GetLengthGraph(int begin, int end, TGraph graph)
 {
-    int* value = GetValueMatrix(begin - 1, end - 1, graph.Matrix);
-    return *value;
+    return GetValueMatrix(begin - 1, end - 1, graph.Matrix);
 }
 
 void PrintGraph(TGraph graph)

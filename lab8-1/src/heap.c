@@ -1,11 +1,10 @@
 #include "heap.h"
 
-THeap CreateHeap(int max, int size)
+THeap CreateHeap(int max)
 {
     THeap heap;
     heap.Count = 0;
     heap.Max = max;
-    heap.Size = size;
     heap.Vertex = NULL;
     heap.Key = NULL;
 
@@ -17,7 +16,7 @@ THeap CreateHeap(int max, int size)
             OtherError(__FILE__, __LINE__);
         }
 
-        heap.Key = calloc(max, size);
+        heap.Key = calloc(max, sizeof(unsigned int));
         if (heap.Key == NULL)
         {
             OtherError(__FILE__, __LINE__);
@@ -27,26 +26,15 @@ THeap CreateHeap(int max, int size)
     return heap;
 }
 
-THeap InitHeap(int max, int size, const void* defaultValue)
+void InitHeap(THeap* heap)
 {
-    THeap heap = CreateHeap(max, size);
-
-    for (int i = 0; i < max; ++i)
+    for (int i = 0; i < heap->Max; ++i)
     {
-        heap.Vertex[i] = i + 1;
-        AssignHeap(heap.Size, defaultValue, GetNthKeyHeap(heap, i));
-        ++heap.Count;
+        heap->Vertex[i] = i + 1;
+        heap->Key[i] = UINT_MAX;
     }
 
-    return heap;
-}
-
-void AssignHeap(int size, const void* src, void* dest)
-{
-    for (int i = 0; i < size; ++i)
-    {
-        ((char*)dest)[i] = ((char*)src)[i];
-    }
+    heap->Count = heap->Max;
 }
 
 static void Swap(void* value1, void* value2, int size)
@@ -59,23 +47,12 @@ static void Swap(void* value1, void* value2, int size)
     }
 }
 
-void* GetNthKeyHeap(THeap heap, int n)
-{
-    if (n >= heap.Max)
-    {
-        DestroyHeap(&heap);
-        OtherError(__FILE__, __LINE__);
-    }
-
-    return (char*)heap.Key + n * heap.Size;
-}
-
 bool IsEmptyHeap(THeap heap)
 {
     return heap.Count == 0;
 }
 
-void SiftDown(int index, THeap* heap, int (*compareKey)(const void*, const void*))
+void SiftDown(int index, THeap* heap)
 {
     while(true)
     {
@@ -83,14 +60,12 @@ void SiftDown(int index, THeap* heap, int (*compareKey)(const void*, const void*
         int rightChild = 2 * index + 2;
         int largestChild = index;
 
-        if (leftChild < heap->Count && 
-        compareKey(GetNthKeyHeap(*heap, heap->Vertex[leftChild] - 1), GetNthKeyHeap(*heap, heap->Vertex[largestChild] - 1)) < 0)
+        if (leftChild < heap->Count && heap->Key[heap->Vertex[leftChild] - 1] < heap->Key[heap->Vertex[largestChild] - 1])
         {
             largestChild = leftChild;
         }
 
-        if (rightChild < heap->Count && 
-        compareKey(GetNthKeyHeap(*heap, heap->Vertex[rightChild] - 1), GetNthKeyHeap(*heap, heap->Vertex[largestChild] - 1)) < 0)
+        if (rightChild < heap->Count && heap->Key[heap->Vertex[rightChild] - 1] < heap->Key[heap->Vertex[largestChild] - 1])
         {
             largestChild = rightChild;
         }
@@ -105,7 +80,7 @@ void SiftDown(int index, THeap* heap, int (*compareKey)(const void*, const void*
     }
 }
 
-void SiftUp(int index, THeap* heap, int (*compareKey)(const void *, const void *))
+void SiftUp(int index, THeap* heap)
 {
     while (true)
     {
@@ -113,7 +88,7 @@ void SiftUp(int index, THeap* heap, int (*compareKey)(const void *, const void *
         int parentVertex = heap->Vertex[parent];
         int indexVertex = heap->Vertex[index];
 
-        if (compareKey(GetNthKeyHeap(*heap, indexVertex - 1), GetNthKeyHeap(*heap, parentVertex - 1)) >= 0)
+        if (heap->Key[indexVertex - 1] >= heap->Key[parentVertex - 1])
         {
             break;
         }
@@ -123,7 +98,7 @@ void SiftUp(int index, THeap* heap, int (*compareKey)(const void *, const void *
     }
 }
 
-int ExtractMin(THeap* heap, int (*compareKey)(const void*, const void*))
+int ExtractMin(THeap* heap)
 {
     if  (IsEmptyHeap(*heap))
     {
@@ -133,7 +108,7 @@ int ExtractMin(THeap* heap, int (*compareKey)(const void*, const void*))
     int result = *(heap->Vertex);
     Swap(heap->Vertex, heap->Vertex + heap->Count - 1, sizeof(int));
     --heap->Count;
-    SiftDown(0, heap, compareKey);
+    SiftDown(0, heap);
 
     return result;
 }
@@ -155,5 +130,5 @@ void DestroyHeap(THeap* heap)
 {
     free(heap->Vertex);
     free(heap->Key);
-    *heap = CreateHeap(0, 0);
+    *heap = CreateHeap(0);
 }
