@@ -21,19 +21,21 @@ bool InputTemplate(TRingArray* ringArray)
 {
     for (int i = 0; i < ringArray->Count + 1; ++i)
     {    
-        if (fread(ringArray->Array + i, sizeof(char), 1, stdin) != 1)
+        char symbol = 0;
+        if (fread(&symbol, sizeof(char), 1, stdin) != 1)
         {
             return false;
         }
 
-        if (ringArray->Array[i] == '\n')
+        if (symbol == '\n')
         {
-            ringArray->Array[i] = '\0';
             ringArray->EndIndex = i - 1;
             ringArray->Count = i;
 
             return true;
         }
+
+        ringArray->Array[i] = symbol;
     }
     
     return false;
