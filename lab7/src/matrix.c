@@ -55,11 +55,6 @@ bool GetMatrixValue(int row, int column, TMatrix matrix)
 
 void DestroyMatrix(TMatrix* matrix)
 {
-    if (!IsEmptyMatrix(*matrix))
-    {
-        free(matrix->Array);
-    }
-    
-    matrix->Array = NULL;
-    matrix->Size = 0;
+    free(matrix->Array);    
+    *matrix = CreateMatrix(0);
 }
