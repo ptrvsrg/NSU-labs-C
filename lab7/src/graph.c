@@ -28,7 +28,7 @@ void PushEdge(int start, int end, TGraph* graph)
 void DestroyGraph(TGraph* graph)
 {
     DestroyMatrix(&graph->Matrix);
-    graph->VertexCount = 0;
+    *graph = CreateGraph(0);
 }
 
 static int InputVertexCount(void)
