@@ -53,11 +53,7 @@ static int PopStack(TStack* stack)
 
 void DestroyStack(TStack* stack) 
 {
-    if (IsEmptyStack(*stack))
-    {
-        free(stack->Array);
-    }
-    
+    free(stack->Array);
     *stack = CreateStack(0);
 }
 
@@ -65,10 +61,6 @@ void PrintStack(TStack stack)
 {
     while (!IsEmptyStack(stack))
     {
-        if (printf("%d ", PopStack(&stack)) == EOF)
-        {
-            DestroyStack(&stack);
-            OtherError(__FILE__, __LINE__);
-        }
+        printf("%d ", PopStack(&stack));
     }
 }
