@@ -20,11 +20,6 @@ TMatrix CreateMatrix(int size)
     return matrix;
 }
 
-static bool IsEmptyMatrix(TMatrix matrix)
-{
-    return matrix.Array == NULL;
-}
-
 void AddMatrixValue(int row, int column, TMatrix* matrix)
 {
     if (row < 0 || column < 0 || row >= matrix->Size || column >= matrix->Size)
