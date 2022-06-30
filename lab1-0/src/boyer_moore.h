@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "ring_array.h"
+#include "circular_list.h"
 
-void BoyerMooreAlgorithm(TRingArray template);
+void BoyerMooreAlgorithm(TCircularList template);
 
 #endif

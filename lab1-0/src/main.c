@@ -1,19 +1,15 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdlib.h>
 #include "boyer_moore.h"
-#include "ring_array.h"
+#include "circular_list.h"
 #define SIZE_TEMPLATE (int)16
 
 int main(void)
 {
-    TRingArray template = CreateRingArray(SIZE_TEMPLATE);
-    if (!InputTemplate(&template))
-    {
-        return EXIT_SUCCESS;
-    }
-
+    TCircularList template = CreateCircularList(SIZE_TEMPLATE);
+    InputTemplate(SIZE_TEMPLATE, &template);
     BoyerMooreAlgorithm(template);
-    DestroyRingArray(&template);
+    DestroyCircularList(&template);
 
     return EXIT_SUCCESS;
 }

@@ -2,7 +2,7 @@
 #include "boyer_moore.h"
 #define COUNT_CHAR (int)256
 
-static void CreateShiftTable(TRingArray template, int shiftTable[])
+static void CreateShiftTable(TCircularList template, int shiftTable[])
 {
     for (int i = 0; i < COUNT_CHAR; ++i)
     {
@@ -16,15 +16,16 @@ static void CreateShiftTable(TRingArray template, int shiftTable[])
     }
 }
 
-void BoyerMooreAlgorithm(TRingArray template)
+void BoyerMooreAlgorithm(TCircularList template)
 {
     int shiftTable[COUNT_CHAR] = { 0 };
     CreateShiftTable(template, shiftTable);
 
-    TRingArray text = CreateRingArray(template.Count);
-    if (!InputRingArray(&text))
+    TCircularList text = CreateCircularList(template.Count);
+    InputCircularList(template.Count, &text);
+    if (text.Count != template.Count)
     {
-        DestroyRingArray(&text);
+        DestroyCircularList(&text);
         return;
     }
 
@@ -42,9 +43,9 @@ void BoyerMooreAlgorithm(TRingArray template)
             unsigned char symbol = text.Array[(index == 0) ? indexText : text.EndIndex];
             position += shiftTable[(int)symbol] + index;
 
-            if (!ShiftRingArray(&text, shiftTable[(int)symbol]))
+            if (!ShiftCircularList(&text, shiftTable[(int)symbol]))
             {
-                DestroyRingArray(&text);
+                DestroyCircularList(&text);
                 return;
             }
 
@@ -56,9 +57,9 @@ void BoyerMooreAlgorithm(TRingArray template)
         {
             position += text.Count + index;
 
-            if (!ShiftRingArray(&text, text.Count))
+            if (!ShiftCircularList(&text, text.Count))
             {        
-                DestroyRingArray(&text);
+                DestroyCircularList(&text);
                 return;
             }
 

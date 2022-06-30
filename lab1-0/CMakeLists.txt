@@ -3,11 +3,11 @@ project(lab1-0 C)
 
 set(SRC 
     src/boyer_moore.c
+    src/error.h
+    src/circular_list.c
+    src/circular_list.h
     src/boyer_moore.h
     src/error.c
-    src/error.h
-    src/ring_array.c
-    src/ring_array.h
     src/main.c
     )
 
