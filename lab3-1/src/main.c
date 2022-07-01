@@ -1,102 +1,31 @@
-#include <stdbool.h>
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
-#include <stdlib.h>
+#include "vector.h"
 
-bool InputArray(int arraySize, int* array)
+static int InputInt(int* value)
 {
-	for (int i = 0; i < arraySize; ++i)
-	{
-		if (scanf("%d", &array[i]) == EOF)
-        {
-            return false;
-        }
-	}
-
-    return true;
+    return scanf("%d", value);
 }
 
-bool OutputArray(int arraySize, const int* array)
+static int CompareInt(const int* value1, const int* value2)
 {
-	for (int i = 0; i < arraySize; ++i)
-	{
-		if (printf("%d ", array[i]) == EOF)
-        {
-            return false;
-        }
-	}
-
-    return true;
+    return ((*value1) > (*value2)) ? 1 :
+    ((*value1) == (*value2)) ? 0 : -1;
 }
 
-void Swap(int* value1, int* value2)
+static int OutputInt(const int* value)
 {
-	int buffer = *value1;
-	*value1 = *value2;
-	*value2 = buffer;
-}
-
-void QuickSort(int* array, int startPosition, int finishPosition)
-{
-	if (startPosition < finishPosition)
-	{
-		int begin = startPosition;
-		int end = finishPosition;
-		int comprasionValue = array[(startPosition + finishPosition) / 2];
-
-		while (begin < end)
-		{
-			while (array[begin] < comprasionValue)
-			{
-				++begin;
-			}
-			while (array[end] > comprasionValue)
-			{
-				--end;
-			}
-
-			if (begin <= end)
-			{
-				Swap(array + begin, array + end);
-
-				++begin;
-				--end;
-			}
-		}
-
-		QuickSort(array, begin, finishPosition);
-		QuickSort(array, startPosition, end);
-	}
+    return printf("%d ", *value);
 }
 
 int main(void)
 {
-	int arraySize = 0;
-	if (scanf("%d", &arraySize) == EOF)
-    {
-        return EXIT_FAILURE;
-    }
+	freopen("in.txt", "r", stdin);
 
-	int* array = malloc(sizeof(*array) * arraySize);
-    if (array == NULL)
-    {
-        return EXIT_FAILURE;
-    }
-
-	if (!InputArray(arraySize, array))
-    {
-        free(array);
-        return EXIT_FAILURE;
-    }
-
-	QuickSort(array, 0, arraySize - 1);
-
-	if (!OutputArray(arraySize, array))
-    {
-        free(array);
-        return EXIT_FAILURE;
-    }
-
-	free(array);
+	TVector vector = InputVector(sizeof(int), InputInt);
+	QuickSortVector(&vector, CompareInt);
+	OutputVector(vector, OutputInt);
+	DestroyVector(&vector);
 
 	return EXIT_SUCCESS;
 }
