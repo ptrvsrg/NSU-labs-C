@@ -17,14 +17,6 @@ static TVector CreateVector(int max, int size)
     return vector;
 }
 
-static void AssignVector(int size, const void* src, void* dest)
-{
-    for (int i = 0; i < size; ++i)
-    {
-        ((char*)dest)[i] = ((char*)src)[i];
-    }
-}
-
 static void* GetNthVector(TVector vector, int n)
 {
     if (n >= vector.Max)
