@@ -2,26 +2,27 @@
 #include <stdio.h>
 #include "vector.h"
 
-static int InputInt(int* value)
+static int InputInt(void* value)
 {
-    return scanf("%d", value);
+    return scanf("%d", (int*)value);
 }
 
-static int CompareInt(const int* value1, const int* value2)
+static int CompareInt(const void* value1, const void* value2)
 {
-    return ((*value1) > (*value2)) ? 1 :
-    ((*value1) == (*value2)) ? 0 : -1;
+    int intValue1 = *((int*)value1);
+    int intValue2 = *((int*)value2);
+    return intValue1 > intValue2 ? 1 :
+    intValue1 == intValue2 ? 0 : -1;
 }
 
-static int OutputInt(const int* value)
+static int OutputInt(const void* value)
 {
-    return printf("%d ", *value);
+    int intValue = *((int*)value);
+    return printf("%d ", intValue);
 }
 
 int main(void)
 {
-	freopen("in.txt", "r", stdin);
-
 	TVector vector = InputVector(sizeof(int), InputInt);
 	QuickSortVector(&vector, CompareInt);
 	OutputVector(vector, OutputInt);
