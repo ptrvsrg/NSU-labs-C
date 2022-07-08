@@ -145,4 +145,3 @@ void DestroyBitLine(TBitLine* bitLine)
     free(bitLine->Line);
     *bitLine = CreateBitLine(0);
 }
- 
