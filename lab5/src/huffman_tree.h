@@ -10,9 +10,9 @@
 #include "stream.h"
 #include "tree.h"
 
-TList CreateLeafList(TStream* stream);
+TList CreateLeafList(TStream stream);
 TTree CreateHuffmanTree(TList* list);
-void OutputHuffmanTree(TTree huffmanTree, TBitLine* bitLine, TStream* stream);
-TTree InputHuffmanTree(TBitLine* bitLine, TStream* stream);
+void OutputHuffmanTree(TTree huffmanTree, TBitLine* bitLine, TStream stream);
+TTree InputHuffmanTree(TBitLine* bitLine, TStream stream);
 
 #endif

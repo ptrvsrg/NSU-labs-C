@@ -12,8 +12,8 @@ typedef struct TStream
 } TStream;
 
 TStream CreateStream(void);
-int InputStream(void* value, int size, int count, TStream* stream);
-void OutputStream(void* value, int size, int count, TStream* stream);
+int InputStream(void* value, int size, int count, TStream stream);
+void OutputStream(void* value, int size, int count, TStream stream);
 void DestroyStream(TStream* stream);
 
 #endif

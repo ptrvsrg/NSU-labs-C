@@ -102,7 +102,8 @@ TCodeTable CreateHuffmanTable(TTree huffmanTree)
     
     if (count == 1)
     {
-        huffmanTable.Table[0] = CreateCode(huffmanTree->Symbol, 1, "1");
+        TCode code = CreateCode(huffmanTree->Symbol, 1, "1");
+        PushCodeTable(code, &huffmanTable);
         return huffmanTable;
     }
 

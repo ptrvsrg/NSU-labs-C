@@ -19,7 +19,6 @@ TList CreateList(void);
 bool IsEmptyList(TList list);
 void PushList(TTree tree, int frequency,  TList* list);
 TTree PopList(TList* list);
-void FreeElementList(TList* item);
 void DestroyList(TList* list);
 
 #endif

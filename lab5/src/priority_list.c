@@ -17,7 +17,6 @@ void PushList(TTree tree, int frequency, TList* list)
         TList new = malloc(sizeof(*new));
         if (new == NULL)
         {
-            DestroyList(list);
             ExitWithError(__FILE__, __LINE__);
         }
 
@@ -39,21 +38,11 @@ TTree PopList(TList* list)
         ExitWithError(__FILE__, __LINE__);
     }
 
-    TTree removeTree = CloneTree((*list)->Tree);
+    TTree removeTree = (*list)->Tree;
     TList removeItem = *list;
     *list = (*list)->Next;
-    FreeElementList(&removeItem);
+    free(removeItem);
     return removeTree;
-}
-
-void FreeElementList(TList* item)
-{
-    if (!IsEmptyList(*item))
-    {
-        DestroyTree(&(*item)->Tree);
-        free(*item);
-        *item = NULL;
-    }
 }
 
 void DestroyList(TList* list)
@@ -61,6 +50,8 @@ void DestroyList(TList* list)
     if (!IsEmptyList(*list))
     {
         DestroyList(&(*list)->Next);
-        FreeElementList(list);
+        DestroyTree(&(*list)->Tree);
+        free(*list);
+        *list = NULL;
     }
 }

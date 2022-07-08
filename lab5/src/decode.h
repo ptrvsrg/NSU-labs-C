@@ -4,7 +4,8 @@
 #include "bitline.h"
 #include "stream.h"
 #include "huffman_tree.h"
+#include "tree.h"
 
-void Decode(TStream* stream);
+void Decode(TStream stream);
 
 #endif 

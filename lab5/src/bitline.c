@@ -27,7 +27,6 @@ void AddBit(char bit, TBitLine* bitLine)
 {
     if (BitLineOverflow(*bitLine))
     {
-        DestroyBitLine(bitLine);
         ExitWithError(__FILE__, __LINE__);
     }
 
@@ -65,7 +64,7 @@ void AddNullBits(TBitLine* bitLine)
     }
 }
 
-static bool IsEmptyBitLine(TBitLine bitLine)
+bool IsEmptyBitLine(TBitLine bitLine)
 {
     return bitLine.Length == 0;
 }
@@ -74,7 +73,6 @@ char ExtractBit(TBitLine* bitLine)
 {
     if (IsEmptyBitLine(*bitLine))
     {
-        DestroyBitLine(bitLine);
         ExitWithError(__FILE__, __LINE__);
     }
     
@@ -96,7 +94,7 @@ char ExtractSymbol(TBitLine* bitLine)
     return symbol;
 }
 
-void ExtractEncodedSymbol(TTree huffmanTree, TBitLine* bitLine, TStream* stream)
+void ExtractEncodedSymbol(TTree huffmanTree, TBitLine* bitLine, TStream stream)
 {
     if (IsLeaf(huffmanTree))
     {
@@ -125,7 +123,7 @@ void ExtractEncodedSymbol(TTree huffmanTree, TBitLine* bitLine, TStream* stream)
     }
 }
 
-void InputBitline(TBitLine* bitLine, TStream* stream)
+void InputBitline(TBitLine* bitLine, TStream stream)
 {
     unsigned char symbol = 0;
     if (InputStream(&symbol, sizeof(symbol), 1, stream) == EOF)
@@ -136,7 +134,7 @@ void InputBitline(TBitLine* bitLine, TStream* stream)
     AddSymbol(symbol, bitLine);
 }
 
-void OutputBitline(TBitLine* bitLine, TStream* stream)
+void OutputBitline(TBitLine* bitLine, TStream stream)
 {
     unsigned char symbol = ExtractSymbol(bitLine);
     OutputStream(&symbol, sizeof(symbol), 1, stream);

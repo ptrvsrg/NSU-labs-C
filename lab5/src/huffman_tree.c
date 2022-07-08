@@ -2,12 +2,11 @@
 #define BYTE (int)8
 #define CHAR_COUNT (int)256
 
-static int* CreateFrequencyTable(TStream* stream)
+static int* CreateFrequencyTable(TStream stream)
 {
     int* frequencyTable = calloc(CHAR_COUNT, sizeof(int));
     if (frequencyTable == NULL)
     {
-        DestroyStream(stream);
         ExitWithError(__FILE__, __LINE__);
     }
 
@@ -22,16 +21,15 @@ static int* CreateFrequencyTable(TStream* stream)
         ++frequencyTable[(int)symbol];
     }
 
-    if (fseek(stream->In, sizeof(char), SEEK_SET) != 0)
+    if (fseek(stream.In, sizeof(char), SEEK_SET) != 0)
     {
-        DestroyStream(stream);
         ExitWithError(__FILE__, __LINE__);
     }
 
     return frequencyTable;
 }
 
-TList CreateLeafList(TStream* stream)
+TList CreateLeafList(TStream stream)
 {
     int* frequencyTable = CreateFrequencyTable(stream);
     TList list = CreateList();
@@ -71,7 +69,7 @@ TTree CreateHuffmanTree(TList* list)
     return CreateHuffmanTree(list);
 }
 
-static void OutputHuffmanTreeValue(TTree huffmanTree, TBitLine* bitLine, TStream* stream)
+static void OutputHuffmanTreeValue(TTree huffmanTree, TBitLine* bitLine, TStream stream)
 {
     if (IsEmptyTree(huffmanTree))
     {
@@ -97,19 +95,19 @@ static void OutputHuffmanTreeValue(TTree huffmanTree, TBitLine* bitLine, TStream
     }
 }
 
-void OutputHuffmanTree(TTree huffmanTree, TBitLine* bitLine, TStream* stream)
+void OutputHuffmanTree(TTree huffmanTree, TBitLine* bitLine, TStream stream)
 {
     OutputHuffmanTreeValue(huffmanTree, bitLine, stream);
     AddBit('0', bitLine);
 }
 
-TTree InputHuffmanTree(TBitLine* bitLine, TStream* stream)
+TTree InputHuffmanTree(TBitLine* bitLine, TStream stream)
 {
     TStack stack = CreateStack();
 
     while (true)
     {
-        while (*(bitLine->Line) != '0' && bitLine->Length < BYTE + 1)
+        while (IsEmptyBitLine(*bitLine) || (bitLine->Line[bitLine->BeginIndex] != '0' && bitLine->Length < BYTE + 1))
         {
             InputBitline(bitLine, stream);
         }

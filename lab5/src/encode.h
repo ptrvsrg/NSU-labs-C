@@ -10,6 +10,6 @@
 #include "stream.h"
 #include "tree.h"
 
-void Encode(TStream* stream);
+void Encode(TStream stream);
 
 #endif

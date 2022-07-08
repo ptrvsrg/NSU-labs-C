@@ -20,27 +20,25 @@ TStream CreateStream(void)
     return stream;
 }
 
-int InputStream(void* value, int size, int count, TStream* stream)
+int InputStream(void* value, int size, int count, TStream stream)
 {
-    if (fread(value, size, count, stream->In) != count)
+    if (fread(value, size, count, stream.In) != (size_t)count)
     {
-        if (feof(stream->In))
+        if (feof(stream.In))
         {
             return EOF;
         }
 
-        DestroyStream(stream);
         ExitWithError(__FILE__, __LINE__);
     }
 
     return count;
 }
 
-void OutputStream(void* value, int size, int count, TStream* stream)
+void OutputStream(void* value, int size, int count, TStream stream)
 {
-    if (fwrite(value, size, count, stream->Out) != count)
+    if (fwrite(value, size, count, stream.Out) != (size_t)count)
     {
-        DestroyStream(stream);
         ExitWithError(__FILE__, __LINE__);
     }
 }

@@ -14,9 +14,8 @@ struct Ttree
 
 typedef struct Ttree* TTree;
 
-TTree CreateTree(char value, TTree left, TTree right);
 TTree CreateLeaf(char value);
-TTree CloneTree(TTree tree);
+TTree CreateTree(char value, TTree left, TTree right);
 bool IsEmptyTree(TTree tree);
 bool IsLeaf(TTree tree);
 int CountLeaf(TTree tree);

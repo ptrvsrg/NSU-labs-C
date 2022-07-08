@@ -3,7 +3,7 @@
 #define CHAR_COUNT (int)256
 #define MAX_COUNT (BYTE + CHAR_COUNT + 1)
 
-void Decode(TStream* stream)
+void Decode(TStream stream)
 {
     int symbolCount = 0;
     if (InputStream(&symbolCount, sizeof(symbolCount), 1, stream) == EOF)

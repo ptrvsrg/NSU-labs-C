@@ -18,7 +18,6 @@ TStack CreateStack(void);
 bool IsEmptyStack(TStack stack);
 void PushStack(TTree tree, TStack* stack);
 TTree PopStack(TStack* stack);
-void FreeElementStack(TStack* item);
 void DestroyStack(TStack* stack);
 
 #endif 

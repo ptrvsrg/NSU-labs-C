@@ -1,6 +1,6 @@
 #include "tree.h"
 
-TTree CreateTree(char value, TTree left, TTree right)
+TTree CreateLeaf(char value)
 {
     TTree tree = malloc(sizeof(*tree));
     if (tree == NULL)
@@ -9,24 +9,18 @@ TTree CreateTree(char value, TTree left, TTree right)
     }
 
     tree->Symbol = value;
-    tree->Left = left;
-    tree->Right = right;
+    tree->Left = NULL;
+    tree->Right = NULL;
     return tree;
 }
 
-TTree CreateLeaf(char value)
+TTree CreateTree(char value, TTree left, TTree right)
 {
-    return CreateTree(value, NULL, NULL);
-}
-
-TTree CloneTree(TTree tree)
-{
-    if (IsEmptyTree(tree))
-    {
-        return NULL;
-    }
-
-    return CreateTree(tree->Symbol, CloneTree(tree->Left), CloneTree(tree->Right));
+    TTree tree = CreateLeaf(value);
+    tree->Left = left;
+    tree->Right = right;
+    
+    return tree;
 }
 
 bool IsEmptyTree(TTree tree)

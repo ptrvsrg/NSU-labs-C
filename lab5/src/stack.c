@@ -12,10 +12,9 @@ bool IsEmptyStack(TStack stack)
 
 void PushStack(TTree tree, TStack* stack)
 {
-    TStack new = malloc(sizeof(*stack));
+    TStack new = malloc(sizeof(*new));
     if (new == NULL)
     {
-        DestroyStack(stack);
         ExitWithError(__FILE__, __LINE__);
     }
 
@@ -31,21 +30,11 @@ TTree PopStack(TStack* stack)
         ExitWithError(__FILE__, __LINE__);
     }
 
-    TTree removeTree = CloneTree((*stack)->Tree);
+    TTree removeTree = (*stack)->Tree;
     TStack removeItem = *stack;
     *stack = (*stack)->Next;
-    FreeElementStack(&removeItem);
+    free(removeItem);
     return removeTree;
-}
-
-void FreeElementStack(TStack* item)
-{
-    if (!IsEmptyStack(*item))
-    {
-        DestroyTree(&(*item)->Tree);
-        free(*item);
-        *item = NULL;
-    }
 }
 
 void DestroyStack(TStack* stack)
@@ -53,7 +42,9 @@ void DestroyStack(TStack* stack)
     if (!IsEmptyStack(*stack))
     {
         DestroyStack(&(*stack)->Next);
-        FreeElementStack(stack);
+        DestroyTree(&(*stack)->Tree);
+        free(*stack);
+        *stack = NULL;
     }
 }
 

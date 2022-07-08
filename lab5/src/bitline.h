@@ -23,11 +23,12 @@ void AddBit(char bit, TBitLine* bitLine);
 void AddSymbol(unsigned char symbol, TBitLine* bitLine);
 void AddSymbolCode(char symbol, TCodeTable huffmanTable, TBitLine* bitLine);
 void AddNullBits(TBitLine* bitLine);
+bool IsEmptyBitLine(TBitLine bitLine);
 char ExtractBit(TBitLine* bitLine);
 char ExtractSymbol(TBitLine* bitLine);
-void ExtractEncodedSymbol(TTree huffmanTree, TBitLine* bitLine, TStream* stream);
-void InputBitline(TBitLine* bitLine, TStream* stream);
-void OutputBitline(TBitLine* bitLine, TStream* stream);
+void ExtractEncodedSymbol(TTree huffmanTree, TBitLine* bitLine, TStream stream);
+void InputBitline(TBitLine* bitLine, TStream stream);
+void OutputBitline(TBitLine* bitLine, TStream stream);
 void DestroyBitLine(TBitLine* bitLine);
 
 #endif

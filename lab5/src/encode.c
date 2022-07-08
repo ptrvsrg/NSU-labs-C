@@ -3,7 +3,7 @@
 #define CHAR_COUNT (int)256
 #define MAX_COUNT (BYTE + CHAR_COUNT + 1)
 
-static void OutputEncodedMessage(TCodeTable huffmanTable, TBitLine* bitLine, TStream* stream)
+static void OutputEncodedMessage(TCodeTable huffmanTable, TBitLine* bitLine, TStream stream)
 {
     while (true)
     {
@@ -28,7 +28,7 @@ static void OutputEncodedMessage(TCodeTable huffmanTable, TBitLine* bitLine, TSt
     }
 }
 
-void Encode(TStream* stream)
+void Encode(TStream stream)
 {
     TList list = CreateLeafList(stream);
     if (IsEmptyList(list))
