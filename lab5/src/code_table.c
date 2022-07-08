@@ -57,9 +57,14 @@ int GetCodeIndex(char symbol, TCodeTable table)
     return -1;
 }
 
+static bool CodeTableOverflow(TCodeTable table)
+{
+    return table.Max == table.Count;
+}
+
 static void PushCodeTable(TCode code, TCodeTable* table)
 {
-    if (table->Max == table->Count)
+    if (CodeTableOverflow(*table))
     {
         ExitWithError(__FILE__, __LINE__);
     }
