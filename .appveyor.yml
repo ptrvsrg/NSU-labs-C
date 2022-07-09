@@ -1,5 +1,5 @@
 image:
-  - Ubuntu2204
+  - Ubuntu2004
 
 environment:
   matrix:
