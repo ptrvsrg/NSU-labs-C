@@ -19,6 +19,8 @@ environment:
     - LAB: lab10
 
 test_script:
+  - sudo apt-get install -y ninja-build
+  
   - export NORMAL='\033[0m'
   - export YELLOW='\033[1;33m'
 
