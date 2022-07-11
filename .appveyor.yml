@@ -17,6 +17,7 @@ environment:
     - LAB: lab8-1
     - LAB: lab9
     - LAB: lab10
+    - LAB: lab11
 
 test_script:
   - sudo apt-get install -y ninja-build
