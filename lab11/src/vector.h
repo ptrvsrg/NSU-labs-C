@@ -16,7 +16,7 @@ typedef struct TVector
 TVector CreateVector(int size, int max);
 void* GetVectorValue(int index, TVector vector);
 void PushFrontVector(void* value, TVector* vector);
-TVector ScanReverseVector(int size, int count, void (*Scan)(void*));
+TVector ScanReverseVector(int size, int count, int (*Scan)(void*));
 void DestroyVector(TVector* vector);
 
 #endif
