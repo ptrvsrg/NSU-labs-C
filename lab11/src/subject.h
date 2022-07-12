@@ -12,7 +12,7 @@ typedef struct TSubject
 } TSubject;
 
 TSubject CreateSubject(int price, int weight);
-int ScanSubject(TSubject* subject);
-int PrintSubject(const TSubject* subject);
+int ScanSubject(void* subject);
+int PrintSubject(const void* subject);
 
 #endif
