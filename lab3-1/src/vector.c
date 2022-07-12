@@ -17,6 +17,14 @@ static TVector CreateVector(int max, int size)
     return vector;
 }
 
+static void AssignVector(void* dest, const void* src, int size)
+{
+    for (int i = 0; i < size; ++i)
+    {
+        ((char*)dest)[i] = ((char*)src)[i];
+    }
+}
+
 static void* GetNthVector(TVector vector, int n)
 {
     if (n >= vector.Max)
@@ -93,7 +101,14 @@ static void HelperQuickSort(TVector* vector, int startPosition, int finishPositi
 	{
 		int begin = startPosition;
 		int end = finishPosition;
-		void* comprasionValue = GetNthVector(*vector, (startPosition + finishPosition) / 2);
+		void* comprasionValue = malloc(vector->Size);
+        if (comprasionValue == NULL)
+        {
+            DestroyVector(vector);
+            OtherError(__FILE__, __LINE__);
+        }
+
+        AssignVector(comprasionValue, GetNthVector(*vector, (startPosition + finishPosition) / 2), vector->Size);
         void* beginValue = GetNthVector(*vector, begin);
         void* endValue = GetNthVector(*vector, end);
 
@@ -104,7 +119,7 @@ static void HelperQuickSort(TVector* vector, int startPosition, int finishPositi
 				++begin;
                 beginValue = GetNthVector(*vector, begin);
 			}
-			while (compare(comprasionValue, endValue) < 0)
+			while (compare(endValue, comprasionValue) > 0)
 			{
 				--end;
                 endValue = GetNthVector(*vector, end);
