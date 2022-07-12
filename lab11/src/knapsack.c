@@ -12,7 +12,7 @@ TTable CreateMemTable(int maxWeight, TVector subjectVector)
 {
     TTable memTable = CreateTable(subjectVector.Count, maxWeight, sizeof(int));
 
-    TSubject* subject = GetVectorValue(0, subjectVector));
+    TSubject* subject = GetVectorValue(0, subjectVector);
     for (int j = 0; j < memTable.Column; ++j)
     {
         int nullValue = 0;
@@ -28,21 +28,21 @@ TTable CreateMemTable(int maxWeight, TVector subjectVector)
 
     for (int i = 1; i < memTable.Row; ++i)
     {
-        subject = GetVectorValue(i, subjectVector));
+        subject = GetVectorValue(i, subjectVector);
         for (int j = 0; j < memTable.Column; ++j)
         {
             if (subject->Weight > j + 1)
             {
                 SetTableValue(GetTableValue(i - 1, j, memTable), i, j, &memTable);
             }
-            else if (subject.Weight == j + 1)
+            else if (subject->Weight == j + 1)
             {
                 const int* value = MaxInt(&subject->Price, GetTableValue(i - 1, j, memTable));
                 SetTableValue(value, i, j, &memTable);
             } 
             else
             {
-                int sum = subject.Price + *((int*)GetTableValue(i - 1, j - subject->Weight, memTable));
+                int sum = subject->Price + *((int*)GetTableValue(i - 1, j - subject->Weight, memTable));
                 const int* value = MaxInt(&sum, GetTableValue(i - 1, j, memTable));
                 SetTableValue(value, i, j, &memTable);
             }
