@@ -11,8 +11,9 @@ TSubject CreateSubject(int price, int weight)
     return subject;
 }
 
-int ScanSubject(TSubject* subject)
+int ScanSubject(void* value)
 {
+    TSubject* subject = (TSubject*)value;
     int status = scanf("%d%d", &subject->Weight, &subject->Price);
 
     if (subject->Weight < 0 || subject->Price < 0)
@@ -24,8 +25,9 @@ int ScanSubject(TSubject* subject)
     (status == EOF) ? EOF : 0;
 }
 
-int PrintSubject(const TSubject* subject)
+int PrintSubject(const void* value)
 {
+    TSubject* subject = (TSubject*)value;
     int status = printf("%d %d\n", subject->Weight, subject->Price);
 
     if (subject->Weight < 0 || subject->Price < 0)
