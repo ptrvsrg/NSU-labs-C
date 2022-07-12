@@ -136,6 +136,7 @@ static void HelperQuickSort(TVector* vector, int startPosition, int finishPositi
 			}
 		}
 
+        free(comprasionValue);
 		HelperQuickSort(vector, begin, finishPosition, compare);
 		HelperQuickSort(vector, startPosition, end, compare);
 	}
