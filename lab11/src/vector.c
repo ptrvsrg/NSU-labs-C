@@ -31,11 +31,6 @@ void* GetVectorValue(int index, TVector vector)
     return (char*)vector.Array + index * vector.Size;
 }
 
-static bool IsEmptyVector(TVector vector)
-{
-    return vector.Count == 0;
-}
-
 static bool VectorOverflow(TVector vector)
 {
     return vector.Count == vector.Max;
