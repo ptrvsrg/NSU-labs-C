@@ -48,8 +48,7 @@ TVector InputVector(int size, int (*input)(void*))
 
     for (int i = 0; i < max; ++i)
     {
-        void* value = GetNthVector(vector, i);
-        if (input(value) == EOF)
+        if (input(GetNthVector(vector, i)) == EOF)
         {
             DestroyVector(&vector);
             OtherError(__FILE__, __LINE__);
