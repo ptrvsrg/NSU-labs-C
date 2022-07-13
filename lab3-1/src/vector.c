@@ -1,13 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "vector.h"
 
-static TVector CreateVector(int max, int size)
+static TVector CreateVector(int max)
 {
-    TVector vector = { 0, max, size, NULL};
+    TVector vector = { 0, max, NULL};
 
     if (max > 0)
     {
-        vector.Array = calloc(max, size);
+        vector.Array = calloc(max, sizeof(int));
         if (vector.Array == NULL)
         {
             OtherError(__FILE__, __LINE__);
@@ -17,18 +17,7 @@ static TVector CreateVector(int max, int size)
     return vector;
 }
 
-static void* GetNthVector(TVector vector, int n)
-{
-    if (n >= vector.Max)
-    {
-        DestroyVector(&vector);
-        OtherError(__FILE__, __LINE__);
-    }
-
-    return (char*)vector.Array + n * vector.Size;
-}
-
-TVector InputVector(int size, int (*input)(void*))
+TVector InputVector()
 {
     int max = 0;
     if (scanf("%d", &max) == EOF)
@@ -36,12 +25,11 @@ TVector InputVector(int size, int (*input)(void*))
         OtherError(__FILE__, __LINE__);
     }
 
-    TVector vector = CreateVector(max, size);
+    TVector vector = CreateVector(max);
 
     for (int i = 0; i < max; ++i)
     {
-        void* value = GetNthVector(vector, i);
-        if (input(value) == EOF)
+        if (scanf("%d", vector.Array + i) == EOF)
         {
             DestroyVector(&vector);
             OtherError(__FILE__, __LINE__);
@@ -53,11 +41,11 @@ TVector InputVector(int size, int (*input)(void*))
     return vector;
 }
 
-void OutputVector(TVector vector, int (*output)(const void*))
+void OutputVector(TVector vector)
 {
     for (int i = 0; i < vector.Count; ++i)
     {
-        if (output(GetNthVector(vector, i)) == EOF)
+        if (printf("%d ", vector.Array[i]) == EOF)
         {
             DestroyVector(&vector);
             OtherError(__FILE__, __LINE__);
@@ -68,20 +56,17 @@ void OutputVector(TVector vector, int (*output)(const void*))
 void DestroyVector(TVector* vector)
 {
     free(vector->Array);
-    *vector = CreateVector(0, 0);
+    *vector = CreateVector(0);
 }
 
-static void Swap(void* value1, void* value2, int size)
+static void Swap(int* value1, int* value2)
 {
-    for (int i = 0; i < size; ++i)
-    {
-        char buffer = ((char*)value1)[i];
-        ((char*)value1)[i] = ((char*)value2)[i];
-        ((char*)value2)[i] = buffer;
-    }
+    int buffer = *value1;
+    *value1 = *value2;
+    *value2 = buffer;
 }
 
-static void HelperQuickSort(TVector* vector, int startPosition, int finishPosition, int (*compare)(const void*, const void*))
+static void HelperQuickSort(TVector* vector, int startPosition, int finishPosition)
 {
     if (startPosition < 0 || finishPosition >= vector->Count)
     {
@@ -93,40 +78,34 @@ static void HelperQuickSort(TVector* vector, int startPosition, int finishPositi
 	{
 		int begin = startPosition;
 		int end = finishPosition;
-		void* comprasionValue = GetNthVector(*vector, (startPosition + finishPosition) / 2);
-        void* beginValue = GetNthVector(*vector, begin);
-        void* endValue = GetNthVector(*vector, end);
+		int comprasionValue = vector->Array[(startPosition + finishPosition) / 2];
 
 		while (begin < end)
 		{
-			while (compare(beginValue, comprasionValue) < 0)
+			while (vector->Array[begin] < comprasionValue)
 			{
 				++begin;
-                beginValue = GetNthVector(*vector, begin);
 			}
-			while (compare(comprasionValue, endValue) < 0)
+			while (vector->Array[end] > comprasionValue)
 			{
 				--end;
-                endValue = GetNthVector(*vector, end);
 			}
 
 			if (begin <= end)
 			{
-				Swap(beginValue, endValue, vector->Size);
+				Swap(vector->Array + begin, vector->Array + end);
 
 				++begin;
-                beginValue = GetNthVector(*vector, begin);
 				--end;
-                endValue = GetNthVector(*vector, end);
 			}
 		}
 
-		HelperQuickSort(vector, begin, finishPosition, compare);
-		HelperQuickSort(vector, startPosition, end, compare);
+		HelperQuickSort(vector, begin, finishPosition);
+		HelperQuickSort(vector, startPosition, end);
 	}
 }
 
-void QuickSortVector(TVector* vector, int (*compare)(const void*, const void*))
+void QuickSortVector(TVector* vector)
 {
-    HelperQuickSort(vector, 0, vector->Count - 1, compare);
+    HelperQuickSort(vector, 0, vector->Count - 1);
 }

@@ -10,13 +10,12 @@ typedef struct TVector
 {
     int Count;
     int Max;
-    int Size;
-    void* Array;
+    int* Array;
 } TVector;
 
-TVector InputVector(int size, int (*input)(void*));
-void OutputVector(TVector vector, int (*output)(const void*));
+TVector InputVector();
+void OutputVector(TVector vector);
 void DestroyVector(TVector* vector);
-void QuickSortVector(TVector* vector, int (*compare)(const void*, const void*));
+void QuickSortVector(TVector* vector);
 
 #endif 
