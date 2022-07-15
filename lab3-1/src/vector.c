@@ -66,46 +66,51 @@ static void Swap(int* value1, int* value2)
     *value2 = buffer;
 }
 
-static void HelperQuickSort(TVector* vector, int startPosition, int finishPosition)
-{
-    if (startPosition < 0 || finishPosition >= vector->Count)
-    {
-        DestroyVector(vector);
-        OtherError(__FILE__, __LINE__);
-    }
-
-	if (startPosition < finishPosition)
-	{
-		int begin = startPosition;
-		int end = finishPosition;
-		int comprasionValue = vector->Array[(startPosition + finishPosition) / 2];
-
-		while (begin < end)
-		{
-			while (vector->Array[begin] < comprasionValue)
-			{
-				++begin;
-			}
-			while (vector->Array[end] > comprasionValue)
-			{
-				--end;
-			}
-
-			if (begin <= end)
-			{
-				Swap(vector->Array + begin, vector->Array + end);
-
-				++begin;
-				--end;
-			}
-		}
-
-		HelperQuickSort(vector, begin, finishPosition);
-		HelperQuickSort(vector, startPosition, end);
-	}
-}
-
 void QuickSortVector(TVector* vector)
 {
-    HelperQuickSort(vector, 0, vector->Count - 1);
+    if (vector->Count > 1)
+    {
+        int beginPosition = 0;
+        int endPosition = vector->Count - 1;
+        int comprasionValue = vector->Array[endPosition / 2];
+
+        while (beginPosition < endPosition)
+        {
+            while (vector->Array[beginPosition] < comprasionValue)
+            {
+                ++beginPosition;
+            }
+            while (vector->Array[endPosition] > comprasionValue)
+            {
+                --endPosition;
+            }
+
+            if (beginPosition <= endPosition)
+            {
+                Swap(vector->Array + beginPosition, vector->Array + endPosition);
+
+                ++beginPosition;
+                --endPosition;
+            }
+        }
+
+        if (endPosition > 0)
+        {
+            int vectorCount = vector->Count;
+            vector->Count = endPosition + 1;
+            QuickSortVector(vector);
+            vector->Count = vectorCount;
+        }
+
+        if (beginPosition < vector->Count - 1)
+        {
+            int* vectorArray = vector->Array;
+            int vectorCount = vector->Count;
+            vector->Array = vector->Array + beginPosition;
+            vector->Count = vector->Count - beginPosition;
+            QuickSortVector(vector);
+            vector->Array = vectorArray;
+            vector->Count = vectorCount;
+        }
+    }
 }
