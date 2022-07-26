@@ -5,7 +5,6 @@ $STATUS = 0
 if (Test-Path -Path $BUILD_DIR) { Remove-Item $BUILD_DIR -Force -Recurse 2>&1 > $null }
 New-Item -Path $BUILD_DIR -ItemType "directory" 2>&1 > $null
 Set-Location -Path $BUILD_DIR
-Copy-Item -Path "../.static/img.shields.io/badge/$LAB-failed-blue.svg" -Destination "status.svg"
 
 function PrintInOut
 {
@@ -51,4 +50,4 @@ ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 4)
 if ($STATUS -eq 4) { PrintInOut }
 Set-Location ../../
 
-if ($STATUS -eq 0) { Copy-Item -Path "../.static/img.shields.io/badge/$LAB-passed-green.svg" -Destination "status.svg" }
+exit $STATUS
