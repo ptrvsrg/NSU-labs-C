@@ -3,14 +3,12 @@ image:
 - Ubuntu2004
 
 environment:
-  LAB: master
   matrix:
   - job_name: test
 
   - job_name: lab_test
     job_depends_on: test
-    variable:
-      LAB: lab0
+    LAB: lab0
     except:
       refs:
       - master
