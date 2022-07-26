@@ -20,13 +20,9 @@ environment:
 
   - job_name: lab1-1
     job_depends_on: master_test
-    variable:
-      LAB: lab1-1
 
   - job_name: lab2
     job_depends_on: master_test
-    variable:
-      LAB: lab2
 
   - job_name: lab3-0
     job_depends_on: master_test
