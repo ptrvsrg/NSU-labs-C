@@ -3,6 +3,19 @@ image:
 - Ubuntu2004
 - Visual Studio 2019
 
+environment:
+  matrix:
+
+  - job_name: master
+    branches:
+      only:
+        - master
+
+  - job_name: ${APPVEYOR_REPO_BRANCH}
+    branches:
+      except:
+        - master
+
 before_test:
 - ps: >-
     function PrintInOut 
