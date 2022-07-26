@@ -3,6 +3,7 @@ image:
 - Ubuntu2004
 
 environment:
+  LAB: master
   matrix:
   - job_name: test
 
