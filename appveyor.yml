@@ -25,7 +25,6 @@ before_test:
     }
 - ps: New-Item -Path $BUILD_DIR -ItemType "directory" 2>&1 > $null
 - ps: Set-Location -Path $BUILD_DIR
-- ps: Copy-Item -Path "../.static/img.shields.io/badge/$LAB-failed-blue.svg" -Destination "status.svg"
 
 test_script:
 - ps: New-Item -Path "Test1" -ItemType "directory" 2>&1 > $null
@@ -81,11 +80,6 @@ test_script:
 - ps: Set-Location ../../
 
 after_test:
-- ps: >-
-    if ($STATUS -eq 0) 
-    { 
-      Copy-Item -Path "../.static/img.shields.io/badge/$LAB-passed-green.svg" -Destination "status.svg" 
-    }
 - ps: exit $STATUS
 
 notifications:
