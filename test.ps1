@@ -1,4 +1,3 @@
-$LAB = $args[0]
 $BUILD_DIR = "build_$LAB"
 $STATUS = 0
 

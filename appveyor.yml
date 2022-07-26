@@ -33,7 +33,7 @@ for:
 
 test_script:
   - ps: echo $LAB
-  - ps: ./test.ps1 $LAB
+  - ps: ./test.ps1
 
 notifications:
 - provider: Email
