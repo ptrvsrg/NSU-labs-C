@@ -1,6 +1,7 @@
 version: 1.0.{build}
 image:
 - Ubuntu2004
+- Visual Studio 2019
 
 for:
 -
@@ -31,6 +32,7 @@ for:
       - LAB: $env:APPVEYOR_REPO_BRANCH
 
 test_script:
+  - ps: echo $LAB
   - ps: ./test.ps1 $LAB
 
 notifications:
