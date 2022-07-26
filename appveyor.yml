@@ -7,7 +7,7 @@ environment:
   matrix:
 
   - job_name: master
-  - job_name: ${APPVEYOR_REPO_BRANCH}
+  - job_name: $APPVEYOR_REPO_BRANCH
 
 before_test:
 - ps: >-
