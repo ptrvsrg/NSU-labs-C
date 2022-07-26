@@ -5,20 +5,24 @@ image:
 
 before_test:
 - ps: >-
-  function PrintInOut {
-    if ((Test-Path -Path "in.txt") -and (Test-Path -Path "out.txt")) {
-      Write-Host -ForegroundColor Yellow "in.txt"
-      -join [char[]](Get-Content -Path "in.txt" -AsByteStream -totalcount 256)
-      Write-Host -ForegroundColor Yellow "out.txt"
-      -join [char[]](Get-Content -Path "out.txt" -AsByteStream -totalcount 256)
-      Write-Host ""
-    } }
+    function PrintInOut 
+    {
+      if ((Test-Path -Path "in.txt") -and (Test-Path -Path "out.txt"))
+      {
+        Write-Host -ForegroundColor Yellow "in.txt"
+        -join [char[]](Get-Content -Path "in.txt" -AsByteStream -totalcount 256)
+        Write-Host -ForegroundColor Yellow "out.txt"
+        -join [char[]](Get-Content -Path "out.txt" -AsByteStream -totalcount 256)
+        Write-Host ""
+      }
+    }
 - ps: $BUILD_DIR = "build_$LAB"
 - ps: $STATUS = 0
 - ps: >-
-  if (Test-Path -Path $BUILD_DIR) { 
-    Remove-Item $BUILD_DIR -Force -Recurse 2>&1 > $null 
-  }
+    if (Test-Path -Path $BUILD_DIR) 
+    { 
+      Remove-Item $BUILD_DIR -Force -Recurse 2>&1 > $null 
+    }
 - ps: New-Item -Path $BUILD_DIR -ItemType "directory" 2>&1 > $null
 - ps: Set-Location -Path $BUILD_DIR
 - ps: Copy-Item -Path "../.static/img.shields.io/badge/$LAB-failed-blue.svg" -Destination "status.svg"
@@ -31,9 +35,10 @@ test_script:
 - ps: cmake --build . --config Debug
 - ps: ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 1)
 - ps: >-
-  if ($STATUS -eq 1) {
-    PrintInOut
-  }
+    if ($STATUS -eq 1) 
+    {
+      PrintInOut
+    }
 - ps: Set-Location ../
 
 - ps: New-Item -Path "Test2" -ItemType "directory" 2>&1 > $null
@@ -43,9 +48,10 @@ test_script:
 - ps: cmake --build . --config Debug
 - ps: ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 2)
 - ps: >-
-  if ($STATUS -eq 2) { 
-    PrintInOut
-  }
+    if ($STATUS -eq 2) 
+    { 
+      PrintInOut
+    }
 - ps: Set-Location ../
 
 - ps: New-Item -Path "Test3" -ItemType "directory" 2>&1 > $null
@@ -55,9 +61,10 @@ test_script:
 - ps: cmake --build . --config Debug
 - ps: ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 3)
 - ps: >-
-  if ($STATUS -eq 3) { 
-    PrintInOut 
-  }
+    if ($STATUS -eq 3) 
+    { 
+      PrintInOut 
+    }
 - ps: Set-Location ../
 
 - ps: New-Item -Path "Test4" -ItemType "directory" 2>&1 > $null
@@ -67,16 +74,18 @@ test_script:
 - ps: cmake --build . --config Debug
 - ps: ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 4)
 - ps: >-
-  if ($STATUS -eq 4) { 
-    PrintInOut 
-  }
+    if ($STATUS -eq 4) 
+    { 
+      PrintInOut 
+    }
 - ps: Set-Location ../../
 
 after_test:
 - ps: >-
-  if ($STATUS -eq 0) { 
-    Copy-Item -Path "../.static/img.shields.io/badge/$LAB-passed-green.svg" -Destination "status.svg" 
-  }
+    if ($STATUS -eq 0) 
+    { 
+      Copy-Item -Path "../.static/img.shields.io/badge/$LAB-passed-green.svg" -Destination "status.svg" 
+    }
 - ps: exit $STATUS
 
 notifications:
