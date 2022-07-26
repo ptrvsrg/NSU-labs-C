@@ -29,7 +29,7 @@ for:
 - #other branch test
   environment:
     matrix:
-    - LAB: {APPVEYOR_REPO_BRANCH}
+    - LAB: '{{APPVEYOR_REPO_BRANCH}}'
 
 before_test:
 - ps: echo $LAB
