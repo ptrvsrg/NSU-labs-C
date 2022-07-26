@@ -12,8 +12,7 @@ before_test:
       Write-Host -ForegroundColor Yellow "out.txt"
       -join [char[]](Get-Content -Path "out.txt" -AsByteStream -totalcount 256)
       Write-Host ""
-    }
-  }
+    } }
 - ps: $BUILD_DIR = "build_$LAB"
 - ps: $STATUS = 0
 - ps: >-
