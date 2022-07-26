@@ -52,7 +52,7 @@ void InputCircularList(int count, TCircularList* circularList)
         OtherError(__FILE__, __LINE__);
     }
 
-    int readCount = fread(circularList->Array, sizeof(char), count, stdin);
+    int readCount = (int)fread(circularList->Array, sizeof(char), count, stdin);
 
     circularList->Count = readCount;
     circularList->EndIndex = readCount - 1;
