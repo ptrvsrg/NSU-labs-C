@@ -6,12 +6,12 @@ environment:
   matrix:
   - job_name: test
 
-  - job_name: lab_test
-    job_depends_on: test
-    LAB: lab0
-    branches:
-      except:
-      - master
+  #- job_name: lab_test
+  #  job_depends_on: test
+  #  LAB: lab0
+  #  branches:
+  #    except:
+  #    - master
 
   - job_name: master_test
     job_depends_on: test
@@ -22,23 +22,19 @@ environment:
 
   - job_name: lab0
     job_depends_on: master_test
-    variable:
-      LAB: lab0
+    LAB: lab0
 
   - job_name: lab1-0
     job_depends_on: master_test
-    variable:
-      LAB: lab1-0
+    LAB: lab1-0
 
   - job_name: lab1-1
     job_depends_on: master_test
-    variable:
-      LAB: lab1-1
+    LAB: lab1-1
 
   - job_name: lab2
     job_depends_on: master_test
-    variable:
-      LAB: lab2
+    LAB: lab2
 
   - job_name: lab3-0
     job_depends_on: master_test
@@ -47,53 +43,43 @@ environment:
 
   - job_name: lab3-1
     job_depends_on: master_test
-    variable:
-      LAB: lab3-1
+    LAB: lab3-1
 
   - job_name: lab4
     job_depends_on: master_test
-    variable:
-      LAB: lab4
+    LAB: lab4
 
   - job_name: lab5
     job_depends_on: master_test
-    variable:
-      LAB: lab5
+    LAB: lab5
 
   - job_name: lab6
     job_depends_on: master_test
-    variable:
-      LAB: lab6
+    LAB: lab6
 
   - job_name: lab7
     job_depends_on: master_test
-    variable:
-      LAB: lab7
+    LAB: lab7
 
   - job_name: lab8-0
     job_depends_on: master_test
-    variable:
-      LAB: lab8-0
+    LAB: lab8-0
 
   - job_name: lab8-1
     job_depends_on: master_test
-    variable:
-      LAB: lab8-1
+    LAB: lab8-1
 
   - job_name: lab9
     job_depends_on: master_test
-    variable:
-      LAB: lab9
+    LAB: lab9
 
   - job_name: lab10
     job_depends_on: master_test
-    variable:
-      LAB: lab10
+    LAB: lab10
 
   - job_name: lab11
     job_depends_on: master_test
-    variable:
-      LAB: lab11
+    LAB: lab11
 
 for:
   -
