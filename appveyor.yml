@@ -62,126 +62,126 @@ for:
     matrix:
       only:
         - job_name: test
-    script:
+    test_script:
     - ps: echo test
 
   -
     matrix:
       only:
         - job_name: lab_test
-    script:
+    test_script:
     - ps: echo lab_test
 
   -
     matrix:
       only:
         - job_name: lab0
-    script:
+    test_script:
     - ps: echo lab0
 
   -
     matrix:
       only:
         - job_name: lab1-0
-    script:
+    test_script:
     - ps: echo lab1-0
 
   -
     matrix:
       only:
         - job_name: lab1-1
-    script:
+    test_script:
     - ps: echo lab1-1
 
   -
     matrix:
       only:
         - job_name: lab2
-    script:
+    test_script:
     - ps: echo lab2
 
   -
     matrix:
       only:
         - job_name: lab3-0
-    script:
+    test_script:
     - ps: echo lab3-0
 
   -
     matrix:
       only:
         - job_name: lab3-1
-    script:
+    test_script:
     - ps: echo lab3-1
 
   -
     matrix:
       only:
         - job_name: lab4
-    script:
+    test_script:
     - ps: echo lab4
 
   -
     matrix:
       only:
         - job_name: lab5
-    script:
+    test_script:
     - ps: echo lab5
 
   -
     matrix:
       only:
         - job_name: lab5
-    script:
+    test_script:
     - ps: echo lab5
 
   -
     matrix:
       only:
         - job_name: lab6
-    script:
+    test_script:
     - ps: echo lab6
 
   -
     matrix:
       only:
         - job_name: lab7
-    script:
+    test_script:
     - ps: echo lab7
 
   -
     matrix:
       only:
         - job_name: lab8-0
-    script:
+    test_script:
     - ps: echo lab8-0
 
   -
     matrix:
       only:
         - job_name: lab8-1
-    script:
+    test_script:
     - ps: echo lab8-1
 
   -
     matrix:
       only:
         - job_name: lab9
-    script:
+    test_script:
     - ps: echo lab9
 
   -
     matrix:
       only:
         - job_name: lab10
-    script:
+    test_script:
     - ps: echo lab10
 
   -
     matrix:
       only:
         - job_name: lab11
-    script:
+    test_script:
     - ps: echo lab11
 
 
