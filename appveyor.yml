@@ -1,19 +1,109 @@
 version: 1.0.{build}
 image:
 - Ubuntu2004
-- Visual Studio 2019
 
+environment:
+  matrix:
+  - job_name: test
 
-test_script:
-#- ps: >-
-#    $HOME_DIR = (pwd).Path
-#    foreach ($LAB in (((Get-ChildItem "lab*").FullName).replace("$HOME_DIR\", ""))) 
-#    {
-#      Write-Host -ForegroundColor Yellow "Testing $LAB..."
-#      ./test.ps1 $LAB
-#      Write-Host ""
-#    }
-- ps: echo $(APPVEYOR_REPO_BRANCH)
+  - job_name: lab_test
+    job_depends_on: test
+    variable:
+      LAB: $APPVEYOR_REPO_BRANCH
+    except:
+      refs:
+      - master
+
+  - job_name: master_test
+    job_depends_on: test
+    allow_failure: true
+    only:
+      refs:
+      - master
+
+  - job_name: lab0
+    job_depends_on: master_test
+    variable:
+      LAB: lab0
+
+  - job_name: lab1-0
+    job_depends_on: master_test
+    variable:
+      LAB: lab1-0
+
+  - job_name: lab1-1
+    job_depends_on: master_test
+    variable:
+      LAB: lab1-1
+
+  - job_name: lab2
+    job_depends_on: master_test
+    variable:
+      LAB: lab2
+
+  - job_name: lab3-0
+    job_depends_on: master_test
+    variable:
+      LAB: lab3-0
+
+  - job_name: lab3-1
+    job_depends_on: master_test
+    variable:
+      LAB: lab3-1
+
+  - job_name: lab4
+    job_depends_on: master_test
+    variable:
+      LAB: lab4
+
+  - job_name: lab5
+    job_depends_on: master_test
+    variable:
+      LAB: lab5
+
+  - job_name: lab6
+    job_depends_on: master_test
+    variable:
+      LAB: lab6
+
+  - job_name: lab7
+    job_depends_on: master_test
+    variable:
+      LAB: lab7
+
+  - job_name: lab8-0
+    job_depends_on: master_test
+    variable:
+      LAB: lab8-0
+
+  - job_name: lab8-1
+    job_depends_on: master_test
+    variable:
+      LAB: lab8-1
+
+  - job_name: lab9
+    job_depends_on: master_test
+    variable:
+      LAB: lab9
+
+  - job_name: lab10
+    job_depends_on: master_test
+    variable:
+      LAB: lab10
+
+  - job_name: lab11
+    job_depends_on: master_test
+    variable:
+      LAB: lab11
+
+for:
+  -
+    matrix:
+      only:
+        - job_name: test
+
+    test_script:
+    - ps: ./test.ps1 $LAB
 
 notifications:
 - provider: Email
