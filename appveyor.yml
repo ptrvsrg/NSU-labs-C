@@ -9,7 +9,7 @@ environment:
   - job_name: lab_test
     job_depends_on: test
     variable:
-      LAB: $APPVEYOR_REPO_BRANCH
+      LAB: lab0
     except:
       refs:
       - master
