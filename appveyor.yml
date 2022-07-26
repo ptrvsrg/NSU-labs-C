@@ -1,12 +1,8 @@
 version: 1.0.{build}
+image:
+- Visual Studio 2019
+- Ubuntu2004
 
-environment:
-  matrix:
-  - job_name: Windows test
-    appveyor_build_worker_image: Visual Studio 2019
-
-  - job_name: Linux test
-    appveyor_build_worker_image: Ubuntu2004
 
 test_script:
 #- ps: >-
@@ -17,7 +13,7 @@ test_script:
 #      ./test.ps1 $LAB
 #      Write-Host ""
 #    }
-- ps: echo $APPVEYOR_REPO_BRANCH
+- ps: echo $(APPVEYOR_REPO_BRANCH)
 
 notifications:
 - provider: Email
