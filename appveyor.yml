@@ -8,27 +8,15 @@ environment:
 
   - job_name: lab_test
     job_depends_on: test
-    LAB: "lab0"
-    - branches:
-        except:
-        - master
 
   - job_name: master_test
     job_depends_on: test
-    allow_failure: true
-    branches:
-      only:
-      - master
 
   - job_name: lab0
     job_depends_on: master_test
-    variable:
-      LAB: lab0
 
   - job_name: lab1-0
     job_depends_on: master_test
-    variable:
-      LAB: lab1-0
 
   - job_name: lab1-1
     job_depends_on: master_test
@@ -42,67 +30,164 @@ environment:
 
   - job_name: lab3-0
     job_depends_on: master_test
-    variable:
-      LAB: lab3-0
 
   - job_name: lab3-1
     job_depends_on: master_test
-    variable:
-      LAB: lab3-1
 
   - job_name: lab4
     job_depends_on: master_test
-    variable:
-      LAB: lab4
 
   - job_name: lab5
     job_depends_on: master_test
-    variable:
-      LAB: lab5
 
   - job_name: lab6
     job_depends_on: master_test
-    variable:
-      LAB: lab6
 
   - job_name: lab7
     job_depends_on: master_test
-    variable:
-      LAB: lab7
 
   - job_name: lab8-0
     job_depends_on: master_test
-    variable:
-      LAB: lab8-0
 
   - job_name: lab8-1
     job_depends_on: master_test
-    variable:
-      LAB: lab8-1
 
   - job_name: lab9
     job_depends_on: master_test
-    variable:
-      LAB: lab9
 
   - job_name: lab10
     job_depends_on: master_test
-    variable:
-      LAB: lab10
 
   - job_name: lab11
     job_depends_on: master_test
-    variable:
-      LAB: lab11
 
 for:
   -
     matrix:
       only:
         - job_name: test
+    script:
+    - ps: echo test
 
-    test_script:
-    - ps: ./test.ps1 $LAB
+  -
+    matrix:
+      only:
+        - job_name: lab_test
+    script:
+    - ps: echo lab_test
+
+  -
+    matrix:
+      only:
+        - job_name: lab0
+    script:
+    - ps: echo lab0
+
+  -
+    matrix:
+      only:
+        - job_name: lab1-0
+    script:
+    - ps: echo lab1-0
+
+  -
+    matrix:
+      only:
+        - job_name: lab1-1
+    script:
+    - ps: echo lab1-1
+
+  -
+    matrix:
+      only:
+        - job_name: lab2
+    script:
+    - ps: echo lab2
+
+  -
+    matrix:
+      only:
+        - job_name: lab3-0
+    script:
+    - ps: echo lab3-0
+
+  -
+    matrix:
+      only:
+        - job_name: lab3-1
+    script:
+    - ps: echo lab3-1
+
+  -
+    matrix:
+      only:
+        - job_name: lab4
+    script:
+    - ps: echo lab4
+
+  -
+    matrix:
+      only:
+        - job_name: lab5
+    script:
+    - ps: echo lab5
+
+  -
+    matrix:
+      only:
+        - job_name: lab5
+    script:
+    - ps: echo lab5
+
+  -
+    matrix:
+      only:
+        - job_name: lab6
+    script:
+    - ps: echo lab6
+
+  -
+    matrix:
+      only:
+        - job_name: lab7
+    script:
+    - ps: echo lab7
+
+  -
+    matrix:
+      only:
+        - job_name: lab8-0
+    script:
+    - ps: echo lab8-0
+
+  -
+    matrix:
+      only:
+        - job_name: lab8-1
+    script:
+    - ps: echo lab8-1
+
+  -
+    matrix:
+      only:
+        - job_name: lab9
+    script:
+    - ps: echo lab9
+
+  -
+    matrix:
+      only:
+        - job_name: lab10
+    script:
+    - ps: echo lab10
+
+  -
+    matrix:
+      only:
+        - job_name: lab11
+    script:
+    - ps: echo lab11
+
 
 notifications:
 - provider: Email
