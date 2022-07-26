@@ -4,7 +4,7 @@ image:
 
 for:
 -
-  branch:
+  branches:
     only:
       - master
 
