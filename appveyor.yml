@@ -9,9 +9,9 @@ environment:
   - job_name: lab_test
     job_depends_on: test
     LAB: "lab0"
-    branches:
-      except:
-      - master
+    - branches:
+        except:
+        - master
 
   - job_name: master_test
     job_depends_on: test
