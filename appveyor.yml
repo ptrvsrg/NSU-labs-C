@@ -9,15 +9,15 @@ environment:
   - job_name: lab_test
     job_depends_on: test
     LAB: lab0
-    except:
-      refs:
+    branches:
+      except:
       - master
 
   - job_name: master_test
     job_depends_on: test
     allow_failure: true
-    only:
-      refs:
+    branches:
+      only:
       - master
 
   - job_name: lab0
