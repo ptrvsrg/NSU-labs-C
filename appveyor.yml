@@ -2,44 +2,22 @@ version: 1.0.{build}
 
 environment:
   matrix:
-  - job_name: Master_branch_Windows
+  - job_name: Windows test
     appveyor_build_worker_image: Visual Studio 2019
 
-  - job_name: Master_branch_Linux
-    appveyor_build_worker_image: Ubuntu2004
-    
-  - job_name: Lab_branch_Windows
-    appveyor_build_worker_image: Visual Studio 2019
-
-  - job_name: Lab_branch_Linux
+  - job_name: Linux test
     appveyor_build_worker_image: Ubuntu2004
 
-for:
-  -
-    matrix:
-      only:
-        - job_name: Master_branch_Windows
-        - job_name: Master_branch_Linux
-
-    test_script:
-    - ps: >-
-        $HOME_DIR = (pwd).Path
-        foreach ($LAB in (((Get-ChildItem "lab*").FullName).replace("$HOME_DIR\", ""))) 
-        {
-          Write-Host -ForegroundColor Yellow "Testing $LAB..."
-          ./test.ps1 $LAB
-          Write-Host ""
-        }
-    
-  -
-    matrix:
-      only:
-        - job_name: Lab_branch_Windows
-        - job_name: Lab_branch_Linux
-
-    test_script:
-    - ps: >-
-        echo $(APPVEYOR_REPO_BRANCH)
+test_script:
+#- ps: >-
+#    $HOME_DIR = (pwd).Path
+#    foreach ($LAB in (((Get-ChildItem "lab*").FullName).replace("$HOME_DIR\", ""))) 
+#    {
+#      Write-Host -ForegroundColor Yellow "Testing $LAB..."
+#      ./test.ps1 $LAB
+#      Write-Host ""
+#    }
+- ps: echo $APPVEYOR_REPO_BRANCH
 
 notifications:
 - provider: Email
