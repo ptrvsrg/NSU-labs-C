@@ -30,13 +30,13 @@ for:
       - LAB: lab10
       - LAB: lab11
   test_script:
-  - ps: echo $LAB
+  - echo $LAB
 -
   environment:
     matrix:
       - LAB: '{{APPVEYOR_REPO_BRANCH}}'
   test_script:
-    - ps: echo $LAB
+    - echo $LAB
 
 notifications:
 - provider: Email
