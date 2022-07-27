@@ -2,7 +2,7 @@ $LAB = $args[0]
 $BUILD_DIR = "build_$LAB"
 $STATUS = 0
 
-if (Test-Path $LAB)
+if (-not (Test-Path $LAB))
 {
     $STATUS = 1
     Write-Host -ForegroundColor Red "No such file or directory"
@@ -31,7 +31,7 @@ New-Item -Path "Test1" -ItemType "directory" 2>&1 > $null
 Set-Location -Path "Test1"
 cmake -DUNLIMITED=ON ../../$LAB
 cmake --build . --config Debug
-(ctest -C Debug --rerun-failed --output-on-failure) -or ($STATUS = 2)
+ctest -C Debug --rerun-failed --output-on-failure
 if ($STATUS -eq 2) 
 { 
     PrintInOut 
@@ -42,7 +42,7 @@ New-Item -Path "Test2" -ItemType "directory" 2>&1 > $null
 Set-Location -Path "Test2"
 cmake -DUNLIMITED=OFF ../../$LAB
 cmake --build . --config Debug
-(ctest -C Debug --rerun-failed --output-on-failure) -or ($STATUS = 3)
+ctest -C Debug --rerun-failed --output-on-failure
 if ($STATUS -eq 3) 
 { 
     PrintInOut 
@@ -53,7 +53,7 @@ New-Item -Path "Test3" -ItemType "directory" 2>&1 > $null
 Set-Location -Path "Test3"
 cmake ../../$LAB -DENABLE_ASAN=true -DUNLIMITED=ON
 cmake --build . --config Debug
-(ctest -C Debug --rerun-failed --output-on-failure) -or ($STATUS = 4)
+ctest -C Debug --rerun-failed --output-on-failure
 if ($STATUS -eq 4) 
 { 
     PrintInOut 
@@ -64,7 +64,7 @@ New-Item -Path "Test4" -ItemType "directory" 2>&1 > $null
 Set-Location -Path "Test4"
 cmake ../../$LAB -DENABLE_USAN=true -DUNLIMITED=ON
 cmake --build . --config Debug
-(ctest -C Debug --rerun-failed --output-on-failure) -or ($STATUS = 5)
+ctest -C Debug --rerun-failed --output-on-failure
 if ($STATUS -eq 5) 
 { 
     PrintInOut 
