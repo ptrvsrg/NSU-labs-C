@@ -3,6 +3,10 @@ image:
 - Ubuntu2004
 - Visual Studio 2019
 
+environment:
+  - LAB: test
+
+for:
 -
   branches:
     only:
