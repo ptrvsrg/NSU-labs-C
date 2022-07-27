@@ -30,21 +30,19 @@ for:
   environment:
     matrix:
     - LAB: $env:APPVEYOR_REPO_BRANCH
-
-test_script:
-- ps: echo $env:LAB
-- export BUILD_DIR="build_$LAB"
-- export STATUS=0
-- echo $BUILD_DIR 
-- (STATUS=0) && echo 0
-- >-
+    
+before_test:
+- ps: $LAB = $env:LAB
+- ps: $BUILD_DIR = "build_$LAB"
+- ps: $STATUS = 0
+- ps: >-
     if (Test-Path -Path $BUILD_DIR) 
     { 
       Remove-Item $BUILD_DIR -Force -Recurse 2>&1 > $null 
     }
-- New-Item -Path $BUILD_DIR -ItemType "directory" 2>&1 > $null
-- Set-Location -Path $BUILD_DIR
-- >-
+- ps: New-Item -Path $BUILD_DIR -ItemType "directory" 2>&1 > $null
+- ps: Set-Location -Path $BUILD_DIR
+- ps: >-
     function PrintInOut
     {
       if ((Test-Path -Path "in.txt") -and (Test-Path -Path "out.txt"))
@@ -57,55 +55,57 @@ test_script:
       }
     }
 
-- New-Item -Path "Test1" -ItemType "directory" 2>&1 > $null
-- Set-Location -Path "Test1"
-- cmake -DUNLIMITED=ON ../../$LAB
-- cmake --build . --config Debug
-- ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 1)
-- >-
+test_script:
+- ps: New-Item -Path "Test1" -ItemType "directory" 2>&1 > $null
+- ps: Set-Location -Path "Test1"
+- ps: cmake -DUNLIMITED=ON ../../$LAB
+- ps: cmake --build . --config Debug
+- ps: ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 1)
+- ps: >-
     if ($STATUS -eq 1) 
     { 
       PrintInOut 
     }
-- Set-Location ../
+- ps: Set-Location ../
 
-- New-Item -Path "Test2" -ItemType "directory" 2>&1 > $null
-- Set-Location -Path "Test2"
-- cmake -DUNLIMITED=OFF ../../$LAB
-- cmake --build . --config Debug
-- ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 2)
-- >-
+- ps: New-Item -Path "Test2" -ItemType "directory" 2>&1 > $null
+- ps: Set-Location -Path "Test2"
+- ps: cmake -DUNLIMITED=OFF ../../$LAB
+- ps: cmake --build . --config Debug
+- ps: ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 2)
+- ps: >-
     if ($STATUS -eq 2) 
     { 
       PrintInOut 
     }
-- Set-Location ../
+- ps: Set-Location ../
 
-- New-Item -Path "Test3" -ItemType "directory" 2>&1 > $null
-- Set-Location -Path "Test3"
-- cmake ../../$LAB -DENABLE_ASAN=true -DUNLIMITED=ON
-- cmake --build . --config Debug
-- ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 3)
+- ps: New-Item -Path "Test3" -ItemType "directory" 2>&1 > $null
+- ps: Set-Location -Path "Test3"
+- ps: cmake ../../$LAB -DENABLE_ASAN=true -DUNLIMITED=ON
+- ps: cmake --build . --config Debug
+- ps: ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 3)
 - >-
     if ($STATUS -eq 3) 
     { 
       PrintInOut 
     }
-- Set-Location ../
+- ps: Set-Location ../
 
-- New-Item -Path "Test4" -ItemType "directory" 2>&1 > $null
-- Set-Location -Path "Test4"
-- cmake ../../$LAB -DENABLE_USAN=true -DUNLIMITED=ON
-- cmake --build . --config Debug
-- ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 4)
-- >-
+- ps: New-Item -Path "Test4" -ItemType "directory" 2>&1 > $null
+- ps: Set-Location -Path "Test4"
+- ps: cmake ../../$LAB -DENABLE_USAN=true -DUNLIMITED=ON
+- ps: cmake --build . --config Debug
+- ps: ctest -C Debug --rerun-failed --output-on-failure || ($STATUS = 4)
+- ps: >-
     if ($STATUS -eq 4) 
     { 
       PrintInOut 
     }
-- Set-Location ../../
+- ps: Set-Location ../../
 
-- exit $STATUS
+after_test:
+- ps: exit $STATUS
 
 notifications:
 - provider: Email
