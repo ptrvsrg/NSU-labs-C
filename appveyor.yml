@@ -33,7 +33,9 @@ for:
 
 test_script:
 - pwsh
-- ./test.ps1 || echo $STATUS
+- $STATUS = 0
+- ./test.ps1
+- exit $STATUS
 
 notifications:
 - provider: Email
