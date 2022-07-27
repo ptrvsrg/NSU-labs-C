@@ -32,9 +32,7 @@ for:
     - LAB: $env:APPVEYOR_REPO_BRANCH
 
 test_script:
-- pwsh
-- ps: echo $LAB
-- ps: echo 1
+- ps: echo $env:LAB
 - export BUILD_DIR="build_$LAB"
 - export STATUS=0
 - echo $BUILD_DIR 
