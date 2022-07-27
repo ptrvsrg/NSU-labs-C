@@ -34,7 +34,9 @@ for:
 test_script:
 - pwsh
 - export BUILD_DIR="build_$LAB"
-- STATUS = 0
+- export STATUS=0
+- echo $BUILD_DIR 
+- echo $STATUS 
 - >-
     if (Test-Path -Path $BUILD_DIR) 
     { 
