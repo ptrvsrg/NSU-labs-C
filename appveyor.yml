@@ -3,7 +3,6 @@ image:
 - Ubuntu2004
 - Visual Studio 2019
 
-for:
 -
   branches:
     only:
