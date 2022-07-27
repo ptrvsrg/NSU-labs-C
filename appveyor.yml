@@ -33,7 +33,7 @@ for:
 
 test_script:
 - pwsh
-- $STATUS = 0
+- $STATUS=0
 - ./test.ps1
 - exit $STATUS
 
