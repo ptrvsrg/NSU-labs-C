@@ -4,7 +4,7 @@ image:
 - Visual Studio 2019
 
 environment:
-  - LAB: test
+  LAB: test
 
 for:
 -
