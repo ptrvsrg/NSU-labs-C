@@ -33,7 +33,7 @@ for:
 
 test_script:
 - pwsh
-- BUILD_DIR = "build_$LAB"
+- export BUILD_DIR="build_$LAB"
 - STATUS = 0
 - >-
     if (Test-Path -Path $BUILD_DIR) 
