@@ -27,8 +27,7 @@ for:
       - LAB: lab10
       - LAB: lab11
   test_script:
-  - pwsh
-  - echo $LAB
+  - pwsh: echo $LAB
 -
   environment:
     matrix:
