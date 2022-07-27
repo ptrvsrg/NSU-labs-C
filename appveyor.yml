@@ -36,7 +36,7 @@ test_script:
 - export BUILD_DIR="build_$LAB"
 - export STATUS=0
 - echo $BUILD_DIR 
-- echo $STATUS 
+- (STATUS=0) && echo 0
 - >-
     if (Test-Path -Path $BUILD_DIR) 
     { 
