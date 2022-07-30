@@ -1,5 +1,5 @@
 if(WIN32)
-	set(BUILD_DIR "/Release")
+	set(BUILD_DIR "/Debug")
 	set(EXE ".exe")
 endif(WIN32)
 
