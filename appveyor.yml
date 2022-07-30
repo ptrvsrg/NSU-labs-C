@@ -34,19 +34,12 @@ for:
 -
   environment:
     matrix:
-<<<<<<< HEAD
-    - LAB: $env:APPVEYOR_REPO_BRANCH
-
-test_script:
-- ps: ./test.ps1 $env:LAB
-=======
     - LAB: $(APPVEYOR_REPO_BRANCH)
 
 build: off
 
 test_script:
 - pwsh: ./test.ps1 $env:LAB
->>>>>>> 83245f5c961f5315a8028a2636d1266ea89edbfb
 
 notifications:
 - provider: Email
