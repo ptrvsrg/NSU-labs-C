@@ -2,7 +2,7 @@ $LAB = $args[0]
 $BUILD_TEST_DIR = "build_$LAB"
 $STATUS = 0
 
-if (-not (Test-Path $LAB))
+if (-not (Test-Path -Path $LAB))
 {
     $STATUS = 1
     Write-Host -ForegroundColor Red "No such file or directory"
@@ -12,8 +12,6 @@ if (Test-Path -Path $BUILD_TEST_DIR)
 { 
     Remove-Item $BUILD_TEST_DIR -Force -Recurse 2>&1 > $null 
 }
-New-Item -Path $BUILD_TEST_DIR -ItemType "directory" 2>&1 > $null
-Set-Location -Path $BUILD_TEST_DIR
 
 function PrintInOut
 {
@@ -28,55 +26,59 @@ function PrintInOut
 }
 
 Write-Host -ForegroundColor Yellow "TEST 1"
-New-Item -Path "Test1" -ItemType "directory" 2>&1 > $null
-Set-Location -Path "Test1"
-cmake -DUNLIMITED=ON ../../$LAB
-cmake --build . --config Release
-ctest -C Release --rerun-failed --output-on-failure
+New-Item -Path $BUILD_TEST_DIR -ItemType "directory" 2>&1 > $null
+Set-Location -Path $BUILD_TEST_DIR
+cmake -DUNLIMITED=ON ../$LAB
+cmake --build . --config Debug
+ctest -C Debug --rerun-failed --output-on-failure
 if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
 { 
     $STATUS = 2
     PrintInOut 
 }
 Set-Location ../
+Remove-Item $BUILD_TEST_DIR -Force -Recurse 2>&1 > $null 
 
 Write-Host -ForegroundColor Yellow "TEST 2"
-New-Item -Path "Test2" -ItemType "directory" 2>&1 > $null
-Set-Location -Path "Test2"
-cmake -DUNLIMITED=OFF ../../$LAB
-cmake --build . --config Release
-ctest -C Release --rerun-failed --output-on-failure
+New-Item -Path $BUILD_TEST_DIR -ItemType "directory" 2>&1 > $null
+Set-Location -Path $BUILD_TEST_DIR
+cmake -DUNLIMITED=OFF ../$LAB
+cmake --build . --config Debug
+ctest -C Debug --rerun-failed --output-on-failure
 if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
 { 
     $STATUS = 3
     PrintInOut 
 }
 Set-Location ../
+Remove-Item $BUILD_TEST_DIR -Force -Recurse 2>&1 > $null 
 
 Write-Host -ForegroundColor Yellow "TEST 3"
-New-Item -Path "Test3" -ItemType "directory" 2>&1 > $null
-Set-Location -Path "Test3"
-cmake ../../$LAB -DENABLE_ASAN=true -DUNLIMITED=ON
-cmake --build . --config Release
-ctest -C Release --rerun-failed --output-on-failure
+New-Item -Path $BUILD_TEST_DIR -ItemType "directory" 2>&1 > $null
+Set-Location -Path $BUILD_TEST_DIR
+cmake ../$LAB -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
+cmake --build . --config Debug
+ctest -C Debug --rerun-failed --output-on-failure
 if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
 { 
     $STATUS = 4
     PrintInOut 
 }
 Set-Location ../
+Remove-Item $BUILD_TEST_DIR -Force -Recurse 2>&1 > $null 
 
 Write-Host -ForegroundColor Yellow "TEST 4"
-New-Item -Path "Test4" -ItemType "directory" 2>&1 > $null
-Set-Location -Path "Test4"
-cmake ../../$LAB -DENABLE_USAN=true -DUNLIMITED=ON
-cmake --build . --config Release
-ctest -C Release --rerun-failed --output-on-failure
+New-Item -Path $BUILD_TEST_DIR -ItemType "directory" 2>&1 > $null
+Set-Location -Path $BUILD_TEST_DIR
+cmake ../$LAB -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
+cmake --build . --config Debug
+ctest -C Debug --rerun-failed --output-on-failure
 if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
 { 
     $STATUS = 5
     PrintInOut 
 }
-Set-Location ../../
+Set-Location ../
+Remove-Item $BUILD_TEST_DIR -Force -Recurse 2>&1 > $null 
 
 exit $STATUS
