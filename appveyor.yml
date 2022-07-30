@@ -34,7 +34,7 @@ for:
 build: off
 
 test_script:
-- ps: ./test.ps1 $env:LAB
+- pwsh: ./test.ps1 $env:LAB
 
 notifications:
 - provider: Email
