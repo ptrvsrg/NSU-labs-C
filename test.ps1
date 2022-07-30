@@ -81,4 +81,5 @@ if (Test-Path ./Testing/Temporary/LastTestsFailed.log)
 Set-Location ../
 Remove-Item $BUILD_TEST_DIR -Force -Recurse 2>&1 > $null 
 
+Write-Output $STATUS
 exit $STATUS
