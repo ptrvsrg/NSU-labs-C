@@ -1,0 +1,45 @@
+version: 1.0.{build}
+image:
+- Ubuntu2004
+- Visual Studio 2019
+
+for:
+-
+  branches:
+    only:
+    - master
+
+  environment:
+    matrix:
+    - LAB: lab0
+    - LAB: lab1-0
+    - LAB: lab1-1
+    - LAB: lab2
+    - LAB: lab3-0
+    - LAB: lab3-1
+    - LAB: lab4
+    - LAB: lab5
+    - LAB: lab6
+    - LAB: lab7
+    - LAB: lab8-0
+    - LAB: lab8-1
+    - LAB: lab9
+    - LAB: lab10
+    - LAB: lab11
+-
+  environment:
+    matrix:
+    - LAB: $(APPVEYOR_REPO_BRANCH)
+
+build: off
+
+test_script:
+- ps: ./test.ps1 $env:LAB
+
+notifications:
+- provider: Email
+  to:
+  - '{{commitAuthorEmail}}'
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
