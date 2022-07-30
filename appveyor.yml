@@ -1,12 +1,7 @@
 version: 1.0.{build}
 image:
-<<<<<<< HEAD
-- Ubuntu2004
-- Visual Studio 2019
-=======
 - Visual Studio 2019
 - Ubuntu2004
->>>>>>> 83245f5c961f5315a8028a2636d1266ea89edbfb
 
 for:
 -
