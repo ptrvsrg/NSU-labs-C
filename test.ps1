@@ -4,8 +4,8 @@ $STATUS = 0
 
 if (-not (Test-Path -Path $LAB))
 {
-    $STATUS = 1
     Write-Host -ForegroundColor Red "No such file or directory"
+    exit 1
 }
 
 if (Test-Path -Path $BUILD_TEST_DIR) 
@@ -36,7 +36,7 @@ cmake --build . --config Debug
 ctest -C Debug --rerun-failed --output-on-failure
 if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
 { 
-    $STATUS = 2
+    $STATUS = 1
     PrintInOut 
 }
 Set-Location ../
@@ -49,7 +49,7 @@ cmake --build . --config Debug
 ctest -C Debug --rerun-failed --output-on-failure
 if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
 { 
-    $STATUS = 3
+    $STATUS = 1
     PrintInOut 
 }
 Set-Location ../
@@ -62,7 +62,7 @@ cmake --build . --config Debug
 ctest -C Debug --rerun-failed --output-on-failure
 if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
 { 
-    $STATUS = 4
+    $STATUS = 1
     PrintInOut 
 }
 Set-Location ../
@@ -75,7 +75,7 @@ cmake --build . --config Debug
 ctest -C Debug --rerun-failed --output-on-failure
 if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
 { 
-    $STATUS = 5
+    $STATUS = 1
     PrintInOut 
 }
 Set-Location ../../
