@@ -1,13 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(lab3-0 C)
 
-set(SRC 
-    src/error.c
-    src/error.h
-    src/heap.c
-    src/heap.h
-    src/main.c
-    )
+file(GLOB SRC "src/*")
 
 add_executable(${PROJECT_NAME} ${SRC})
 

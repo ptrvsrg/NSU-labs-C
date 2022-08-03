@@ -12,7 +12,7 @@ list(APPEND CPPCHECK_ARGS
 )
 
 add_custom_target(
-    check
+    "check${LAB}"
     COMMAND cppcheck ${CPPCHECK_ARGS}
     COMMENT "running cppcheck"
 )

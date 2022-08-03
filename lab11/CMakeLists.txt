@@ -1,19 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(lab11 C)
 
-set(SRC 
-    src/error.c
-    src/error.h
-    src/knapsack.c
-    src/knapsack.h
-    src/subject.c
-    src/subject.h
-    src/table.c
-    src/table.h
-    src/vector.c
-    src/vector.h
-    src/main.c
-    )
+file(GLOB SRC "src/*")
 
 add_executable(${PROJECT_NAME} ${SRC})
 
