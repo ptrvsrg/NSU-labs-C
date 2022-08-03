@@ -1,11 +1,18 @@
-$LAB = $args[0]
-$BUILD_TEST_DIR = "build_$LAB"
-$STATUS = 0
-
-if (-not (Test-Path -Path $LAB))
+if($args[0])
 {
-    Write-Host -ForegroundColor Red "No such file or directory"
-    exit 1
+    $LAB = $args[0]
+    $BUILD_TEST_DIR = "build_$LAB"
+
+    if (-not (Test-Path -Path $LAB))
+    {
+        Write-Host -ForegroundColor Red "No such file or directory"
+        exit 1
+    }
+}
+else 
+{
+    $LAB = "."
+    $BUILD_TEST_DIR = "build_all_labs"
 }
 
 if (Test-Path -Path $BUILD_TEST_DIR) 
@@ -14,70 +21,41 @@ if (Test-Path -Path $BUILD_TEST_DIR)
 }
 
 New-Item -Path $BUILD_TEST_DIR -ItemType "directory" 2>&1 > $null
-Set-Location -Path $BUILD_TEST_DIR
-
-function PrintInOut
-{
-    if ((Test-Path -Path "in.txt") -and (Test-Path -Path "out.txt"))
-    {
-        Write-Host -ForegroundColor Yellow "in.txt"
-        -join [char[]](Get-Content -Path "in.txt" -AsByteStream -totalcount 256)
-        Write-Host -ForegroundColor Yellow "out.txt"
-        -join [char[]](Get-Content -Path "out.txt" -AsByteStream -totalcount 256)
-        Write-Host ""
-    }
-}
 
 Write-Host -ForegroundColor Yellow "TEST 1"
-New-Item -Path "Test1" -ItemType "directory" 2>&1 > $null
-Set-Location -Path "Test1"
-cmake -DUNLIMITED=ON ../../$LAB
-cmake --build . --config Debug
-ctest -C Debug --rerun-failed --output-on-failure
-if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
+cmake -B $BUILD_TEST_DIR/Test1 -S $LAB -DUNLIMITED=ON
+cmake --build $BUILD_TEST_DIR/Test1 --config Debug
+cmake --build $BUILD_TEST_DIR/Test1 --target RUN_TESTS
+if (Test-Path $BUILD_TEST_DIR/Testing/Temporary/LastTestsFailed.log) 
 { 
-    $STATUS = 1
-    PrintInOut 
+    exit 1 
 }
-Set-Location ../
 
 Write-Host -ForegroundColor Yellow "TEST 2"
-New-Item -Path "Test2" -ItemType "directory" 2>&1 > $null
-Set-Location -Path "Test2"
-cmake -DUNLIMITED=OFF ../../$LAB
-cmake --build . --config Debug
-ctest -C Debug --rerun-failed --output-on-failure
-if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
+cmake -B $BUILD_TEST_DIR/Test2 -S $LAB -DUNLIMITED=OFF
+cmake --build $BUILD_TEST_DIR/Test2 --config Debug
+cmake --build $BUILD_TEST_DIR/Test2 --target RUN_TESTS
+if (Test-Path $BUILD_TEST_DIR/Testing/Temporary/LastTestsFailed.log) 
 { 
-    $STATUS = 1
-    PrintInOut 
+    exit 1 
 }
-Set-Location ../
 
 Write-Host -ForegroundColor Yellow "TEST 3"
-New-Item -Path "Test3" -ItemType "directory" 2>&1 > $null
-Set-Location -Path "Test3"
-cmake ../../$LAB -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
-cmake --build . --config Debug
-ctest -C Debug --rerun-failed --output-on-failure
-if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
+cmake -B $BUILD_TEST_DIR/Test3 -S $LAB -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
+cmake --build $BUILD_TEST_DIR/Test3 --config Debug
+cmake --build $BUILD_TEST_DIR/Test3 --target RUN_TESTS
+if (Test-Path $BUILD_TEST_DIR/Testing/Temporary/LastTestsFailed.log) 
 { 
-    $STATUS = 1
-    PrintInOut 
+    exit 1 
 }
-Set-Location ../
 
 Write-Host -ForegroundColor Yellow "TEST 4"
-New-Item -Path "Test4" -ItemType "directory" 2>&1 > $null
-Set-Location -Path "Test4"
-cmake ../../$LAB -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
-cmake --build . --config Debug
-ctest -C Debug --rerun-failed --output-on-failure
-if (Test-Path ./Testing/Temporary/LastTestsFailed.log) 
+cmake -B $BUILD_TEST_DIR/Test4 -S $LAB -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
+cmake --build $BUILD_TEST_DIR/Test4 --config Debug
+cmake --build $BUILD_TEST_DIR/Test4 --target RUN_TESTS
+if (Test-Path $BUILD_TEST_DIR/Testing/Temporary/LastTestsFailed.log) 
 { 
-    $STATUS = 1
-    PrintInOut 
+    exit 1 
 }
-Set-Location ../../
 
-exit $STATUS
+exit 0
