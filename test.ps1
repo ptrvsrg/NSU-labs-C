@@ -25,22 +25,22 @@ New-Item -Path $BUILD_TEST_DIR -ItemType "directory" 2>&1 > $null
 Write-Host -ForegroundColor Yellow "TEST 1"
 cmake -B $BUILD_TEST_DIR/Test1 -S $LAB -DUNLIMITED=ON
 cmake --build $BUILD_TEST_DIR/Test1 --config Debug
-if ($IsWindows) {cmake --build build_test --target RUN_TESTS}
-if ($IsLinux) {cmake --build build_test --target test}
+if ($IsWindows) {cmake --build $BUILD_TEST_DIR/Test1 --target RUN_TESTS}
+if ($IsLinux) {cmake --build $BUILD_TEST_DIR/Test1 --target test}
 
 Write-Host -ForegroundColor Yellow "TEST 2"
 cmake -B $BUILD_TEST_DIR/Test2 -S $LAB -DUNLIMITED=OFF
 cmake --build $BUILD_TEST_DIR/Test2 --config Debug
-if ($IsWindows) {cmake --build build_test --target RUN_TESTS}
-if ($IsLinux) {cmake --build build_test --target test}
+if ($IsWindows) {cmake --build $BUILD_TEST_DIR/Test2 --target RUN_TESTS}
+if ($IsLinux) {cmake --build $BUILD_TEST_DIR/Test2 --target test}
 
 Write-Host -ForegroundColor Yellow "TEST 3"
 cmake -B $BUILD_TEST_DIR/Test3 -S $LAB -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
-if ($IsWindows) {cmake --build build_test --target RUN_TESTS}
-if ($IsLinux) {cmake --build build_test --target test}
+if ($IsWindows) {cmake --build $BUILD_TEST_DIR/Test3 --target RUN_TESTS}
+if ($IsLinux) {cmake --build $BUILD_TEST_DIR/Test3 --target test}
 
 Write-Host -ForegroundColor Yellow "TEST 4"
 cmake -B $BUILD_TEST_DIR/Test4 -S $LAB -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON
 cmake --build $BUILD_TEST_DIR/Test4 --config Debug
-if ($IsWindows) {cmake --build build_test --target RUN_TESTS}
-if ($IsLinux) {cmake --build build_test --target test}
+if ($IsWindows) {cmake --build $BUILD_TEST_DIR/Test4 --target RUN_TESTS}
+if ($IsLinux) {cmake --build $BUILD_TEST_DIR/Test4 --target test}
