@@ -15,7 +15,7 @@ for:
   - pwsh: if (Test-Path -Path "./build_all_labs/Test*/Testing/Temporary/LastTestsFailed.log") {exit 1}
 -  
   test_script:
-  - pwsh: ./test.ps1 $env:APPVEYOR_REPO_BRANCH
+  - pwsh: ./test.ps1 -Lab $env:APPVEYOR_REPO_BRANCH
   - pwsh: 7z a build_test.zip "build_$env:APPVEYOR_REPO_BRANCH"
   - pwsh: Push-AppveyorArtifact build_test.zip
   - pwsh: if (Test-Path -Path "./build_$env:APPVEYOR_REPO_BRANCH/Test*/Testing/Temporary/LastTestsFailed.log") {exit 1}
