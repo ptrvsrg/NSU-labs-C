@@ -48,6 +48,7 @@ if ((-not $Test) -or ($Test).Contains('Test3'))
 {
     Write-Host -ForegroundColor Yellow "TEST 3"
     cmake -B $BUILD_TEST_DIR/Test3 -S $Lab -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON
+    cmake --build $BUILD_TEST_DIR/Test3 --config Debug
     if ($IsWindows) {cmake --build $BUILD_TEST_DIR/Test3 --target RUN_TESTS}
     if ($IsLinux) {cmake --build $BUILD_TEST_DIR/Test3 --target test}
 }
