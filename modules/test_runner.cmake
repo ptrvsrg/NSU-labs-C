@@ -1,5 +1,5 @@
 if(WIN32)
-	set(BUILD_DIR "/Debug")
+	set(BUILD_DIR "/${CMAKE_BUILD_TYPE}")
 	set(EXE ".exe")
 endif(WIN32)
 
