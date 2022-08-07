@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "circular_list.h"
+#include "string.h"
 
-void BoyerMooreAlgorithm(TCircularList template);
+void BoyerMooreAlgorithm(TString sample);
 
 #endif
