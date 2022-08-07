@@ -6,6 +6,7 @@ if(WIN32)
 
 	if(ENABLE_USAN)
 		target_compile_options(${PROJECT_NAME} PUBLIC -fsanitize=undefined)
+        target_compile_options(${PROJECT_NAME} PUBLIC /MT)
 	endif()
 else()
 	if(ENABLE_ASAN)
