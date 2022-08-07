@@ -62,5 +62,5 @@ bool ShiftString(int shift, TString* string)
         }
     }
 
-    return (fread(string->Line + string->Length - shift, sizeof(char), shift, stdin) == shift) ? true : false;
+    return ((int)fread(string->Line + string->Length - shift, sizeof(char), shift, stdin) == shift) ? true : false;
 }
