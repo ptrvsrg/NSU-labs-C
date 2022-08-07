@@ -2,50 +2,49 @@
 #include "boyer_moore.h"
 #define COUNT_CHAR (int)256
 
-static void CreateShiftTable(TCircularList template, int shiftTable[])
+static void CreateShiftTable(TString sample, int shiftTable[])
 {
     for (int i = 0; i < COUNT_CHAR; ++i)
     {
-        shiftTable[i] = template.Count;
+        shiftTable[i] = sample.Length;
     }
 
-    for (int i = 0; i < template.Count - 1; ++i)
+    for (int i = 0; i < sample.Length - 1; ++i)
     {
-        unsigned char symbol = template.Array[i];
-        shiftTable[(int)symbol] = template.Count - 1 - i;
+        unsigned char symbol = sample.Line[i];
+        shiftTable[(int)symbol] = sample.Length - 1 - i;
     }
 }
 
-void BoyerMooreAlgorithm(TCircularList template)
+void BoyerMooreAlgorithm(TString sample)
 {
     int shiftTable[COUNT_CHAR] = { 0 };
-    CreateShiftTable(template, shiftTable);
+    CreateShiftTable(sample, shiftTable);
 
-    TCircularList text = CreateCircularList(template.Count);
-    InputCircularList(template.Count, &text);
-    if (text.Count != template.Count)
+    TString text = CreateString();
+    InputString(sample.Length, &text);
+    if (text.Length != sample.Length)
     {
-        DestroyCircularList(&text);
         return;
     }
 
-    int position = template.Count;
+    int position = sample.Length;
     int index = 0;
         
     while (true)
     {
         printf("%d ", position);
-        int indexText = (text.EndIndex + text.Count - index) % text.Count;
-        int indexTemplate = template.EndIndex - index;
+        int textIndex = text.Length - index - 1;
+        int sampleIndex = sample.Length - index - 1;
 
-        if (template.Array[indexTemplate] != text.Array[indexText])
+        if (sample.Line[sampleIndex] != text.Line[textIndex])
         {
-            unsigned char symbol = text.Array[(index == 0) ? indexText : text.EndIndex];
-            position += shiftTable[(int)symbol] + index;
+            unsigned char symbol = text.Line[text.Length - 1];
+            int shift = shiftTable[(int)symbol];
+            position += shift + index;
 
-            if (!ShiftCircularList(&text, shiftTable[(int)symbol]))
+            if (!ShiftString(shift, &text))
             {
-                DestroyCircularList(&text);
                 return;
             }
 
@@ -53,13 +52,12 @@ void BoyerMooreAlgorithm(TCircularList template)
             continue;
         }
 
-        if (index == text.Count - 1)
+        if (index == text.Length - 1)
         {
-            position += text.Count + index;
+            position += text.Length + index;
 
-            if (!ShiftCircularList(&text, text.Count))
-            {        
-                DestroyCircularList(&text);
+            if (!ShiftString(text.Length, &text))
+            {
                 return;
             }
 
