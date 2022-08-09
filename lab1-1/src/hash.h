@@ -1,9 +1,9 @@
 #ifndef HASH_H
 #define HASH_H
 
-#include "circular_list.h"
+#include "string.h"
 
-int Hash(TCircularList list);
+int Hash(int sampleLength, TString string);
 int ChangeHash(unsigned char lastSymbol, unsigned char newSymbol, int powerOf3, int textHash);
 
 #endif

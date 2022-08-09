@@ -1,13 +1,12 @@
-#include "circular_list.h"
+#define _CRT_SECURE_NO_WARNINGS
+#include "string.h"
 #include "rabin_karp.h"
-#define SIZE_TEMPLATE (int)16
 
 int main(void)
 {
-    TCircularList template = CreateCircularList(SIZE_TEMPLATE);
-    InputTemplate(SIZE_TEMPLATE, &template);
-    RabinKarpAlgorithm(template);
-    DestroyCircularList(&template);
+    TString sample = CreateString();
+    InputSample(&sample);
+    RabinKarpAlgorithm(sample);
 
     return EXIT_SUCCESS;
 }

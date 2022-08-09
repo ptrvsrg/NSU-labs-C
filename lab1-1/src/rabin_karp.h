@@ -2,9 +2,9 @@
 #define RABIN_KARP_H
 
 #include <stdio.h>
-#include "circular_list.h"
+#include "string.h"
 #include "hash.h"
 
-void RabinKarpAlgorithm(TCircularList template);
+void RabinKarpAlgorithm(TString sample);
 
 #endif

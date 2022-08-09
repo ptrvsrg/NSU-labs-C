@@ -1,14 +1,13 @@
 #include "hash.h"
 
-int Hash(TCircularList list)
+int Hash(int sampleLength, TString string)
 {
     int sum = 0;
     int power = 1;
 
-    for (int i = 0; i < list.Count; ++i)
+    for (int i = 0; i < sampleLength; ++i)
     {
-        int index = (list.BeginIndex + i) % list.Count;
-        sum += (unsigned char)list.Array[index] % 3 * power;
+        sum += (unsigned char)string.Line[string.BeginIndex + i] % 3 * power;
         power *= 3;
     }
 
