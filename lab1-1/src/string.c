@@ -42,9 +42,9 @@ bool ShiftString(int sampleLength, TString* string)
 {
     if (string->BeginIndex + sampleLength == string->Length)
     {
-        for (int i = 0; i < string->Length - sampleLength; ++i)
+        for (int i = 0; i < sampleLength; ++i)
         {
-            string->Line[i] = string->Line[i + sampleLength];
+            string->Line[i] = string->Line[string->BeginIndex + i];
         }
 
         string->Length = sampleLength + (int)fread(string->Line + sampleLength, sizeof(char), MAX_STRING_LENGTH - sampleLength, stdin);
