@@ -22,8 +22,8 @@ void BoyerMooreAlgorithm(TString sample)
     CreateShiftTable(sample, shiftTable);
 
     TString text = CreateString();
-    InputString(sample.Length, &text);
-    if (text.Length != sample.Length)
+    InputString(&text);
+    if (text.Length < sample.Length)
     {
         return;
     }
@@ -34,16 +34,16 @@ void BoyerMooreAlgorithm(TString sample)
     while (true)
     {
         printf("%d ", position);
-        int textIndex = text.Length - index - 1;
-        int sampleIndex = sample.Length - index - 1;
+        int textIndex = text.BeginIndex + sample.Length - index - 1;
+        int sampleIndex = sample.BeginIndex + sample.Length - index - 1;
 
         if (sample.Line[sampleIndex] != text.Line[textIndex])
         {
-            unsigned char symbol = text.Line[text.Length - 1];
+            unsigned char symbol = text.Line[text.BeginIndex + sample.Length - 1];
             int shift = shiftTable[(int)symbol];
             position += shift + index;
 
-            if (!ShiftString(shift, &text))
+            if (!ShiftString(shift, sample.Length, &text))
             {
                 return;
             }
@@ -52,11 +52,11 @@ void BoyerMooreAlgorithm(TString sample)
             continue;
         }
 
-        if (index == text.Length - 1)
+        if (index == sample.Length - 1)
         {
-            position += text.Length + index;
+            position += sample.Length + index;
 
-            if (!ShiftString(text.Length, &text))
+            if (!ShiftString(sample.Length, sample.Length, &text))
             {
                 return;
             }

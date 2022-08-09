@@ -6,17 +6,19 @@
 #include <stdlib.h>
 #include "error.h"
 
-#define MAX_LENGTH 16
+#define MAX_SAMPLE_LENGTH (int)16
+#define MAX_STRING_LENGTH (int)256
 
 typedef struct TString
 {
+    int BeginIndex;
     int Length;
-    char Line[MAX_LENGTH];
+    char Line[MAX_STRING_LENGTH];
 } TString;
 
 TString CreateString(void);
-void InputSample(int length, TString* string);
-void InputString(int length, TString* string);
-bool ShiftString(int shift, TString* string);
+void InputSample(TString* string);
+void InputString(TString* string);
+bool ShiftString(int shift, int sampleLength, TString* string);
 
 #endif

@@ -5,8 +5,10 @@
 
 int main(void)
 {
+    freopen("in.txt", "r", stdin);
+
     TString sample = CreateString();
-    InputSample(MAX_LENGTH, &sample);
+    InputSample(&sample);
     BoyerMooreAlgorithm(sample);
 
     return EXIT_SUCCESS;
