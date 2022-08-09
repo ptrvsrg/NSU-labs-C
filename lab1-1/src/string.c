@@ -40,15 +40,15 @@ void InputString(TString* string)
 
 bool ShiftString(int sampleLength, TString* string)
 {
-    if (string->BeginIndex + sampleLength == string->Length)
+    if (string->BeginIndex + sampleLength + 1 > string->Length)
     {
-        for (int i = 0; i < sampleLength; ++i)
+        for (int i = 0; i < sampleLength - 1; ++i)
         {
-            string->Line[i] = string->Line[string->BeginIndex + i];
+            string->Line[i] = string->Line[string->BeginIndex + 1 + i];
         }
 
-        string->Length = sampleLength + (int)fread(string->Line + sampleLength, sizeof(char), MAX_STRING_LENGTH - sampleLength, stdin);
-        string->BeginIndex = 1;
+        string->Length = sampleLength - 1 + (int)fread(string->Line + sampleLength - 1, sizeof(char), MAX_STRING_LENGTH - sampleLength + 1, stdin);
+        string->BeginIndex = 0;
         return (string->Length > sampleLength);
     }
 
