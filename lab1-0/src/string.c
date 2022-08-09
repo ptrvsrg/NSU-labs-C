@@ -1,23 +1,19 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include "string.h"
 
 TString CreateString(void)
 {
     TString string = {
+        .BeginIndex = 0,
         .Length = 0,
         .Line = { 0 }
     };
+
     return string;
 }
 
-void InputSample(int length, TString* string)
+void InputSample(TString* string)
 {
-    if (length > MAX_LENGTH)
-    {
-        OtherError(__FILE__, __LINE__);
-    }
-
-    for (int i = 0; i < length + 1; ++i)
+    for (int i = 0; i < MAX_SAMPLE_LENGTH + 1; ++i)
     {    
         char symbol = 0;
         if (fread(&symbol, sizeof(char), 1, stdin) != 1)
@@ -37,30 +33,27 @@ void InputSample(int length, TString* string)
     OtherError(__FILE__, __LINE__);
 }
 
-void InputString(int length, TString* string)
+void InputString(TString* string)
 {
-    if (length > MAX_LENGTH)
-    {
-        OtherError(__FILE__, __LINE__);
-    }
-
-    string->Length = (int)fread(string->Line, sizeof(char), length, stdin);
+    string->Length = (int)fread(string->Line, sizeof(char), MAX_STRING_LENGTH, stdin);
+    string->BeginIndex = 0;    
 }
 
-bool ShiftString(int shift, TString* string)
+bool ShiftString(int shift, int sampleLength, TString* string)
 {
-    if (shift > string->Length)
+    if (string->BeginIndex + sampleLength + shift > string->Length)
     {
-        OtherError(__FILE__, __LINE__);
-    }
-
-    if (shift < string->Length)
-    {
-        for (int i = 0; i < string->Length - shift; ++i)
+        int shiftedSymCount = sampleLength - shift;
+        for (int i = 0; i < shiftedSymCount; ++i)
         {
-            string->Line[i] = string->Line[i + shift];
+            string->Line[i] = string->Line[string->BeginIndex + shift + i];
         }
+
+        string->Length = shiftedSymCount + (int)fread(string->Line + shiftedSymCount, sizeof(char), MAX_STRING_LENGTH - shiftedSymCount, stdin);
+        string->BeginIndex = 0;
+        return (string->Length > sampleLength);
     }
 
-    return ((int)fread(string->Line + string->Length - shift, sizeof(char), shift, stdin) == shift) ? true : false;
+    string->BeginIndex += shift;
+    return true;
 }
