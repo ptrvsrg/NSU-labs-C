@@ -6,6 +6,6 @@
 
 void SyntaxError(void);
 void DivisionByZero(void);
-void OtherError(void);
+void OtherError(char* file, int line);
 
 #endif

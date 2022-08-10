@@ -1,19 +1,19 @@
 #include "error.h"
 
-void SyntaxError(void) 
+void SyntaxError(void)
 {
     printf("syntax error");
     exit(EXIT_SUCCESS);
 }
 
-void DivisionByZero(void) 
+void DivisionByZero(void)
 {
     printf("division by zero");
     exit(EXIT_SUCCESS);
 }
 
-void OtherError(void) 
+void OtherError(char* file, int line)
 {
-    printf("other error");
+    printf("other error: %s, %d", file, line);
     exit(EXIT_SUCCESS);
 }
