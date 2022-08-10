@@ -4,10 +4,11 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "data.h"
 #include "error.h"
-#include "input.h"
 #include "stack.h"
+#include "string.h"
 
-int Calc(const char* infix);
+int Calc();
 
 #endif

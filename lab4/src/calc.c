@@ -1,20 +1,20 @@
 #include "calc.h"
 
-static int OperatorPriority(char value)
+static int OperatorPriority(char data)
 {
-    switch(value)
+    switch(data)
     {
         case '(': return 0;
         case '-': return 1;
-        case '+': return 1; 
-        case '*': return 2;     
+        case '+': return 1;
+        case '*': return 2;
         case '/': return 2;
     }
 
     return -1;
 }
 
-static void CalcExpression(TStackPtr* operatorStack, TStackPtr* numberStack)
+static void CalcExpression(TStack* operatorStack, TStack* numberStack)
 {
     if (IsEmptyStack(*operatorStack) || IsEmptyStack(*numberStack) || IsEmptyStack((*numberStack)->Next))
     {
@@ -29,14 +29,14 @@ static void CalcExpression(TStackPtr* operatorStack, TStackPtr* numberStack)
 
     switch(operator)
     {
-        case '+': 
-            PushStack(numberStack, CreateValue('\0', first + second));
+        case '+':
+            PushStack(CreateData(first + second, '\0'), numberStack);
             return;
-        case '-': 
-            PushStack(numberStack, CreateValue('\0', first - second));
+        case '-':
+            PushStack(CreateData(first - second, '\0'), numberStack);
             return;
-        case '*': 
-            PushStack(numberStack, CreateValue('\0', first * second));
+        case '*':
+            PushStack(CreateData(first * second, '\0'), numberStack);
             return;
         case '/':
             if(second == 0)
@@ -45,53 +45,62 @@ static void CalcExpression(TStackPtr* operatorStack, TStackPtr* numberStack)
                 DestroyStack(numberStack);
                 DivisionByZero();
             }
-            
-            PushStack(numberStack, CreateValue('\0', first / second));
+
+            PushStack(CreateData(first / second, '\0'), numberStack);
     }
 }
 
-static void CalcDigit(const char* infix, int* index, TStackPtr* numberStack)
+static void CalcBeginBracket(TStack* operatorStack, TString* infix)
 {
-    int number = atoi(infix + (*index));
-
-    do
+    if (IsEmptyString(*infix) || ExtractSymbol(infix) == ')')
     {
-        ++(*index);
-    } while (IsDigit(infix[(*index)]));
+        SyntaxError();
+    }
 
-    PushStack(numberStack, CreateValue('\0', number));
+    --infix->BeginIndex;
+    PushStack(CreateData(0, '('), operatorStack);
 }
 
-static void CalcEndBracket(TStackPtr* numberStack, TStackPtr* operatorStack)
+static void CalcEndBracket(TStack* numberStack, TStack* operatorStack)
 {
-    while(GetTopStack(*operatorStack).Operator != '(')
+    if (IsEmptyStack(*numberStack))
+    {
+        SyntaxError();
+    }
+
+    while (!IsEmptyStack(*operatorStack) && GetTopStack(*operatorStack).Operator != '(')
     {
         CalcExpression(operatorStack, numberStack);
+    }
+
+    if (IsEmptyStack(*operatorStack))
+    {
+        SyntaxError();
     }
 
     PopStack(operatorStack);
 }
 
-static void CalcOperator(const char* infix, int index, TStackPtr* numberStack, TStackPtr* operatorStack)
+static void CalcOperator(TData data, TStack* numberStack, TStack* operatorStack)
 {
-    int priority1 = OperatorPriority(infix[index]);
+    int priority1 = OperatorPriority(data.Operator);
     if (priority1 == -1)
     {
         DestroyStack(operatorStack);
         DestroyStack(numberStack);
-        OtherError();
+        OtherError(__FILE__, __LINE__);
     }
 
     while (!IsEmptyStack(*operatorStack))
     {
-        TValue value = GetTopStack(*operatorStack);
+        TData stackData = GetTopStack(*operatorStack);
 
-        int priority2 = OperatorPriority(value.Operator);
+        int priority2 = OperatorPriority(stackData.Operator);
         if (priority2 == -1)
         {
             DestroyStack(operatorStack);
             DestroyStack(numberStack);
-            OtherError();
+            OtherError(__FILE__, __LINE__);
         }
 
         if (priority1 > priority2)
@@ -102,36 +111,40 @@ static void CalcOperator(const char* infix, int index, TStackPtr* numberStack, T
         CalcExpression(operatorStack, numberStack);
     }
 
-    PushStack(operatorStack, CreateValue(infix[index], INT_MIN));
+    PushStack(data, operatorStack);
 }
 
-int Calc(const char* infix) 
+int Calc(void)
 {
-    TStackPtr operatorStack = CreateStack();
-    TStackPtr numberStack = CreateStack();
+    TStack operatorStack = CreateStack();
+    TStack numberStack = CreateStack();
 
-    int index = 0;
-
-    while (infix[index] != '\0')
+    TString infix = CreateString();
+    InputString(&infix);
+    if (IsEmptyString(infix))
     {
-        if (IsDigit(infix[index]))
+        SyntaxError();
+    }
+
+    while (!IsEmptyString(infix))
+    {
+        TData data = GetData(&infix);
+
+        if (data.Operator == '\0')
         {
-            CalcDigit(infix, &index, &numberStack);
+            PushStack(data, &numberStack);
         }
-        else if (infix[index] == '(')
+        else if (data.Operator == '(')
         {
-            PushStack(&operatorStack, CreateValue(infix[index], INT_MIN));
-            ++index;
+            CalcBeginBracket(&operatorStack, &infix);
         }
-        else if (infix[index] == ')')
+        else if (data.Operator == ')')
         {
             CalcEndBracket(&numberStack, &operatorStack);
-            ++index;
         }
         else
         {
-            CalcOperator(infix, index, &numberStack, &operatorStack);
-            ++index;
+            CalcOperator(data, &numberStack, &operatorStack);
         }
     }
 
@@ -140,10 +153,10 @@ int Calc(const char* infix)
         CalcExpression(&operatorStack, &numberStack);
     }
 
-    TValue value = PopStack(&numberStack);
-    
+    TData result = PopStack(&numberStack);
+
     DestroyStack(&operatorStack);
     DestroyStack(&numberStack);
 
-    return value.Number;
+    return result.Number;
 }
