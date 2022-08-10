@@ -5,7 +5,6 @@
 
 int main(void)
 {
-    freopen("in.txt", "r", stdin);
     printf("%d", Calc());
     return EXIT_SUCCESS;
 }
