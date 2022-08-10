@@ -1,69 +1,57 @@
 #include "stack.h"
 
-////////////////////////////////  VALUE TYPE  ////////////////////////////////
-
-TValue CreateValue(char op, int number)
-{
-    TValue new;
-    new.Number = number;
-    new.Operator = op;
-    return new;
-}
-
-////////////////////////////////  STACK TYPE  ////////////////////////////////
-
-TStackPtr CreateStack() 
+TStack CreateStack()
 {
     return NULL;
 }
 
-bool IsEmptyStack(TStackPtr stack)
+bool IsEmptyStack(TStack stack)
 {
     return stack == NULL;
 }
 
-TValue GetTopStack(TStackPtr stack)
+TData GetTopStack(TStack stack)
 {
     if (IsEmptyStack(stack))
     {
-        OtherError();
+        OtherError(__FILE__, __LINE__);
     }
-    
-    return stack->Value;
+
+    return stack->Data;
 }
 
-TValue PopStack(TStackPtr* stack)
+TData PopStack(TStack* stack)
 {
     if (IsEmptyStack(*stack))
     {
-        OtherError();
+        OtherError(__FILE__, __LINE__);
     }
 
-    TValue value = GetTopStack(*stack);
-    TStackPtr removeElem = *stack;
+    TData value = GetTopStack(*stack);
+    TStack removeElem = *stack;
     *stack = (*stack)->Next;
     free(removeElem);
 
     return value;
 }
 
-void PushStack(TStackPtr* stack, TValue value)
+void PushStack(TData data, TStack* stack)
 {
-    TStackPtr new = malloc(sizeof(*new));
+    TStack new = malloc(sizeof(*new));
     if (new == NULL)
     {
         DestroyStack(stack);
-        OtherError();
+        OtherError(__FILE__, __LINE__);
     }
 
-    new->Value = value;
+    new->Data = data;
     new->Next = *stack;
     *stack = new;
 }
 
-void DestroyStack(TStackPtr* stack) 
+void DestroyStack(TStack* stack)
 {
-    if (!IsEmptyStack(*stack)) 
+    if (!IsEmptyStack(*stack))
     {
         DestroyStack(&(*stack)->Next);
         free(*stack);
