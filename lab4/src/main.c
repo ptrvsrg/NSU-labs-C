@@ -1,18 +1,10 @@
-#include "input.h"
+#define _CRT_SECURE_NO_WARNINGS
 #include "calc.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SIZE_NOTATION (int)1000
-
-////////////////////////////////  MAIN  ////////////////////////////////
-
 int main(void)
 {
-    char infix [SIZE_NOTATION + 1] = { 0 };
-    InputInfix(infix, SIZE_NOTATION + 1);
-    
-    printf("%d", Calc(infix));
-
+    printf("%d", Calc());
     return EXIT_SUCCESS;
 }

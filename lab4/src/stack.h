@@ -3,29 +3,21 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "data.h"
 #include "error.h"
 #include "stack.h"
 
-typedef struct
+typedef struct TStack
 {
-    char Operator;
-    int Number;
-} TValue;
-
-struct TStack 
-{
-    TValue Value;
+    TData Data;
     struct TStack* Next;
-};
+} *TStack;
 
-typedef struct TStack* TStackPtr;
-
-TValue CreateValue(char op, int number);
-TStackPtr CreateStack(void);
-bool IsEmptyStack(TStackPtr stack);
-TValue GetTopStack(TStackPtr stack);
-TValue PopStack(TStackPtr* stack);
-void PushStack(TStackPtr* stack, TValue value);
-void DestroyStack(TStackPtr* stack);
+TStack CreateStack(void);
+bool IsEmptyStack(TStack stack);
+TData GetTopStack(TStack stack);
+TData PopStack(TStack* stack);
+void PushStack(TData data, TStack* stack);
+void DestroyStack(TStack* stack);
 
 #endif
