@@ -13,15 +13,15 @@ if($Lab)
         exit 1
     }
 }
-else 
+else
 {
     $Lab = "."
     $BUILD_TEST_DIR = "build_all_labs"
 }
 
-if (Test-Path -Path $BUILD_TEST_DIR) 
-{ 
-    Remove-Item $BUILD_TEST_DIR -Force -Recurse 2>&1 > $null 
+if (Test-Path -Path $BUILD_TEST_DIR)
+{
+    Remove-Item $BUILD_TEST_DIR -Force -Recurse 2>&1 > $null
 }
 
 New-Item -Path $BUILD_TEST_DIR -ItemType "directory" 2>&1 > $null
