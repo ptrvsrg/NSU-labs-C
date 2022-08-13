@@ -23,7 +23,7 @@
 ### Разбор примера:
     example
     ------>example
-        ----->example
+           ----->example
                 -->example
     this is simple example
             1         2   позиция в тексте (десятки)
