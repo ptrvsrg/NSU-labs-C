@@ -43,7 +43,7 @@ bool ShiftString(int shift, int sampleLength, TString* string)
 {
     if (string->BeginIndex + sampleLength + shift > string->Length)
     {
-        int shiftedSymCount = sampleLength - shift;
+        int shiftedSymCount = string->Length - string->BeginIndex - shift;
         for (int i = 0; i < shiftedSymCount; ++i)
         {
             string->Line[i] = string->Line[string->BeginIndex + shift + i];

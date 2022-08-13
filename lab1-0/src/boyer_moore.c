@@ -29,43 +29,26 @@ void BoyerMooreAlgorithm(TString sample)
     }
 
     int position = sample.Length;
-    int index = 0;
-        
+
     while (true)
     {
-        printf("%d ", position);
-        int textIndex = text.BeginIndex + sample.Length - index - 1;
-        int sampleIndex = sample.BeginIndex + sample.Length - index - 1;
+        int textEndIndex = text.BeginIndex + sample.Length - 1;
+        int sampleEndIndex = sample.BeginIndex + sample.Length - 1;
+        int shift = shiftTable[(unsigned char)text.Line[textEndIndex]];
 
-        if (sample.Line[sampleIndex] != text.Line[textIndex])
+        for (int i = 0; i < sample.Length; ++i)
         {
-            unsigned char symbol = text.Line[text.BeginIndex + sample.Length - 1];
-            int shift = shiftTable[(int)symbol];
-            position += shift + index;
-
-            if (!ShiftString(shift, sample.Length, &text))
+            printf("%d ", position - i);
+            if (sample.Line[sampleEndIndex - i] != text.Line[textEndIndex - i])
             {
-                return;
+                break;
             }
-
-            index = 0;
-            continue;
         }
 
-        if (index == sample.Length - 1)
+        position += shift;
+        if (!ShiftString(shift, sample.Length, &text))
         {
-            position += sample.Length + index;
-
-            if (!ShiftString(sample.Length, sample.Length, &text))
-            {
-                return;
-            }
-
-            index = 0;
-            continue;
+            return;
         }
-
-        --position;
-        ++index;
     }
 }

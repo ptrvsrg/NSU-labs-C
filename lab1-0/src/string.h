@@ -7,7 +7,7 @@
 #include "error.h"
 
 #define MAX_SAMPLE_LENGTH (int)16
-#define MAX_STRING_LENGTH (int)256
+#define MAX_STRING_LENGTH (int)1024
 
 typedef struct TString
 {
