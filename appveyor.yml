@@ -1,7 +1,7 @@
 version: 1.0.{build}
 image:
-- Visual Studio 2019
 - Ubuntu2004
+- Visual Studio 2019
 
 for:
 -
@@ -10,6 +10,7 @@ for:
     - master
   test_script:
   - pwsh: ./test.ps1
+  after_test:
   - pwsh: if (-not (Test-Path -Path "./build_all_labs")) {exit 1}
   - pwsh: 7z a build_test.zip build_all_labs
   - pwsh: Push-AppveyorArtifact build_test.zip
@@ -17,6 +18,7 @@ for:
 -
   test_script:
   - pwsh: ./test.ps1 -Lab $env:APPVEYOR_REPO_BRANCH
+  after_test:
   - pwsh: if (-not (Test-Path -Path "./build_$env:APPVEYOR_REPO_BRANCH")) {exit 1}
   - pwsh: 7z a build_test.zip "build_$env:APPVEYOR_REPO_BRANCH"
   - pwsh: Push-AppveyorArtifact build_test.zip
