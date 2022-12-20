@@ -6,14 +6,54 @@ on:
   pull_request:
 
 jobs:
-  main:
+  check_tasks:
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        labs: [ 
+          lab0, 
+          lab1-0, 
+          lab1-1, 
+          lab1-2, 
+          lab2, 
+          lab3-0, 
+          lab3-1, 
+          lab4, 
+          lab5, 
+          lab6, 
+          lab7, 
+          lab8-0, 
+          lab8-1, 
+          lab9, 
+          lab10, 
+          lab11 ]
+
     steps:
     - uses: actions/checkout@v3
-    - name: Test
-      shell: pwsh
+
+    - name: Test1
       run: |
-        ./test.ps1 
-        if (-not (Test-Path -Path "./build_all_labs")) {exit 1}
-        if (Test-Path -Path "./build_all_labs/Test*/Testing/Temporary/LastTestsFailed.log") {exit 1}
+        cmake -B ./${{ matrix.labs }}/build/Test1 -S ./${{ matrix.labs }} -DUNLIMITED=ON -DCMAKE_BUILD_TYPE=Release
+        cmake --build ./${{ matrix.tasks }}/build/Test1
+        cmake -E env CTEST_OUTPUT_ON_FAILURE=1 cmake --build $BUILD_TEST_DIR/Test1 --target test
+    
+    - name: Test2
+      run: |
+        cmake -B ./${{ matrix.labs }}/build/Test2 -S ./${{ matrix.labs }} -DUNLIMITED=OFF -DCMAKE_BUILD_TYPE=Release
+        cmake --build ./${{ matrix.tasks }}/build/Test2
+        cmake -E env CTEST_OUTPUT_ON_FAILURE=1 cmake --build $BUILD_TEST_DIR/Test2 --target test
+    
+    - name: Test3
+      run: |
+        cmake -B ./${{ matrix.labs }}/build/Test3 -S ./${{ matrix.labs }} -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON  -DCMAKE_BUILD_TYPE=Debug
+        cmake --build ./${{ matrix.tasks }}/build/Test3
+        cmake -E env CTEST_OUTPUT_ON_FAILURE=1 cmake --build $BUILD_TEST_DIR/Test3 --target test
+    
+    - name: Test4
+      run: |
+        cmake -B ./${{ matrix.labs }}/build/Test4 -S ./${{ matrix.labs }} -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON -DCMAKE_BUILD_TYPE=Debug
+        cmake --build ./${{ matrix.tasks }}/build/Test4
+        cmake -E env CTEST_OUTPUT_ON_FAILURE=1 cmake --build $BUILD_TEST_DIR/Test4 --target test
+
