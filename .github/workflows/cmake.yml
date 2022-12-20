@@ -35,25 +35,25 @@ jobs:
 
     - name: Test1
       run: |
-        cmake -B ./${{ matrix.labs }}/build/Test1 -S ./${{ matrix.labs }} -DUNLIMITED=ON -DCMAKE_BUILD_TYPE=Release
+        cmake -B ./build_${{ matrix.labs }}/Test1 -S ./${{ matrix.labs }} -DUNLIMITED=ON -DCMAKE_BUILD_TYPE=Release
         cmake --build ./${{ matrix.tasks }}/build/Test1
         cmake -E env CTEST_OUTPUT_ON_FAILURE=1 cmake --build ./${{ matrix.tasks }}/build/Test1 --target test
     
     - name: Test2
       run: |
-        cmake -B ./${{ matrix.labs }}/build/Test2 -S ./${{ matrix.labs }} -DUNLIMITED=OFF -DCMAKE_BUILD_TYPE=Release
+        cmake -B ./build_${{ matrix.labs }}/Test2 -S ./${{ matrix.labs }} -DUNLIMITED=OFF -DCMAKE_BUILD_TYPE=Release
         cmake --build ./${{ matrix.tasks }}/build/Test2
         cmake -E env CTEST_OUTPUT_ON_FAILURE=1 cmake --build ./${{ matrix.tasks }}/build/Test2 --target test
     
     - name: Test3
       run: |
-        cmake -B ./${{ matrix.labs }}/build/Test3 -S ./${{ matrix.labs }} -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON  -DCMAKE_BUILD_TYPE=Debug
+        cmake -B ./build_${{ matrix.labs }}/Test3 -S ./${{ matrix.labs }} -DCMAKE_C_COMPILER=clang -DENABLE_ASAN=true -DUNLIMITED=ON  -DCMAKE_BUILD_TYPE=Debug
         cmake --build ./${{ matrix.tasks }}/build/Test3
         cmake -E env CTEST_OUTPUT_ON_FAILURE=1 cmake --build ./${{ matrix.tasks }}/build/Test3 --target test
     
     - name: Test4
       run: |
-        cmake -B ./${{ matrix.labs }}/build/Test4 -S ./${{ matrix.labs }} -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON -DCMAKE_BUILD_TYPE=Debug
+        cmake -B ./build_${{ matrix.labs }}/Test4 -S ./${{ matrix.labs }} -DCMAKE_C_COMPILER=clang -DENABLE_USAN=true -DUNLIMITED=ON -DCMAKE_BUILD_TYPE=Debug
         cmake --build ./${{ matrix.tasks }}/build/Test4
         cmake -E env CTEST_OUTPUT_ON_FAILURE=1 cmake --build ./${{ matrix.tasks }}/build/Test4 --target test
 
