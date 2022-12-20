@@ -6,9 +6,8 @@ on:
   pull_request:
 
 jobs:
-  master:
+  main:
     runs-on: ubuntu-latest
-    if: github.head_ref == 'master'
     
     steps:
     - uses: actions/checkout@v3
@@ -18,16 +17,3 @@ jobs:
         ./test.ps1 
         if (-not (Test-Path -Path "./build_all_labs")) {exit 1}
         if (Test-Path -Path "./build_all_labs/Test*/Testing/Temporary/LastTestsFailed.log") {exit 1}
-        
-  other:
-    runs-on: ubuntu-latest
-    if: github.head_ref != 'master'
-    
-    steps:
-    - uses: actions/checkout@v3
-    - name: Test
-      shell: pwsh
-      run: |
-        ./test.ps1 $env:GITHUB_HEAD_REF
-        if (-not (Test-Path -Path "./build_$env:GITHUB_HEAD_REF")) {exit 1}
-        if (Test-Path -Path "./build_$env:GITHUB_HEAD_REF/Test*/Testing/Temporary/LastTestsFailed.log") {exit 1}
